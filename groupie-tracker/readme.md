@@ -1,54 +1,73 @@
-# Groupie-Tracker
+# React + TypeScript + Vite
 
-## Objective
-The objective of this project is to create a web application which offers at least 2 games related to music. The application will allow users to create an account, log in, and play the games. The application will also allow users to track their scores and compare them with other users.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Technologies
-- HTML
-- CSS
-- JavaScript
-- Golang
-- [Musixmatch API](https://developer.musixmatch.com/)
-- [Spotipy API](https://developer.spotify.com/documentation/web-api/)
-- [Genius API](https://docs.genius.com/)
-- [Lyrics.ovh API](https://lyricsovh.docs.apiary.io/)
+Currently, two official plugins are available:
 
-## Notions
-- [Programmation orienté objet en golang](https://devopssec.fr/article/programmation-orientee-objet-golang)
-- [Class and Object in Golang](https://www.geeksforgeeks.org/class-and-object-in-golang/)
-- [Golang Structs](https://www.golangprograms.com/go-language/struct.html)
-- [Golang Interfaces](https://www.golangprograms.com/go-language/interface.html)
-- [Golang Methods](https://www.golangprograms.com/golang/methods-interfaces-objects/)
-- [Golang Goroutines](https://www.golangprograms.com/goroutines.html)
-- [Golang Channels](https://www.golangprograms.com/go-language/what-are-channels-in-golang.html)
-- [Gorilla websocket](https://github.com/gorilla/websocket)
-- [Mastering websocket in go](https://programmingpercy.tech/blog/mastering-websockets-with-go/)
-- [Mastering websocket in go video](https://www.youtube.com/watch?v=pKpKv9MKN-E&t=1126s&ab_channel=ProgrammingPercy)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Instructions
-1. Make an account system to allow users to create an account and log in. The account system should be secure and the password must have a ``minimum of 8 characters and a special character``.
-2. Create a game selection page where users can choose between at least 2 games.
-3. Create a game page where users can play the game.
-4. Songs data must be get from an ``API``.
-   
-## Constraints
-- The backend must be written in Golang.
-- the backent must be ``object-oriented``.
-- The frontend must be written in HTML, CSS, and JavaScript.
-- The application must use websockets.
-- The application must use a database to store user information and scores.
-- 1 game must be a multiplayer game. you can choose the one you want.
-- A readme file explaining how to run the application must be provided and tested. If the readme file is not provided or it does not allow the application to run, the project will not be considered and you can get a 0.
-- The project must be done with a group of 3 or 4.
+## React Compiler
 
-## Multiplayer game instructions
-1. Create a room system where users can create a room and invite other users to join.
-2. The host of the room must be able to start the game. 
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Bonus
-- host the application on a online server.
-- Add a chat feature to the application.
-- Add a friend system to the application.
-- Add a leaderboard to the application.
+## Expanding the ESLint configuration
 
-You can propose your own game idea related to music but it must be approved by the mentor before starting the project.
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
