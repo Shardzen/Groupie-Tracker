@@ -1,5 +1,5 @@
 {
-  "name": "groupie-tracker",
+  "name": "groupie",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,16 +10,33 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@tanstack/react-query": "^5.90.12",
+    "@tanstack/react-router": "^1.141.2",
+    "autoprefixer": "^10.4.23",
+    "axios": "^1.13.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.561.0",
+    "postcss": "^8.5.6",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.68.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18",
+    "zod": "^4.2.1",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.57.0",
+    "@tanstack/eslint-plugin-query": "^5.91.2",
+    "@tanstack/router-devtools": "^1.141.2",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
