@@ -11,31 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"gorm.io/gorm"
 )
-
-type Artist struct {
-	ID           int      `json:"id"`
-	Name         string   `json:"name"`
-	Image        string   `json:"image"`
-	Members      []string `json:"members"`
-	CreationDate int      `json:"creationDate"`
-	FirstAlbum   string   `json:"firstAlbum"`
-}
-
-type Concert struct {
-	ID       int       `json:"id"`
-	ArtistID int       `json:"artistId"`
-	Location string    `json:"location"`
-	Date     time.Time `json:"date"`
-	Price    float64   `json:"price"`
-	Tickets  int       `json:"tickets"`
-}
-
-type User struct {
-	ID       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-}
 
 var (
 	artists  = []Artist{}
@@ -44,6 +21,7 @@ var (
 )
 
 func main() {
+	InitDB()
 	initMockData()
 
 	r := mux.NewRouter()
@@ -75,26 +53,89 @@ func main() {
 }
 
 func initMockData() {
-	artists = []Artist{
-		{ID: 1, Name: "Queen", Image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", Members: []string{"Freddie Mercury", "Brian May", "Roger Taylor", "John Deacon"}, CreationDate: 1970, FirstAlbum: "07-13-1973"},
-		{ID: 2, Name: "Pink Floyd", Image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400", Members: []string{"David Gilmour", "Roger Waters", "Nick Mason", "Richard Wright"}, CreationDate: 1965, FirstAlbum: "08-05-1967"},
-		{ID: 3, Name: "Led Zeppelin", Image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400", Members: []string{"Robert Plant", "Jimmy Page", "John Paul Jones", "John Bonham"}, CreationDate: 1968, FirstAlbum: "01-12-1969"},
-		{ID: 4, Name: "The Beatles", Image: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400", Members: []string{"John Lennon", "Paul McCartney", "George Harrison", "Ringo Starr"}, CreationDate: 1960, FirstAlbum: "03-22-1963"},
-		{ID: 5, Name: "Nirvana", Image: "https://images.unsplash.com/photo-1501612780327-45045538702b?w=400", Members: []string{"Kurt Cobain", "Krist Novoselic", "Dave Grohl"}, CreationDate: 1987, FirstAlbum: "06-15-1989"},
+	// Check if data already exists
+	var count int64
+	DB.Model(&Artist{}).Count(&count)
+	if count > 0 {
+		return // Data already seeded
 	}
 
-	concerts = []Concert{
-		{ID: 1, ArtistID: 1, Location: "Paris, France", Date: time.Now().AddDate(0, 2, 0), Price: 89.99, Tickets: 150},
-		{ID: 2, ArtistID: 1, Location: "London, UK", Date: time.Now().AddDate(0, 3, 5), Price: 95.50, Tickets: 200},
-		{ID: 3, ArtistID: 2, Location: "Berlin, Germany", Date: time.Now().AddDate(0, 1, 15), Price: 110.00, Tickets: 100},
-		{ID: 4, ArtistID: 3, Location: "New York, USA", Date: time.Now().AddDate(0, 4, 0), Price: 120.00, Tickets: 250},
-		{ID: 5, ArtistID: 4, Location: "Tokyo, Japan", Date: time.Now().AddDate(0, 5, 10), Price: 130.00, Tickets: 180},
-		{ID: 6, ArtistID: 5, Location: "Los Angeles, USA", Date: time.Now().AddDate(0, 2, 20), Price: 75.00, Tickets: 120},
+	// Create artists
+	artists := []Artist{
+		{Name: "Queen", ImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", CreationDate: 1970, FirstAlbum: "07-13-1973"},
+		{Name: "Pink Floyd", ImageURL: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400", CreationDate: 1965, FirstAlbum: "08-05-1967"},
+		{Name: "Led Zeppelin", ImageURL: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400", CreationDate: 1968, FirstAlbum: "01-12-1969"},
+		{Name: "The Beatles", ImageURL: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400", CreationDate: 1960, FirstAlbum: "03-22-1963"},
+		{Name: "Nirvana", ImageURL: "https://images.unsplash.com/photo-1501612780327-45045538702b?w=400", CreationDate: 1987, FirstAlbum: "06-15-1989"},
 	}
+
+	for i := range artists {
+		DB.Create(&artists[i])
+	}
+
+	// Create artist members
+	members := [][]ArtistMember{
+		{
+			{ArtistID: artists[0].ID, Name: "Freddie Mercury", Role: "Lead Vocals", Order: 1},
+			{ArtistID: artists[0].ID, Name: "Brian May", Role: "Guitar", Order: 2},
+			{ArtistID: artists[0].ID, Name: "Roger Taylor", Role: "Drums", Order: 3},
+			{ArtistID: artists[0].ID, Name: "John Deacon", Role: "Bass", Order: 4},
+		},
+		{
+			{ArtistID: artists[1].ID, Name: "David Gilmour", Role: "Guitar", Order: 1},
+			{ArtistID: artists[1].ID, Name: "Roger Waters", Role: "Bass", Order: 2},
+			{ArtistID: artists[1].ID, Name: "Nick Mason", Role: "Drums", Order: 3},
+			{ArtistID: artists[1].ID, Name: "Richard Wright", Role: "Keyboards", Order: 4},
+		},
+		{
+			{ArtistID: artists[2].ID, Name: "Robert Plant", Role: "Lead Vocals", Order: 1},
+			{ArtistID: artists[2].ID, Name: "Jimmy Page", Role: "Guitar", Order: 2},
+			{ArtistID: artists[2].ID, Name: "John Paul Jones", Role: "Bass", Order: 3},
+			{ArtistID: artists[2].ID, Name: "John Bonham", Role: "Drums", Order: 4},
+		},
+		{
+			{ArtistID: artists[3].ID, Name: "John Lennon", Role: "Guitar", Order: 1},
+			{ArtistID: artists[3].ID, Name: "Paul McCartney", Role: "Bass", Order: 2},
+			{ArtistID: artists[3].ID, Name: "George Harrison", Role: "Guitar", Order: 3},
+			{ArtistID: artists[3].ID, Name: "Ringo Starr", Role: "Drums", Order: 4},
+		},
+		{
+			{ArtistID: artists[4].ID, Name: "Kurt Cobain", Role: "Lead Vocals", Order: 1},
+			{ArtistID: artists[4].ID, Name: "Krist Novoselic", Role: "Bass", Order: 2},
+			{ArtistID: artists[4].ID, Name: "Dave Grohl", Role: "Drums", Order: 3},
+		},
+	}
+
+	for _, memberList := range members {
+		for _, member := range memberList {
+			DB.Create(&member)
+		}
+	}
+
+	// Create concerts
+	concerts := []Concert{
+		{ArtistID: artists[0].ID, Location: "Paris, France", City: "Paris", Country: "France", Date: time.Now().AddDate(0, 2, 0), Price: 89.99, TotalTickets: 150, AvailableTickets: 150},
+		{ArtistID: artists[0].ID, Location: "London, UK", City: "London", Country: "UK", Date: time.Now().AddDate(0, 3, 5), Price: 95.50, TotalTickets: 200, AvailableTickets: 200},
+		{ArtistID: artists[1].ID, Location: "Berlin, Germany", City: "Berlin", Country: "Germany", Date: time.Now().AddDate(0, 1, 15), Price: 110.00, TotalTickets: 100, AvailableTickets: 100},
+		{ArtistID: artists[2].ID, Location: "New York, USA", City: "New York", Country: "USA", Date: time.Now().AddDate(0, 4, 0), Price: 120.00, TotalTickets: 250, AvailableTickets: 250},
+		{ArtistID: artists[3].ID, Location: "Tokyo, Japan", City: "Tokyo", Country: "Japan", Date: time.Now().AddDate(0, 5, 10), Price: 130.00, TotalTickets: 180, AvailableTickets: 180},
+		{ArtistID: artists[4].ID, Location: "Los Angeles, USA", City: "Los Angeles", Country: "USA", Date: time.Now().AddDate(0, 2, 20), Price: 75.00, TotalTickets: 120, AvailableTickets: 120},
+	}
+
+	for _, concert := range concerts {
+		DB.Create(&concert)
+	}
+
+	log.Println("Mock data seeded successfully")
 }
 
 func getArtists(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var artists []Artist
+	if err := DB.Preload("Members").Find(&artists).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(artists)
 }
 
@@ -103,17 +144,25 @@ func getArtist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
-	for _, artist := range artists {
-		if artist.ID == id {
-			json.NewEncoder(w).Encode(artist)
+	var artist Artist
+	if err := DB.Preload("Members").First(&artist, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Artist not found", http.StatusNotFound)
 			return
 		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	http.Error(w, "Artist not found", http.StatusNotFound)
+	json.NewEncoder(w).Encode(artist)
 }
 
 func getConcerts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var concerts []Concert
+	if err := DB.Preload("Artist").Find(&concerts).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(concerts)
 }
 
@@ -122,10 +171,15 @@ func searchConcerts(w http.ResponseWriter, r *http.Request) {
 	query := strings.ToLower(r.URL.Query().Get("q"))
 
 	var results []Concert
-	for _, concert := range concerts {
-		if query == "" || strings.Contains(strings.ToLower(concert.Location), query) {
-			results = append(results, concert)
-		}
+	var err error
+	if query == "" {
+		err = DB.Preload("Artist").Find(&results).Error
+	} else {
+		err = DB.Preload("Artist").Where("LOWER(location) LIKE ?", "%"+query+"%").Find(&results).Error
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	json.NewEncoder(w).Encode(results)
 }
@@ -133,10 +187,22 @@ func searchConcerts(w http.ResponseWriter, r *http.Request) {
 func register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
-	json.NewDecoder(r.Body).Decode(&user)
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	user.ID = len(users) + 1
-	users = append(users, user)
+	// Check if user already exists
+	var existingUser User
+	if err := DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+		http.Error(w, "User already exists", http.StatusConflict)
+		return
+	}
+
+	if err := DB.Create(&user).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
@@ -151,14 +217,27 @@ func login(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	json.NewDecoder(r.Body).Decode(&credentials)
+	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var user User
+	if err := DB.Where("email = ? AND password_hash = ?", credentials.Email, credentials.Password).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
-		"token":   "mock-jwt-token-" + credentials.Email,
+		"token":   "mock-jwt-token-" + user.Email,
 		"user": map[string]interface{}{
-			"email": credentials.Email,
-			"id":    1,
+			"email": user.Email,
+			"id":    user.ID,
 		},
 	})
 }
