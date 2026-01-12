@@ -8,13 +8,13 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ConcertsRouteImport } from './routes/concerts'
-import { Route as ArtistsRouteImport } from './routes/artists'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from '../frontend/routes/__root'
+import { Route as RegisterRouteImport } from '../frontend/routes/register'
+import { Route as ProfileRouteImport } from '../frontend/routes/profile'
+import { Route as LoginRouteImport } from '../frontend/routes/login'
+import { Route as ConcertsRouteImport } from '../frontend/routes/concerts'
+import { Route as ArtistsRouteImport } from '../frontend/routes/artists'
+import { Route as IndexRouteImport } from '../frontend/routes/index'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',

@@ -7,7 +7,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // On crée une couleur "Spotify" personnalisée
         'spotify-green': '#1DB954',
         'spotify-black': '#121212',
         'spotify-dark': '#191414',
