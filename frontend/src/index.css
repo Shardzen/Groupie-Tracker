@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Couleurs de base (Inspiré Dark Mode Premium) */
+    --background: 240 10% 3.9%; /* Presque noir */
+    --foreground: 0 0% 98%; /* Blanc cassé */
+    
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+ 
+    --primary: 267 100% 61%; /* Un violet vibrant style Shotgun/Spotify */
+    --primary-foreground: 0 0% 98%;
+ 
+    --secondary: 240 3.7% 15.9%; /* Gris foncé pour les boutons secondaires */
+    --secondary-foreground: 0 0% 98%;
+ 
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%; /* Gris clair pour les textes secondaires */
+ 
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+ 
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    
+    --radius: 0.75rem; /* Des coins bien arrondis */
+  }
+ 
+  body {
+    @apply bg-background text-foreground;
+    /* Optimisation de la police pour un rendu net */
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Scrollbar stylisée (très important pour le look pro) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
