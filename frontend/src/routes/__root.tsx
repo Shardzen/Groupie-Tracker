@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
-// import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { Navbar } from '../components/layout/navbar'
+import { Footer } from '../components/layout/footer' // <--- Ajout ici
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -9,17 +9,46 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
-      <div className="min-h-screen bg-background text-foreground font-sans antialiased">
+      <div className="min-h-screen bg-background text-foreground font-sans antialiased flex flex-col">
         <Navbar />
-        
-        {/* C'est ici que le contenu des pages va s'afficher (en dessous de la navbar) */}
-        <main className="pt-16">
+        <main className="flex-1 pt-16">
           <Outlet />
         </main>
+        <Footer /> {/* <--- Ajout ici */}
       </div>
-      
-      {/* Tu pourras décommenter ça plus tard pour le debug */}
-      {/* <TanStackRouterDevtools /> */}
     </>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

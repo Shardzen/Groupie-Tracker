@@ -7,7 +7,6 @@ export function Footer() {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           
-          {/* 1. Logo et Description */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-white font-bold text-xl">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
@@ -21,7 +20,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* 2. Liens Découverte */}
           <div>
             <h3 className="font-bold text-white mb-4">Découvrir</h3>
             <ul className="space-y-2 text-sm">
@@ -32,7 +30,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* 3. Liens Aide */}
           <div>
             <h3 className="font-bold text-white mb-4">Aide & Infos</h3>
             <ul className="space-y-2 text-sm">
@@ -43,7 +40,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* 4. Réseaux Sociaux */}
           <div>
             <h3 className="font-bold text-white mb-4">Suivez-nous</h3>
             <div className="flex gap-4">
@@ -63,7 +59,6 @@ export function Footer() {
   );
 }
 
-// Petit composant helper pour les icônes sociales
 function SocialIcon({ icon }: { icon: React.ReactNode }) {
   return (
     <a href="#" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-primary hover:text-white transition-all">

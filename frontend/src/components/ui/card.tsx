@@ -1,7 +1,6 @@
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
-// 1. Le cadre principal
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
@@ -13,7 +12,6 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
 )
 Card.displayName = "Card"
 
-// 2. L'en-tête (pour le titre)
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
@@ -25,7 +23,6 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 )
 CardHeader.displayName = "CardHeader"
 
-// 3. Le Titre
 const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
     <h3
@@ -37,7 +34,6 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
 )
 CardTitle.displayName = "CardTitle"
 
-// 4. La description (petit texte gris)
 const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
     <p
@@ -49,7 +45,6 @@ const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
 )
 CardDescription.displayName = "CardDescription"
 
-// 5. Le contenu principal
 const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
@@ -57,7 +52,6 @@ const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
 )
 CardContent.displayName = "CardContent"
 
-// 6. Le pied de page (pour les boutons d'action)
 const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div

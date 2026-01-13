@@ -1,7 +1,5 @@
 import * as React from "react"
 import { cn } from "../../lib/utils"
-
-// On définit les propriétés (c'est standard, on accepte tout ce qu'un input HTML accepte)
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
 

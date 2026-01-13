@@ -17,6 +17,7 @@
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.26.1",
     "lucide-react": "^0.561.0",
     "postcss": "^8.5.6",
     "react": "^19.2.0",
@@ -25,7 +26,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "zod": "^4.2.1",
-    "zustand": "^5.0.9"
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
