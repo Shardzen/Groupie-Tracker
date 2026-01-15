@@ -14,13 +14,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
-
 type Claims struct {
-	UserID int    `json:"user_id"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
+	UserID  int    `json:"user_id"`
+	Email   string `json:"email"`
+	Role    string `json:"role"`
+	IsAdmin bool   `json:"is_admin"`
 	jwt.RegisteredClaims
+}
+
+func getJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		panic("JWT_SECRET environment variable is required")
+	}
+	return []byte(secret)
 }
 
 func HashPassword(password string) (string, error) {
@@ -34,14 +41,11 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 func GenerateToken(user models.User) (string, error) {
-	if len(jwtSecret) == 0 {
-		return "", errors.New("JWT_SECRET is not set")
-	}
-
 	claims := Claims{
-		UserID: user.ID,
-		Email:  user.Email,
-		Role:   user.Role,
+		UserID:  user.ID,
+		Email:   user.Email,
+		Role:    user.Role,
+		IsAdmin: user.Role == "admin",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -50,19 +54,15 @@ func GenerateToken(user models.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(getJWTSecret())
 }
 
 func ValidateToken(tokenString string) (*Claims, error) {
-	if len(jwtSecret) == 0 {
-		return nil, errors.New("JWT_SECRET is not set")
-	}
-
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSecret, nil
+		return getJWTSecret(), nil
 	})
 
 	if err != nil {
