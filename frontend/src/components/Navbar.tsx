@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Music, Search, User, LogIn, Sparkles } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
+import { Search, Bell, User, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,192 +17,114 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Accueil', href: '/', icon: Music },
-    { name: 'Artistes', href: '/artists', icon: Sparkles },
-    { name: 'Concerts', href: '/concerts', icon: Music },
-    { name: 'À Propos', href: '/about', icon: User },
+    { name: 'Accueil', href: '/' },
+    { name: 'Artistes', href: '/artists' },
+    { name: 'Concerts', href: '/concerts' },
+    { name: 'Tickets', href: '/tickets' },
+    { name: 'À Propos', href: '/about' },
   ];
 
   return (
-    <>
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? 'glass-effect shadow-2xl py-3'
-            : 'bg-transparent py-5'
-        }`}
-      >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                {/* Animated glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
-                
-                <div className="relative bg-gradient-to-br from-violet-600 to-purple-600 p-2 rounded-xl shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                  <Music className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              
-              <div className="flex flex-col">
-                <span className="text-2xl font-black gradient-text tracking-tight">
-                  YNOT
-                </span>
-                <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">
-                  Music Events
-                </span>
-              </div>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-black/95 backdrop-blur-md shadow-lg'
+          : 'bg-gradient-to-b from-black/80 to-transparent'
+      }`}
+    >
+      <div className="px-4 md:px-8 lg:px-16">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          <div className="flex items-center gap-8">
+            <Link to="/" className="flex items-center group">
+              <span className="text-2xl md:text-3xl font-black text-red-600 tracking-tighter hover:scale-105 transition-transform duration-200">
+                GROUPIE
+              </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    className="group relative px-4 py-2 rounded-lg transition-all duration-300 hover:bg-white/5"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4 text-slate-400 group-hover:text-violet-400 transition-colors" />
-                      <span className="text-slate-300 group-hover:text-white font-medium transition-colors">
-                        {link.name}
-                      </span>
-                    </div>
-                    
-                    {/* Hover underline effect */}
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              {/* Search Button */}
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 transition-all duration-300 group"
-                aria-label="Search"
-              >
-                <Search className="w-5 h-5 text-slate-400 group-hover:text-violet-400 transition-colors" />
-              </button>
-
-              {/* Auth Buttons */}
-              <div className="hidden md:flex items-center gap-2">
-                <Link to="/login">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-slate-300 hover:text-white font-medium transition-all duration-300">
-                    <LogIn className="w-4 h-4" />
-                    <span>Connexion</span>
-                  </button>
+            <div className="hidden md:flex items-center gap-6 lg:gap-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm font-medium text-zinc-300 hover:text-white transition-colors duration-200 relative group"
+                >
+                  {link.name}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 group-hover:w-full transition-all duration-300"></span>
                 </Link>
-                
-                <Link to="/register">
-                  <button className="btn-primary flex items-center gap-2 relative z-10">
-                    <Sparkles className="w-4 h-4" />
-                    <span>S'inscrire</span>
-                  </button>
-                </Link>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
-                aria-label="Toggle menu"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 text-white" />
-                ) : (
-                  <Menu className="w-5 h-5 text-white" />
-                )}
-              </button>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Search Bar Overlay */}
-        {isSearchOpen && (
-          <div className="absolute top-full left-0 right-0 mt-2 px-4 animate-fadeIn">
-            <div className="container mx-auto">
-              <div className="glass-effect rounded-2xl p-4 shadow-2xl">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block relative">
+              {showSearch ? (
+                <div className="flex items-center animate-fade-in">
                   <input
                     type="text"
-                    placeholder="Rechercher un artiste, un concert..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-violet-500/50 transition-all duration-300"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Rechercher des artistes, concerts..."
+                    className="w-64 lg:w-80 bg-zinc-900/80 border border-zinc-700 rounded-md pl-10 pr-4 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-red-600 transition-all duration-200"
                     autoFocus
+                    onBlur={() => {
+                      if (!searchQuery) setTimeout(() => setShowSearch(false), 200);
+                    }}
                   />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                 </div>
+              ) : (
+                <button
+                  onClick={() => setShowSearch(true)}
+                  className="p-2 hover:bg-zinc-800/50 rounded-full transition-colors duration-200"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 text-zinc-300" />
+                </button>
+              )}
+            </div>
+
+            <button
+              className="hidden md:block p-2 hover:bg-zinc-800/50 rounded-full transition-colors duration-200 relative"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5 text-zinc-300" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
+            </button>
+
+            <div className="flex items-center gap-2">
+              <Link to="/login">
+                <button className="flex items-center gap-2 p-2 hover:bg-zinc-800/50 rounded-md transition-colors duration-200 group">
+                  <div className="w-8 h-8 bg-zinc-800 rounded overflow-hidden flex items-center justify-center border border-zinc-700 group-hover:border-red-600 transition-colors duration-200">
+                    <User className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors duration-200" />
+                  </div>
+                  <ChevronDown className="hidden md:block w-4 h-4 text-zinc-400 group-hover:text-white transition-all duration-200 group-hover:rotate-180" />
+                </button>
+              </Link>
+            </div>
+
+            <button className="md:hidden p-2 hover:bg-zinc-800/50 rounded-md transition-colors duration-200">
+              <div className="w-5 h-4 flex flex-col justify-between">
+                <span className="w-full h-0.5 bg-white rounded"></span>
+                <span className="w-full h-0.5 bg-white rounded"></span>
+                <span className="w-full h-0.5 bg-white rounded"></span>
               </div>
-            </div>
-          </div>
-        )}
-      </nav>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden animate-fadeIn">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setIsMobileMenuOpen(false)}
-          ></div>
-
-          {/* Menu Panel */}
-          <div className="absolute top-20 right-4 left-4 glass-effect rounded-2xl p-6 shadow-2xl animate-fadeInScale">
-            {/* Mobile Search */}
-            <div className="relative mb-6">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-violet-500/50"
-              />
-            </div>
-
-            {/* Mobile Navigation Links */}
-            <div className="space-y-2 mb-6">
-              {navLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all duration-300 group animate-fadeIn"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <Icon className="w-5 h-5 text-violet-400 group-hover:scale-110 transition-transform" />
-                    <span className="text-white font-medium">{link.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Mobile Auth Buttons */}
-            <div className="space-y-3 pt-6 border-t border-white/10">
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-all duration-300">
-                  <LogIn className="w-4 h-4" />
-                  <span>Connexion</span>
-                </button>
-              </Link>
-              
-              <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                <button className="btn-primary w-full flex items-center justify-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  <span>S'inscrire</span>
-                </button>
-              </Link>
-            </div>
+            </button>
           </div>
         </div>
-      )}
-    </>
+      </div>
+
+      <div className="md:hidden px-4 pb-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            className="w-full bg-zinc-900/80 border border-zinc-700 rounded-md pl-10 pr-4 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-red-600 transition-all duration-200"
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        </div>
+      </div>
+
+      <div className={`h-[1px] bg-gradient-to-r from-transparent via-red-600/50 to-transparent transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+    </nav>
   );
 }
