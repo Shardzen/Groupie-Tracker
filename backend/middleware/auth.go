@@ -51,6 +51,32 @@ func JWTAuth(next http.Handler) http.Handler {
 	})
 }
 
+// AdminOnly middleware - vérifie que l'utilisateur est admin
+func AdminOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		claims, ok := GetUserFromContext(r)
+		if !ok {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Unauthorized: No user in context",
+			})
+			return
+		}
+
+		if claims.Role != "admin" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Forbidden: Admin access required",
+			})
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func GetUserFromContext(r *http.Request) (*services.Claims, bool) {
 	claims, ok := r.Context().Value(UserContextKey).(*services.Claims)
 	return claims, ok
