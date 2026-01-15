@@ -1,15 +1,21 @@
 package database
 
 import (
+
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 )
 
 var DB *sql.DB
+var pool *pgxpool.Pool
 
 func InitDB() error {
 	databaseURL := os.Getenv("DATABASE_URL")
@@ -17,17 +23,48 @@ func InitDB() error {
 		return fmt.Errorf("DATABASE_URL environment variable is not set")
 	}
 
-	var err error
-	DB, err = sql.Open("postgres", databaseURL)
+	if !strings.Contains(databaseURL, "sslmode=") {
+		if strings.Contains(databaseURL, "?") {
+			databaseURL += "&sslmode=require"
+		} else {
+			databaseURL += "?sslmode=require"
+		}
+	}
+
+	config, err := pgx.ParseConfig(databaseURL)
 	if err != nil {
-		return fmt.Errorf("error opening database: %w", err)
+		return fmt.Errorf("error parsing database URL: %w", err)
 	}
 
-	if err = DB.Ping(); err != nil {
-		return fmt.Errorf("error connecting to database: %w", err)
+	log.Println("⏳ Attempting to connect to database...")
+
+	DB = stdlib.OpenDB(*config)
+	
+	DB.SetMaxOpenConns(25)
+	DB.SetMaxIdleConns(5)
+	DB.SetConnMaxLifetime(5 * time.Minute)
+	DB.SetConnMaxIdleTime(1 * time.Minute)
+
+	maxRetries := 5
+	for i := 0; i < maxRetries; i++ {
+		err = DB.Ping()
+		if err == nil {
+			log.Println("✅ Database connection established successfully (SSL enabled)")
+			break
+		}
+
+		log.Printf("⚠️  Connection attempt %d/%d failed: %v", i+1, maxRetries, err)
+
+		if i < maxRetries-1 {
+			waitTime := time.Duration(i+1) * 2 * time.Second
+			log.Printf("⏳ Retrying in %v...", waitTime)
+			time.Sleep(waitTime)
+		}
 	}
 
-	log.Println("✅ Database connection established successfully")
+	if err != nil {
+		return fmt.Errorf("❌ could not connect to database after %d attempts: %w", maxRetries, err)
+	}
 
 	if err := createTables(); err != nil {
 		return fmt.Errorf("error creating tables: %w", err)
@@ -44,6 +81,7 @@ func createTables() error {
 		password_hash TEXT NOT NULL,
 		name VARCHAR(255),
 		role VARCHAR(50) DEFAULT 'user',
+		email_verified BOOLEAN DEFAULT FALSE,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
@@ -76,10 +114,29 @@ func createTables() error {
 		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
+	CREATE TABLE IF NOT EXISTS password_reset_tokens (
+		id SERIAL PRIMARY KEY,
+		user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+		token TEXT UNIQUE NOT NULL,
+		expires_at TIMESTAMP NOT NULL,
+		used BOOLEAN DEFAULT FALSE,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+
+	CREATE TABLE IF NOT EXISTS email_verification_tokens (
+		id SERIAL PRIMARY KEY,
+		user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+		token TEXT UNIQUE NOT NULL,
+		expires_at TIMESTAMP NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+
 	CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 	CREATE INDEX IF NOT EXISTS idx_reservations_user_id ON reservations(user_id);
 	CREATE INDEX IF NOT EXISTS idx_reservations_concert_id ON reservations(concert_id);
 	CREATE INDEX IF NOT EXISTS idx_concerts_date ON concerts(date);
+	CREATE INDEX IF NOT EXISTS idx_password_reset_token ON password_reset_tokens(token);
+	CREATE INDEX IF NOT EXISTS idx_email_verification_token ON email_verification_tokens(token);
 	`
 
 	_, err := DB.Exec(schema)
