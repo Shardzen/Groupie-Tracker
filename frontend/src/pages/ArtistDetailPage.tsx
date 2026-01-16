@@ -30,7 +30,7 @@ interface Artist {
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export default function ArtistDetailPage() {
-  const { id } = useParams({ from: '/artists/$id' });
+  const { id } = useParams();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
