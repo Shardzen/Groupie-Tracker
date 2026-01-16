@@ -1,138 +1,58 @@
-# =====================================================
-# GITIGNORE - Groupie Tracker Full Stack
-# =====================================================
-
-# ====================
-# ENVIRONMENT FILES
-# ====================
+# Environment variables
 .env
 .env.local
 .env.production
-.env.development
-*.env
 
-# ====================
-# BACKEND (Go)
-# ====================
-# Binaries
+# Go
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-main
-groupie-tracker-api
-groupie-tracker-backend
-
-# Test binary
 *.test
-
-# Output of go coverage tool
 *.out
-
-# Dependency directories
+go.work
 vendor/
 
-# Go workspace file
-go.work
-
-# ====================
-# FRONTEND (React)
-# ====================
-# Dependencies
+# Node
 node_modules/
+dist/
+dist-ssr/
+*.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Build outputs
-dist/
-build/
-.vite/
-.rolldown/
-
-# TypeScript cache
-*.tsbuildinfo
-.tsbuildinfo
-
-# Editor directories
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS files
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
-desktop.ini
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# ====================
-# TESTING
-# ====================
-coverage/
-.nyc_output/
-playwright-report/
-test-results/
-.playwright/
+# Build artifacts
+build/
+*.wasm
 
-# ====================
-# DOCKER
-# ====================
-.dockerignore
-
-# ====================
-# LOGS
-# ====================
+# Logs
 logs/
 *.log
-npm-debug.log*
-pnpm-debug.log*
 
-# ====================
-# TEMPORARY FILES
-# ====================
-*.tmp
-*.temp
-.cache/
-.parcel-cache/
-
-# ====================
-# MOBILE (Capacitor)
-# ====================
-android/app/build/
-android/.gradle/
-android/local.properties
-ios/App/Pods/
-ios/App/Podfile.lock
-
-# ====================
-# MISCELLANEOUS
-# ====================
-.vercel
-.netlify
-.turbo
-.next/
-
-# Local database files
+# Database
 *.db
 *.sqlite
 *.sqlite3
 
-# Backup files
-*.bak
-*.backup
+# OS
+Thumbs.db
+.DS_Store
 
-# Archive files
-*.zip
-*.tar
-*.tar.gz
-*.rar
-
-# ====================
-# PROJECT SPECIFIC
-# ====================
-_ARCHIVE/
-TODO.txt
-NOTES.md
+# Coverage
+coverage/
+*.coverprofile
