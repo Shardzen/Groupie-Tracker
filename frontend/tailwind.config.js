@@ -40,7 +40,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Palette artistique premium
         artistic: {
           violet: '#7C3AED',
           magenta: '#EC4899',
@@ -110,6 +109,16 @@ export default {
         'glow-magenta': '0 0 40px rgba(236, 72, 153, 0.6)',
         'glow-orange': '0 0 40px rgba(249, 115, 22, 0.6)',
         'artistic': '0 20px 60px -20px rgba(124, 58, 237, 0.5)',
+      },
+      transitionDelay: {
+        '0': '0ms',
+        '100': '100ms',
+        '200': '200ms',
+        '300': '300ms',
+        '400': '400ms',
+        '500': '500ms',
+        '1000': '1000ms',
+        '2000': '2000ms',
       },
     },
   },
