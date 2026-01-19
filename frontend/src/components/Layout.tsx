@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
-// je vais importer le Player ici juste après 
+// import Player from './Player'; // On décommentera ça à l'étape suivante
 
 export default function Layout() {
   return (
@@ -8,12 +8,12 @@ export default function Layout() {
       {/* La Navbar est ici une seule fois pour toute l'app */}
       <Navbar />
 
-      {/* Outlet = L'endroit où les pages (Home, Artists, Tickets...) s'affichent */}
+      {/* Outlet = L'endroit où les pages s'affichent */}
       <main className="flex-1">
         <Outlet />
       </main>
 
-      {/* Le Player sera icihors du Outlet donc il ne se rechargera jamais */}
+      {/* Le Player sera ici plus tard */}
       {/* <Player /> */}
     </div>
   );
