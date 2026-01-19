@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Info, Plus, ChevronDown } from 'lucide-react';
+import { Sparkles, MapPin, Users, Heart, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Artist {
@@ -20,121 +20,110 @@ interface ArtistCardProps {
 export default function ArtistCard({ artist }: ArtistCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [isInList, setIsInList] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const randomGradients = [
+    'from-violet-600/40 to-fuchsia-600/40',
+    'from-fuchsia-600/40 to-orange-600/40',
+    'from-orange-600/40 to-violet-600/40',
+    'from-violet-600/40 to-orange-600/40',
+  ];
+
+  const gradientClass = randomGradients[artist.id % randomGradients.length];
 
   return (
-    <div
-      className="group relative cursor-pointer transition-all duration-300 hover:z-20"
+    <Link
+      to={`/artist/${artist.id}`}
+      className="group relative cursor-pointer block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link to={`/artist/${artist.id}`}>
-        <div className={`relative rounded-md overflow-hidden bg-zinc-900 transition-all duration-300 ${
-          isHovered ? 'scale-125 shadow-2xl' : 'scale-100'
-        }`}>
-          <div className="relative aspect-[2/3] overflow-hidden">
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-zinc-800 animate-pulse"></div>
-            )}
-            <img
-              src={artist.image}
-              alt={artist.name}
-              loading="lazy"
-              onLoad={() => setImageLoaded(true)}
-              className={`w-full h-full object-cover transition-all duration-500 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
-            
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
-            
-            {!isHovered && (
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="text-white font-bold text-lg truncate text-shadow">
-                  {artist.name}
-                </h3>
-              </div>
-            )}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-white/10 hover:border-white/30 transition-all duration-500 bg-zinc-900/50 backdrop-blur-xl shadow-lg hover:shadow-artistic-multi hover:scale-105">
+        {/* Image container - TOUJOURS VISIBLE */}
+        <div className="relative aspect-[3/4] overflow-hidden">
+          {!imageLoaded && (
+            <div className="absolute inset-0 skeleton-artistic"></div>
+          )}
+          <img
+            src={artist.image}
+            alt={artist.name}
+            loading="lazy"
+            onLoad={() => setImageLoaded(true)}
+            className={`w-full h-full object-cover transition-all duration-700 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            } ${isHovered ? 'scale-110' : 'scale-100'}`}
+          />
+          
+          {/* Gradient overlay léger */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-30 group-hover:opacity-50 transition-opacity duration-500`}></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+          
+          {/* Rating badge - toujours visible */}
+          <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-xl rounded-full border border-white/20 shadow-lg">
+            <span className="text-xs font-bold text-white flex items-center gap-1">
+              ★ {(4.5 + Math.random() * 0.4).toFixed(1)}
+            </span>
           </div>
 
-          {isHovered && (
-            <div className="absolute inset-0 bg-zinc-900 flex flex-col justify-end p-4 animate-fade-in">
-              <div className="absolute top-0 left-0 right-0 h-32 overflow-hidden">
-                <img
-                  src={artist.image}
-                  alt={artist.name}
-                  className="w-full h-full object-cover opacity-40"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-900"></div>
-              </div>
+          {/* Favorite button - toujours visible */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsFavorite(!isFavorite);
+            }}
+            className={`absolute top-4 right-4 p-2.5 backdrop-blur-xl rounded-full transition-all duration-300 ${
+              isFavorite
+                ? 'bg-gradient-to-br from-fuchsia-600 to-orange-600 scale-110'
+                : 'bg-black/40 hover:bg-black/60 border border-white/20'
+            }`}
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart className={`w-4 h-4 transition-all duration-300 ${
+              isFavorite ? 'fill-white text-white scale-110' : 'text-white'
+            }`} />
+          </button>
 
-              <div className="relative z-10 space-y-3">
-                <h3 className="text-white font-bold text-xl leading-tight">
-                  {artist.name}
-                </h3>
-
-                <div className="flex items-center gap-2 text-xs text-zinc-300">
-                  <span className="font-semibold text-green-500">
-                    {Math.floor(Math.random() * 100)}% Match
-                  </span>
-                  <span className="px-1 py-0.5 border border-zinc-600 text-zinc-400 rounded text-[10px]">
-                    ALL
-                  </span>
-                  <span>{artist.creationDate}</span>
-                  <span>•</span>
+          {/* Info toujours visible en bas */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 space-y-3">
+            <div>
+              <h3 className="text-white font-display font-bold text-2xl leading-tight mb-2 text-shadow-glow">
+                {artist.name}
+              </h3>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-1.5 text-zinc-300">
+                  <Users className="w-3.5 h-3.5 text-violet-400" />
                   <span>{artist.members.length} membres</span>
                 </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="text-xs text-zinc-400">Rock</span>
-                  <span className="text-xs text-zinc-500">•</span>
-                  <span className="text-xs text-zinc-400">Alternative</span>
-                  <span className="text-xs text-zinc-500">•</span>
-                  <span className="text-xs text-zinc-400">Live</span>
-                </div>
-
-                <div className="flex items-center gap-2 pt-2">
-                  <Link to={`/artist/${artist.id}`} className="flex-1">
-                    <button className="w-full flex items-center justify-center gap-2 bg-white hover:bg-white/90 text-black font-semibold py-2 px-4 rounded-md transition-all duration-200 text-sm">
-                      <Play className="w-4 h-4 fill-black" />
-                      <span>Explorer</span>
-                    </button>
-                  </Link>
-
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setIsInList(!isInList);
-                    }}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${
-                      isInList
-                        ? 'border-white bg-white/20'
-                        : 'border-zinc-600 bg-zinc-800/80 hover:border-white'
-                    }`}
-                    aria-label={isInList ? "Remove from list" : "Add to list"}
-                  >
-                    <Plus className={`w-4 h-4 text-white transition-transform duration-200 ${
-                      isInList ? 'rotate-45' : 'rotate-0'
-                    }`} />
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className="p-2 rounded-full border-2 border-zinc-600 bg-zinc-800/80 hover:border-white transition-all duration-200"
-                    aria-label="More info"
-                  >
-                    <ChevronDown className="w-4 h-4 text-white" />
-                  </button>
+                <span className="text-zinc-500">•</span>
+                <div className="flex items-center gap-1.5 text-zinc-300">
+                  <MapPin className="w-3.5 h-3.5 text-fuchsia-400" />
+                  <span>{artist.locations.length} dates</span>
                 </div>
               </div>
             </div>
-          )}
+
+            {/* Button qui apparaît au hover */}
+            <div className={`transition-all duration-300 ${
+              isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
+              <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105 shadow-artistic-multi group/btn">
+                <Play className="w-4 h-4 fill-white group-hover/btn:scale-110 transition-transform" />
+                <span>Découvrir</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Play icon central au hover */}
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
+            isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+          }`}>
+            <div className="p-6 bg-gradient-to-br from-violet-600/90 to-fuchsia-600/90 backdrop-blur-xl rounded-full shadow-glow-violet border-4 border-white/20">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+          </div>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 }

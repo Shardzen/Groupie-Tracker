@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Play, Info, Volume2, VolumeX } from 'lucide-react';
+import { Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Hero() {
-  const [isMuted, setIsMuted] = useState(true);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const featured = {
     title: "Arctic Monkeys",
     subtitle: "Live in Paris 2026",
-    description: "Découvrez l'un des plus grands groupes rock de notre génération dans un concert exceptionnel à Paris. Une expérience inoubliable vous attend.",
+    description: "Plongez dans une expérience sonore inoubliable où la créativité rencontre l'excellence. Un spectacle qui redéfinit les limites de la performance live.",
     genre: "Rock • Alternative",
     rating: "★ 4.9",
     year: "2026",
@@ -17,104 +16,154 @@ export default function Hero() {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVideoLoaded(true), 500);
+    const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-0">
-        <div 
-          className={`absolute inset-0 transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            backgroundImage: `url(${featured.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 30%',
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent"></div>
-        </div>
-
-        <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj4KICA8ZmlsdGVyIGlkPSJhIj4KICAgIDxmZVR1cmJ1bGVuY2UgYmFzZUZyZXF1ZW5jeT0iLjc1IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIiB0eXBlPSJmcmFjdGFsTm9pc2UiLz4KICAgIDxmZUNvbG9yTWF0cml4IHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiLz4KICA8L2ZpbHRlcj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9Ii4wNSIvPgo8L3N2Zz4=')] animate-grain"></div>
-        </div>
+    <section className="relative min-h-screen w-full overflow-hidden">
+      {/* Animated gradient blobs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="blob-artistic w-96 h-96 bg-violet-500 top-0 -left-48 opacity-20"></div>
+        <div className="blob-artistic w-96 h-96 bg-fuchsia-500 top-20 right-0 opacity-20 animation-delay-2000"></div>
+        <div className="blob-artistic w-96 h-96 bg-orange-500 bottom-0 left-1/3 opacity-20 animation-delay-4000"></div>
       </div>
 
-      <div className="relative z-10 h-full flex items-end pb-32 px-4 md:px-12 lg:px-16">
-        <div className="max-w-2xl space-y-6 fade-in">
-          <div className="flex items-center gap-4 text-sm">
-            <span className="px-3 py-1 bg-red-600 text-white font-semibold rounded">
-              FEATURED
-            </span>
-            <span className="text-zinc-300 font-medium">{featured.genre}</span>
-            <span className="text-zinc-400">•</span>
-            <span className="text-zinc-300 font-medium">{featured.rating}</span>
-            <span className="text-zinc-400">•</span>
-            <span className="text-zinc-300 font-medium">{featured.year}</span>
+      {/* Noise texture */}
+      <div className="noise-overlay"></div>
+
+      {/* Main content container */}
+      <div className="relative z-10 min-h-screen grid lg:grid-cols-2 gap-12 items-center px-4 md:px-12 lg:px-16 py-32">
+        {/* Left side - Content */}
+        <div className={`space-y-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+          {/* Tag badges */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/30 rounded-full backdrop-blur-sm hover:scale-105 transition-transform">
+              <Sparkles className="w-4 h-4 text-violet-400 group-hover:rotate-12 transition-transform" />
+              <span className="text-sm font-semibold text-violet-300">FEATURED</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 glass-artistic rounded-full">
+              <TrendingUp className="w-4 h-4 text-fuchsia-400" />
+              <span className="text-sm font-medium text-zinc-300">{featured.genre}</span>
+            </div>
+            <div className="px-4 py-2 glass-artistic rounded-full">
+              <span className="text-sm font-medium text-orange-300">{featured.rating}</span>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white text-shadow tracking-tight">
-              {featured.title}
+          {/* Title with artistic typography */}
+          <div className="space-y-4">
+            <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-black leading-none">
+              <span className="block text-artistic-gradient text-artistic-glow animate-gradient">
+                {featured.title}
+              </span>
             </h1>
-            <h2 className="text-2xl md:text-3xl font-bold text-zinc-300 text-shadow">
+            <h2 className="text-3xl md:text-4xl font-bold text-white/90 font-display tracking-tight">
               {featured.subtitle}
             </h2>
           </div>
 
-          <p className="text-base md:text-lg text-zinc-200 max-w-xl leading-relaxed text-shadow">
+          {/* Description */}
+          <p className="text-lg md:text-xl text-zinc-300 leading-relaxed max-w-xl">
             {featured.description}
           </p>
 
+          {/* Action buttons */}
           <div className="flex flex-col sm:flex-row items-start gap-4 pt-4">
-            <Link to="/artists">
-              <button className="group flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold px-8 py-4 rounded-md transition-all duration-200 hover:scale-105 shadow-xl">
-                <Play className="w-6 h-6 fill-black group-hover:scale-110 transition-transform" />
-                <span className="text-lg">Explorer</span>
+            <Link to="/artists" className="w-full sm:w-auto">
+              <button className="btn-artistic-primary w-full sm:w-auto group">
+                <Zap className="inline-block w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                <span className="text-lg">Découvrir</span>
               </button>
             </Link>
 
-            <Link to="/artists">
-              <button className="group flex items-center gap-3 bg-zinc-800/80 hover:bg-zinc-700/80 text-white font-semibold px-8 py-4 rounded-md transition-all duration-200 backdrop-blur-sm hover:scale-105 border border-zinc-600/50">
-                <Info className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                <span className="text-lg">Plus d'infos</span>
+            <Link to="/artists" className="w-full sm:w-auto">
+              <button className="btn-artistic-outline w-full sm:w-auto group">
+                <Sparkles className="inline-block w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                <span className="text-lg">Explorer</span>
               </button>
             </Link>
           </div>
 
-          <div className="flex items-center gap-8 pt-6 text-sm text-zinc-300">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="font-medium">500+ Artistes disponibles</span>
+          {/* Stats */}
+          <div className="flex items-center gap-8 pt-8 flex-wrap">
+            <div className="flex items-center gap-3 group">
+              <div className="relative">
+                <div className="w-3 h-3 bg-violet-500 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-violet-500 rounded-full animate-ping opacity-75"></div>
+              </div>
+              <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">
+                500+ Artistes
+              </span>
             </div>
-            <span className="text-zinc-500">•</span>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="font-medium">Places limitées</span>
+            <div className="flex items-center gap-3 group">
+              <div className="relative">
+                <div className="w-3 h-3 bg-fuchsia-500 rounded-full animate-pulse animation-delay-1000"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-fuchsia-500 rounded-full animate-ping opacity-75 animation-delay-1000"></div>
+              </div>
+              <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">
+                Places limitées
+              </span>
             </div>
+            <div className="flex items-center gap-3 group">
+              <div className="relative">
+                <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse animation-delay-2000"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-orange-500 rounded-full animate-ping opacity-75 animation-delay-2000"></div>
+              </div>
+              <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">
+                Événements live
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side - Image with artistic frame */}
+        <div className={`relative transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+          <div className="relative group">
+            {/* Glowing background effect */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 rounded-artistic opacity-20 blur-3xl group-hover:opacity-40 transition-opacity duration-500 animate-glow"></div>
+            
+            {/* Image container with artistic border */}
+            <div className="relative overflow-hidden rounded-artistic border-4 border-white/10 shadow-artistic-multi">
+              {/* Image with overlay */}
+              <div className="aspect-[4/5] relative">
+                <img
+                  src={featured.image}
+                  alt={featured.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="eager"
+                />
+                
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60"></div>
+                
+                {/* Artistic corner accents */}
+                <div className="absolute top-0 left-0 w-24 h-24 border-t-4 border-l-4 border-violet-500 rounded-tl-artistic"></div>
+                <div className="absolute bottom-0 right-0 w-24 h-24 border-b-4 border-r-4 border-orange-500 rounded-br-artistic"></div>
+                
+                {/* Floating year badge */}
+                <div className="absolute top-6 right-6 px-4 py-2 bg-gradient-to-br from-violet-600/80 to-fuchsia-600/80 backdrop-blur-xl rounded-2xl border border-white/20 shadow-glow-violet">
+                  <span className="text-sm font-bold text-white">{featured.year}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-fuchsia-500 to-orange-500 rounded-full blur-3xl opacity-50 animate-pulse"></div>
+            <div className="absolute -top-6 -left-6 w-24 h-24 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-full blur-3xl opacity-50 animate-pulse animation-delay-1000"></div>
           </div>
         </div>
       </div>
 
-      <button
-        onClick={() => setIsMuted(!isMuted)}
-        className="absolute bottom-32 right-8 md:right-12 z-20 p-3 rounded-full border-2 border-zinc-600 bg-black/40 backdrop-blur-sm hover:bg-black/60 hover:border-white transition-all duration-200 group"
-        aria-label={isMuted ? "Unmute" : "Mute"}
-      >
-        {isMuted ? (
-          <VolumeX className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-        ) : (
-          <Volume2 className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-        )}
-      </button>
-
-      <div className="absolute top-24 right-8 md:right-12 z-20 px-2 py-1 border-2 border-zinc-500 text-zinc-400 text-xs font-bold rounded">
-        ALL
+      {/* Scroll indicator */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
+          <div className="w-1 h-2 bg-white/60 rounded-full animate-pulse"></div>
+        </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none bg-gradient-to-t from-black to-transparent"></div>
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none bg-gradient-to-t from-black to-transparent"></div>
     </section>
   );
 }
