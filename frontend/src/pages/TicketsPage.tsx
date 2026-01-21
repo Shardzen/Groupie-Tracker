@@ -1,92 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
 import { mockEvents } from '../data/mockData';
-import { useAuthStore } from '../stores/useAuthStore';
-import { api, type CreatePaymentIntentRequest, type CreatePaymentIntentResponse } from '../lib/api';
-import PaymentForm from '../components/PaymentForm';
-import Navbar from '../components/Navbar';
-import { Calendar, MapPin, Crown, Ticket, X, Sparkles, Star, Zap } from 'lucide-react';
+import { Calendar, MapPin, Crown, Ticket, Sparkles, Star, Zap } from 'lucide-react';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+// --- NOUVEAUX IMPORTS ---
+import { useCartStore } from '../stores/useCartStore';
+import { toast } from 'sonner';
+// ------------------------
 
 type TicketType = 'standard' | 'vip';
 
 export default function TicketsPage() {
-  const { isAuthenticated, token } = useAuthStore();
   const navigate = useNavigate();
-
   const [selectedTickets, setSelectedTickets] = useState<Record<string, TicketType>>({});
-  const [showPayment, setShowPayment] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState(0);
-  const [currentEvent, setCurrentEvent] = useState<{
-    id: string;
-    concertId: number;
-    ticketType: TicketType;
-    quantity: number;
-  } | null>(null);
 
   const handleTicketSelect = (eventId: string, type: TicketType) => {
     setSelectedTickets(prev => ({
       ...prev,
       [eventId]: type
     }));
-  };
-
-  const handleOrder = async (eventId: string) => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
-    const ticketType = selectedTickets[eventId] || 'standard';
-    const event = mockEvents.find(e => e.id === eventId);
-    
-    if (!event) return;
-
-    const concertId = parseInt(eventId.replace('e', ''));
-    
-    try {
-      const requestData: CreatePaymentIntentRequest = {
-        concert_id: concertId,
-        ticket_type: ticketType,
-        quantity: 1,
-      };
-
-      const response = await api.post<CreatePaymentIntentResponse>(
-        '/payment/create-intent',
-        requestData,
-        token || undefined
-      );
-
-      setClientSecret(response.client_secret);
-      setPaymentAmount(response.amount);
-      setCurrentEvent({
-        id: eventId,
-        concertId,
-        ticketType,
-        quantity: 1,
-      });
-      setShowPayment(true);
-    } catch (error) {
-      console.error('Error creating payment intent:', error);
-      alert('Erreur lors de la création du paiement. Veuillez réessayer.');
-    }
-  };
-
-  const handlePaymentSuccess = () => {
-    setShowPayment(false);
-    setClientSecret(null);
-    setCurrentEvent(null);
-    alert('Réservation confirmée ! Vous allez recevoir un email de confirmation.');
-  };
-
-  const handlePaymentCancel = () => {
-    setShowPayment(false);
-    setClientSecret(null);
-    setCurrentEvent(null);
   };
 
   return (
@@ -98,7 +30,7 @@ export default function TicketsPage() {
         <div className="blob-artistic w-96 h-96 bg-orange-500 bottom-0 right-1/3 opacity-10 animation-delay-4000"></div>
       </div>
 
-      <Navbar />
+      {/* PAS DE NAVBAR ICI (Elle est dans le Layout) */}
 
       <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
         {/* Header */}
@@ -271,14 +203,36 @@ export default function TicketsPage() {
                       </button>
                     </div>
 
-                    {/* Order Button */}
+                    {/* --- NOUVEAU BOUTON : AJOUTER AU PANIER --- */}
                     <button
-                      onClick={() => handleOrder(event.id)}
-                      className="btn-artistic-primary w-full group"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        
+                        const type = selectedTickets[event.id] || 'standard';
+                        const price = type === 'vip' ? event.vipPrice : event.standardPrice;
+                        
+                        useCartStore.getState().addItem({
+                          id: event.id,
+                          title: event.name,
+                          price: price,
+                          quantity: 1,
+                          image: event.image,
+                          type: type
+                        });
+
+                        toast.success(`${event.name} ajouté au panier !`, {
+                          description: `${type.toUpperCase()} - ${price.toFixed(2)}€`
+                        });
+                      }}
+                      className="btn-artistic-primary w-full group relative overflow-hidden"
                     >
-                      <Sparkles className="inline-block w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                      <span>Commander • {selectedType === 'vip' ? event.vipPrice.toFixed(2) : event.standardPrice.toFixed(2)}€</span>
+                      <div className="relative z-10 flex items-center justify-center gap-2">
+                        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                        <span>Ajouter au panier • {selectedType === 'vip' ? event.vipPrice.toFixed(2) : event.standardPrice.toFixed(2)}€</span>
+                      </div>
                     </button>
+                    {/* ------------------------------------------- */}
+
                   </div>
                 </div>
               </div>
@@ -286,59 +240,6 @@ export default function TicketsPage() {
           })}
         </div>
       </div>
-
-      {/* Payment Modal */}
-      {showPayment && clientSecret && currentEvent && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center z-50 p-4 fade-in-artistic">
-          <div className="glass-artistic border-2 border-white/20 rounded-3xl max-w-md w-full p-8 relative shadow-artistic-multi">
-            <button
-              onClick={handlePaymentCancel}
-              className="absolute top-4 right-4 p-2 glass-artistic rounded-xl hover:bg-white/10 transition-all duration-300 group"
-              aria-label="Fermer"
-            >
-              <X size={24} className="text-zinc-400 group-hover:text-white transition-colors" />
-            </button>
-
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 glass-artistic rounded-full mb-6 border border-violet-500/30">
-                <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
-                <span className="text-sm font-bold text-violet-300">Paiement Sécurisé</span>
-              </div>
-              <h2 className="text-3xl font-display font-black text-artistic-gradient mb-2">
-                Finaliser le paiement
-              </h2>
-              <p className="text-zinc-400">Votre réservation exclusive</p>
-            </div>
-
-            <Elements
-              stripe={stripePromise}
-              options={{
-                clientSecret,
-                appearance: {
-                  theme: 'night',
-                  variables: {
-                    colorPrimary: '#7C3AED',
-                    colorBackground: '#18181b',
-                    colorText: '#ffffff',
-                    colorDanger: '#ef4444',
-                    borderRadius: '16px',
-                  },
-                },
-              }}
-            >
-              <PaymentForm
-                concertId={currentEvent.concertId}
-                ticketType={currentEvent.ticketType}
-                quantity={currentEvent.quantity}
-                amount={paymentAmount}
-                onSuccess={handlePaymentSuccess}
-                onCancel={handlePaymentCancel}
-              />
-            </Elements>
-          </div>
-        </div>
-      )}
-
       {/* Footer */}
       <footer className="border-t-2 border-white/5 mt-24 relative z-10">
         <div className="container mx-auto px-4 py-16">

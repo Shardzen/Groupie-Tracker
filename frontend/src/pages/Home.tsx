@@ -287,7 +287,12 @@ export default function Home() {
                   animationDelay: `${index * 80}ms`,
                 }}
               >
-                <ArtistCard artist={artist} />
+                <ArtistCard 
+                  id={String(artist.id)} 
+                  name={artist.name} 
+                  image={artist.image} 
+                  category="Artiste" 
+                />
               </div>
             ))}
           </div>
