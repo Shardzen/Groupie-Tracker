@@ -35,12 +35,13 @@ export interface Event {
 }
 
 export const mockArtists: Artist[] = [
-  {
+    {
     id: '1',
     name: 'Ninho',
     genre: 'Rap FR',
-    image: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=1000&auto=format&fit=crop', // Photo HD
-    bio: 'Ninho, recordman du rap français, transforme tout ce qu\'il touche en or. Avec une discographie jalonnée de certifications, il est la voix d\'une génération. Son flow mélodique et ses textes crus racontent la réalité de la rue avec une authenticité désarmante.',
+    // J'ai mis le lien direct de l'image HD ici 👇
+    image: 'https://e-cdns-images.dzcdn.net/images/artist/f104d4128531e285094269894101e18d/1000x1000-000000-80-0-0.jpg',
+    bio: 'Ninho est un rappeur français originaire d\'Essonne...',
     topTracks: [
       { title: 'Jefe', plays: '145M', duration: '3:12' },
       { title: 'Lettre à une femme', plays: '120M', duration: '2:58' },
