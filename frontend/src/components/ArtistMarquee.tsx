@@ -8,22 +8,34 @@ interface ArtistMarqueeProps {
 
 export default function ArtistMarquee({ artists }: ArtistMarqueeProps) {
   const navigate = useNavigate();
-  const [hoveredImage, setHoveredImage] = useState<string | null>(null);
+
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+  
+  const [displayedImage, setDisplayedImage] = useState<string | null>(null);
 
   const scrollingArtists = [...artists, ...artists, ...artists];
 
+  const handleMouseEnter = (image: string) => {
+    setDisplayedImage(image); 
+    setActiveImage(image);    
+  };
+
+  const handleMouseLeave = () => {
+    setActiveImage(null);     
+  };
+
   return (
     <div className="relative py-24 overflow-hidden group bg-[#0e0e0e]">
-      
+
       <div 
         className={`pointer-events-none fixed inset-0 z-0 flex items-center justify-center transition-all duration-700 ease-in-out ${
-          hoveredImage ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          activeImage ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
       >
-        {hoveredImage && (
+        {displayedImage && (
            <div className="w-[450px] h-[550px] rounded-[2rem] overflow-hidden shadow-2xl rotate-3 relative">
              <img 
-               src={hoveredImage} 
+               src={displayedImage} 
                alt="Artist Preview" 
                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out scale-110" 
              />
@@ -37,8 +49,8 @@ export default function ArtistMarquee({ artists }: ArtistMarqueeProps) {
         {scrollingArtists.map((artist, index) => (
           <div
             key={`${artist.id}-${index}`}
-            onMouseEnter={() => setHoveredImage(artist.image)}
-            onMouseLeave={() => setHoveredImage(null)}
+            onMouseEnter={() => handleMouseEnter(artist.image)}
+            onMouseLeave={handleMouseLeave}
             onClick={() => navigate(`/artist/${artist.id}`)}
             className="inline-block px-12 cursor-pointer transition-opacity duration-500 hover:opacity-100 opacity-20"
           >
