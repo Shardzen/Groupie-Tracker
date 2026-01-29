@@ -51,7 +51,7 @@ export const mockArtists: Artist[] = [
     id: '2',
     name: 'Angèle',
     genre: 'Pop',
-    image: '/artists/angele.jpg.jpg',
+    image: '/artists/angele.jpg.webp',
     bio: 'La reine de la pop belge.',
     topTracks: [
       { title: 'Bruxelles je t\'aime', plays: '95M', duration: '3:45' },
