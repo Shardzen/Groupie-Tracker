@@ -8,7 +8,6 @@ interface PodiumProps {
 
 export default function Podium({ artists }: PodiumProps) {
   const navigate = useNavigate();
-  
   const top3 = artists.slice(0, 3);
   const [winner, second, third] = top3;
 
