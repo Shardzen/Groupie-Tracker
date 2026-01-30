@@ -2,6 +2,7 @@ export interface Track {
   title: string;
   plays: string;
   duration: string;
+  previewUrl?: string;
 }
 
 export interface Artist {
@@ -10,7 +11,7 @@ export interface Artist {
   genre: string;
   image: string;
   bio: string;
-  topTracks: Track[];
+  topTracks: Track[]
   upcomingDates: ConcertDate[];
 }
 
@@ -40,11 +41,21 @@ export const mockArtists: Artist[] = [
     id: '1',
     name: 'Ninho',
     genre: 'Rap FR',
-    image:'artists/ninho.jpg.jpg',
-    bio: 'Le recordman du rap français. NI est intouchable.',
+    image: '/artists/ninho.jpg',
+    bio: 'Le recordman du rap français.',
     topTracks: [
-      { title: 'Jefe', plays: '145M', duration: '3:12' },
-      { title: 'Lettre à une femme', plays: '120M', duration: '2:58' }
+      { 
+        title: 'Jefe', 
+        plays: '145M', 
+        duration: '3:12',
+        previewUrl: 'https://cdns-preview-d.dzcdn.net/stream/c-d8f5b81a6243ddfa4c97b6a4b8c6d40b-4.mp3' 
+      },
+      { 
+        title: 'Lettre à une femme', 
+        plays: '120M', 
+        duration: '2:58',
+        previewUrl: 'https://cdns-preview-9.dzcdn.net/stream/c-922634e062f928e08d6c703d1544a031-4.mp3'
+      }
     ],
     upcomingDates: []
   },
@@ -125,11 +136,21 @@ export const mockArtists: Artist[] = [
     id: '2',
     name: 'Angèle',
     genre: 'Pop',
-    image: '/artists/angele.jpg.webp',
+    image: '/artists/angele.jpg',
     bio: 'La reine de la pop belge.',
     topTracks: [
-      { title: 'Bruxelles je t\'aime', plays: '95M', duration: '3:45' },
-      { title: 'Balance ton quoi', plays: '110M', duration: '3:10' }
+      { 
+        title: 'Bruxelles je t\'aime', 
+        plays: '95M', 
+        duration: '3:45', 
+        previewUrl: 'https://cdns-preview-b.dzcdn.net/stream/c-b93952701f6630f55e0031846c434226-6.mp3'
+      },
+      { 
+        title: 'Balance ton quoi', 
+        plays: '110M', 
+        duration: '3:10',
+        previewUrl: 'https://cdns-preview-8.dzcdn.net/stream/c-89260c07d353683f12b6946059632832-6.mp3'
+      }
     ],
     upcomingDates: []
   },

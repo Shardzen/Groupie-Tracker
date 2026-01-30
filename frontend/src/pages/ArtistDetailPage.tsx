@@ -87,8 +87,13 @@ export default function ArtistDetailPage() {
                     {artist.topTracks && artist.topTracks.map((track, index) => (
                         <div 
                             key={index}
-                            onClick={() => play({ title: track.title, artist: artist.name, image: artist.image })}
-                            className="group flex items-center justify-between p-4 rounded-xl hover:bg-white/5 cursor-pointer transition-all duration-300 border border-transparent hover:border-white/10"
+                            onClick={() => play({ 
+                                title: track.title, 
+                                artist: artist.name, 
+                                image: artist.image, 
+                                audioUrl: track.previewUrl
+                            })}
+                            className="group flex items-center justify-between p-4..."
                         >
                             <div className="flex items-center gap-6">
                                 <span className="w-6 text-center text-zinc-500 font-bold group-hover:text-violet-500">{index + 1}</span>
