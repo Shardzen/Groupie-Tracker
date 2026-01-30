@@ -79,8 +79,8 @@ export const mockArtists: Artist[] = [
     image: 'artists/nonolagrinta.jpg',
     bio: 'La nouvelle pépite du 91. Flow agressif et technique.',
     topTracks: [
-      { title: 'Dernier étage', plays: '15M', duration: '2:50' },
-      { title: 'Grinta', plays: '10M', duration: '3:00' }
+      { title: 'LA QUOI??', plays: '15M', duration: '2:50' },
+      { title: 'Paris', plays: '10M', duration: '3:00' }
     ],
     upcomingDates: []
   },
@@ -91,8 +91,8 @@ export const mockArtists: Artist[] = [
     image: 'artists/keeqaid.jpg',
     bio: 'Le futur de la scène. Un style unique qui mélange les genres.',
     topTracks: [
-      { title: 'Sensation', plays: '5M', duration: '2:40' },
-      { title: 'Mélodie', plays: '4M', duration: '3:10' }
+      { title: 'Tequila', plays: '5M', duration: '2:40' },
+      { title: 'Coachella', plays: '4M', duration: '3:10' }
     ],
     upcomingDates: []
   },
@@ -103,8 +103,8 @@ export const mockArtists: Artist[] = [
     image: 'artists/timar.jpg',
     bio: 'Une voix qui marque et des textes qui percutent.',
     topTracks: [
-      { title: 'Vitesse', plays: '3M', duration: '2:55' },
-      { title: 'Nuit', plays: '2M', duration: '3:05' }
+      { title: 'Sierra Leone', plays: '3M', duration: '2:55' },
+      { title: '4h44', plays: '2M', duration: '3:05' }
     ],
     upcomingDates: []
   },
@@ -115,8 +115,8 @@ export const mockArtists: Artist[] = [
     image: 'artists/lamano.jpg',
     bio: 'L\'étoile montante. À suivre de très près cette année.',
     topTracks: [
-      { title: 'Intro', plays: '8M', duration: '2:30' },
-      { title: 'Freestyle', plays: '6M', duration: '2:45' }
+      { title: 'Im sorry', plays: '8M', duration: '2:30' },
+      { title: 'Canon', plays: '6M', duration: '2:45' }
     ],
     upcomingDates: []
   },
@@ -261,8 +261,8 @@ export const mockArtists: Artist[] = [
     image: 'artists/davidguetta.jpg',
     bio: 'Le numéro 1 mondial des platines.',
     topTracks: [
-      { title: 'Titanium', plays: '1.5B', duration: '4:05' },
-      { title: 'I\'m Good (Blue)', plays: '1.2B', duration: '2:55' }
+      { title: 'Sexy Bitch', plays: '1.5B', duration: '4:05' },
+      { title: 'Memories', plays: '1.2B', duration: '2:55' }
     ],
     upcomingDates: []
   },
