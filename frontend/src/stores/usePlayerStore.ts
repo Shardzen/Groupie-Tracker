@@ -1,34 +1,26 @@
 import { create } from 'zustand';
-
-export type Song = {
+export interface Track {
   title: string;
   artist: string;
   image: string;
-  duration?: number;
-};
-
-interface PlayerState {
-  isPlaying: boolean;
-  currentSong: Song | null;
-  volume: number;
-  isExpanded: boolean;
-
-  play: (song: Song) => void;
-  pause: () => void;
-  togglePlay: () => void;
-  setVolume: (vol: number) => void;
-  toggleExpand: () => void;
+  audioUrl?: string;
 }
 
-export const usePlayerStore = create<PlayerState>((set) => ({
-  isPlaying: false,
-  currentSong: null,
-  volume: 80,
-  isExpanded: false,
+interface PlayerStore {
+  isPlaying: boolean;
+  currentTrack: Track | null;
+  play: (track: Track) => void;
+  pause: () => void;
+  toggle: () => void;
+}
 
-  play: (song) => set({ currentSong: song, isPlaying: true }),
+export const usePlayerStore = create<PlayerStore>((set) => ({
+  isPlaying: false,
+  currentTrack: null,
+  
+  play: (track) => set({ isPlaying: true, currentTrack: track }),
+  
   pause: () => set({ isPlaying: false }),
-  togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
-  setVolume: (vol) => set({ volume: vol }),
-  toggleExpand: () => set((state) => ({ isExpanded: !state.isExpanded })),
+  
+  toggle: () => set((state) => ({ isPlaying: !state.isPlaying })),
 }));

@@ -87,11 +87,11 @@ export default function ArtistDetailPage() {
                     {artist.topTracks && artist.topTracks.map((track, index) => (
                         <div 
                             key={index}
-                            onClick={() => play({ 
+                                onClick={() => play({ 
                                 title: track.title, 
                                 artist: artist.name, 
                                 image: artist.image, 
-                                audioUrl: track.previewUrl
+                                audioUrl: track.previewUrl || "" 
                             })}
                             className="group flex items-center justify-between p-4..."
                         >
