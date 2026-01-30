@@ -1,154 +1,118 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { mockArtists } from '../data/mockData';
-import { Music, Sparkles, Zap, Star } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Music, Mic2, Disc, Zap } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { mockArtists } from '../data/mockData';
 
 export default function ArtistsPage() {
-  const [selectedGenre, setSelectedGenre] = useState<string>('all');
+  const [activeGenre, setActiveGenre] = useState('Tous');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const genres = ['all', ...new Set(mockArtists.map(a => a.genre))];
-  
-  const filteredArtists = selectedGenre === 'all' 
-    ? mockArtists 
-    : mockArtists.filter(a => a.genre === selectedGenre);
+  const genres = ['Tous', 'Rap FR', 'Pop', 'Metal', 'Electro', 'Rap Cloud'];
+
+  const filteredArtists = useMemo(() => {
+    return mockArtists.filter(artist => {
+      const matchesGenre = activeGenre === 'Tous' || artist.genre === activeGenre;
+      const matchesSearch = artist.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesGenre && matchesSearch;
+    });
+  }, [activeGenre, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="blob-artistic w-96 h-96 bg-violet-500 top-0 right-0 opacity-10"></div>
-        <div className="blob-artistic w-96 h-96 bg-fuchsia-500 bottom-0 left-0 opacity-10 animation-delay-2000"></div>
-        <div className="blob-artistic w-96 h-96 bg-orange-500 top-1/2 left-1/2 opacity-10 animation-delay-4000"></div>
+    <div className="min-h-screen bg-[#0e0e0e] text-white">
+
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar />
       </div>
 
-      <Navbar />
 
-      <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-16 fade-in-artistic">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 glass-artistic rounded-full mb-8 border border-violet-500/30">
-            <Star className="w-4 h-4 text-violet-400 animate-pulse" />
-            <span className="text-sm font-bold text-violet-300">Collection Complète</span>
-          </div>
-
-          <h1 className="text-6xl md:text-8xl font-display font-black mb-6 leading-tight">
-            <span className="text-artistic-gradient">Tous les</span>
-            <br />
-            <span className="text-white">Artistes</span>
-          </h1>
-          <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Explorez notre sélection complète d'artistes exceptionnels venus du monde entier
-          </p>
-        </div>
-
-        {/* Genre filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-16 fade-in-artistic animation-delay-200">
-          {genres.map((genre, idx) => (
-            <button
-              key={genre}
-              onClick={() => setSelectedGenre(genre)}
-              className={`px-6 py-3 rounded-2xl font-bold transition-all duration-300 ${
-                selectedGenre === genre
-                  ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 text-white shadow-artistic-multi scale-105'
-                  : 'glass-artistic text-zinc-400 hover:text-white hover:scale-105 border border-white/10'
-              }`}
-              style={{ animationDelay: `${idx * 50}ms` }}
-            >
-              {genre === 'all' ? 'Tous les genres' : genre}
-            </button>
-          ))}
-        </div>
-
-        {/* Artists grid with asymmetric design */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredArtists.map((artist, index) => (
-            <Link
-              key={artist.id}
-              to={`/artists/${artist.id}`}
-              className="group relative card-artistic fade-in-artistic hover:z-10"
-              style={{ animationDelay: `${index * 60}ms` }}
-            >
-              {/* Image container */}
-              <div className="aspect-[3/4] overflow-hidden rounded-t-artistic relative">
-                <img
-                  src={artist.image}
-                  alt={artist.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-
-                {/* Genre badge */}
-                <div className="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-br from-violet-600/90 to-fuchsia-600/90 backdrop-blur-xl rounded-full border border-white/20 shadow-glow-violet">
-                  <span className="text-xs font-bold text-white">{artist.genre}</span>
-                </div>
-
-                {/* Play icon on hover */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
-                  <div className="p-5 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full shadow-glow-violet">
-                    <Zap className="text-white w-8 h-8" />
-                  </div>
-                </div>
-
-                {/* Bottom info */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-white font-display font-bold text-2xl mb-2 leading-tight text-artistic-glow">
-                    {artist.name}
-                  </h3>
-                  {artist.upcomingDates && artist.upcomingDates.length > 0 ? (
-                    <div className="flex items-center gap-2 text-violet-300 text-sm font-semibold">
-                      <Music className="w-4 h-4" />
-                      <span>{artist.upcomingDates.length} concert{artist.upcomingDates.length > 1 ? 's' : ''} à venir</span>
-                    </div>
-                  ) : (
-                    <p className="text-zinc-500 text-sm font-medium">Pas de concert prévu</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Hover glow effect */}
-              <div className="absolute inset-0 rounded-artistic opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-500/10 via-transparent to-transparent"></div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Empty state */}
-        {filteredArtists.length === 0 && (
-          <div className="text-center py-32 fade-in-artistic">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 rounded-3xl mb-8 border-2 border-violet-500/30">
-              <Music className="w-12 h-12 text-violet-400" />
-            </div>
-            <h3 className="text-3xl font-display font-black text-white mb-4">Aucun artiste trouvé</h3>
-            <p className="text-zinc-400 text-lg mb-8">
-              Essayez un autre genre musical
+      <div className="relative pt-32 pb-12 px-6 bg-[#0e0e0e]">
+        <div className="container mx-auto">
+            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4">
+              Le <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">Catalogue</span>
+            </h1>
+            <p className="text-zinc-400 text-xl max-w-2xl">
+              Explorez l'univers musical. Des légendes du rock aux pépites du rap, tout est là.
             </p>
-            <button
-              onClick={() => setSelectedGenre('all')}
-              className="btn-artistic-primary"
-            >
-              <Sparkles className="inline-block w-5 h-5 mr-2" />
-              Voir tous les artistes
-            </button>
-          </div>
+        </div>
+      </div>
+
+      <div className="sticky top-20 z-40 bg-[#0e0e0e]/80 backdrop-blur-xl border-y border-white/5 py-4">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+            
+            <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
+                {genres.map(genre => (
+                    <button
+                        key={genre}
+                        onClick={() => setActiveGenre(genre)}
+                        className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+                            activeGenre === genre 
+                            ? 'bg-white text-black' 
+                            : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white'
+                        }`}
+                    >
+                        {genre}
+                    </button>
+                ))}
+            </div>
+
+            <div className="relative w-full md:w-80">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+                <input 
+                    type="text" 
+                    placeholder="Rechercher un artiste..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-violet-500 transition-colors placeholder:text-zinc-600"
+                />
+            </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 py-12 pb-32">
+        
+        {filteredArtists.length === 0 ? (
+            <div className="text-center py-20 text-zinc-500">
+                Aucun artiste ne correspond à votre recherche.
+            </div>
+        ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+                {filteredArtists.map((artist) => (
+                    <Link to={`/artist/${artist.id}`} key={artist.id} className="group block relative">
+
+                        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-zinc-900 mb-4">
+                            <img 
+                                src={artist.image} 
+                                alt={artist.name} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
+                            />
+                            
+                            <div className="absolute inset-0 bg-gradient-to-t from-violet-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                                <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                    <Zap className="w-6 h-6 text-black fill-black" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-bold uppercase tracking-tight group-hover:text-violet-400 transition-colors">
+                                {artist.name}
+                            </h3>
+                            <p className="text-sm text-zinc-500 font-medium flex items-center gap-2">
+                                {artist.genre === 'Rap FR' && <Mic2 size={12} />}
+                                {artist.genre === 'Pop' && <Music size={12} />}
+                                {artist.genre === 'Metal' && <Disc size={12} />}
+                                {artist.genre}
+                            </p>
+                        </div>
+                    </Link>
+                ))}
+            </div>
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="border-t-2 border-white/5 mt-24 relative z-10">
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center">
-            <p className="text-zinc-500 text-sm">
-              © 2026 Groupie Tracker. Créé avec{' '}
-              <span className="text-artistic-gradient">passion</span> pour la musique.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

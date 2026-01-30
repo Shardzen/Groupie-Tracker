@@ -1,328 +1,140 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Calendar, MapPin, Play, Heart, MoreHorizontal, CheckCircle2, Music2 } from 'lucide-react';
+import { usePlayerStore } from '../stores/usePlayerStore';
+import { mockArtists, Artist } from '../data/mockData';
 import Navbar from '../components/Navbar';
-import {
-  ArrowLeft,
-  MapPin,
-  Calendar,
-  Users,
-  Music2,
-  Sparkles,
-  Clock,
-  Ticket,
-  Heart,
-  Share2,
-  Play,
-  ExternalLink,
-} from 'lucide-react';
-
-interface Artist {
-  id: number;
-  name: string;
-  image: string;
-  members: string[];
-  creationDate: number;
-  firstAlbum: string;
-  locations: string[];
-  concertDates: string[];
-}
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export default function ArtistDetailPage() {
   const { id } = useParams();
-  const [artist, setArtist] = useState<Artist | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { play } = usePlayerStore();
+  
+
   const [isLiked, setIsLiked] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [headerOpacity, setHeaderOpacity] = useState(0);
+
+  const localArtist = mockArtists.find(a => String(a.id) === String(id));
 
   useEffect(() => {
-    fetchArtist();
-  }, [id]);
+    const handleScroll = () => {
+      setHeaderOpacity(Math.min(window.scrollY / 300, 1));
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const fetchArtist = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(`${API_BASE_URL}/artists/${id}`);
-
-      if (!response.ok) {
-        throw new Error(`Erreur serveur (${response.status})`);
-      }
-
-      const data = await response.json();
-      setArtist(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-      console.error('Erreur lors du chargement de l\'artiste:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl animate-pulse"></div>
-            <div className="relative spinner border-4 border-violet-500/20 border-t-violet-500 w-full h-full"></div>
-          </div>
-          <p className="text-slate-400 text-lg">Chargement des détails...</p>
-        </div>
-      </div>
-    );
+  if (!localArtist) {
+      return <div className="text-white text-center pt-40">Artiste introuvable...</div>;
   }
 
-  if (error || !artist) {
-    return (
-      <div className="min-h-screen bg-slate-950">
-        <Navbar />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <div className="max-w-md mx-auto glass-card rounded-2xl p-8">
-            <h1 className="text-3xl font-bold text-red-400 mb-4">Erreur</h1>
-            <p className="text-slate-400 mb-6">{error || 'Artiste introuvable'}</p>
-            <Link to="/">
-              <button className="btn-primary">Retour à l'accueil</button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const artist = localArtist;
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
-      <Navbar />
+    <div className="min-h-screen bg-[#0e0e0e] text-white pb-32">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar />
+      </div>
 
-      {/* Hero Section with Background Image */}
-      <div className="relative h-[60vh] min-h-[500px]">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0">
-          {!imageLoaded && <div className="skeleton absolute inset-0"></div>}
-          <img
-            src={artist.image}
-            alt={artist.name}
-            onLoad={() => setImageLoaded(true)}
-            className={`w-full h-full object-cover transition-opacity duration-700 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/80 to-slate-950"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-        </div>
+      <div 
+        className="fixed top-0 left-0 right-0 h-24 z-40 transition-colors duration-300 pointer-events-none"
+        style={{ backgroundColor: `rgba(14, 14, 14, ${headerOpacity})` }}
+      />
 
-        {/* Content */}
-        <div className="container mx-auto px-4 h-full relative z-10 flex flex-col justify-end pb-12">
-          {/* Back Button */}
-          <Link to="/">
-            <button className="absolute top-24 left-4 glass-effect px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all duration-300 flex items-center gap-2 group">
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Retour</span>
-            </button>
-          </Link>
 
-          {/* Artist Info */}
-          <div className="animate-fadeIn">
-            {/* Badges */}
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
-                <Calendar className="w-4 h-4 text-violet-400" />
-                <span className="text-white font-semibold text-sm">
-                  Depuis {artist.creationDate}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
-                <Users className="w-4 h-4 text-purple-400" />
-                <span className="text-white font-semibold text-sm">
-                  {artist.members.length} membres
-                </span>
-              </div>
-              {artist.concertDates.length > 0 && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-600/80 to-purple-600/80 backdrop-blur-sm">
-                  <Sparkles className="w-4 h-4 text-white" />
-                  <span className="text-white font-bold text-sm">
-                    {artist.concertDates.length} concerts
-                  </span>
-                </div>
-              )}
+      <div className="relative h-[60vh] min-h-[400px] w-full group">
+        <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105"
+            style={{ backgroundImage: `url(${artist.image})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-[#0e0e0e]/40 to-[#0e0e0e]" />
+        
+        <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full animate-in slide-in-from-bottom-10 fade-in duration-700">
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-violet-400">
+                <CheckCircle2 className="w-5 h-5 fill-current text-black" />
+                Artiste Vérifié
             </div>
-
-            {/* Artist Name */}
-            <h1 className="text-6xl md:text-8xl font-black text-white mb-4 text-display">
+            <h1 className="text-6xl md:text-9xl font-black mb-6 drop-shadow-2xl uppercase tracking-tighter">
               {artist.name}
             </h1>
-
-            {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3">
-              <button className="btn-primary flex items-center gap-3 px-8 py-4">
-                <Ticket className="w-5 h-5" />
-                <span className="font-bold">Réserver des billets</span>
-              </button>
-
-              <button className="px-6 py-4 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-violet-500/50 text-white font-bold transition-all duration-300 flex items-center gap-2 group">
-                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>Écouter</span>
-              </button>
-
-              <button
-                onClick={() => setIsLiked(!isLiked)}
-                className={`px-4 py-4 rounded-xl backdrop-blur-sm border transition-all duration-300 ${
-                  isLiked
-                    ? 'bg-red-500/20 border-red-500/50 text-red-400'
-                    : 'bg-white/5 hover:bg-white/10 border-white/20 hover:border-violet-500/50 text-white'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-              </button>
-
-              <button className="px-4 py-4 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-violet-500/50 text-white transition-all duration-300">
-                <Share2 className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+            <p className="text-zinc-300 max-w-2xl text-lg line-clamp-2 md:line-clamp-none mb-4 font-medium">
+                {artist.bio}
+            </p>
         </div>
       </div>
 
-      {/* Details Section */}
-      <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Info Card */}
-            <div className="glass-card rounded-2xl p-8 animate-fadeIn">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Music2 className="w-8 h-8 text-violet-400" />
-                <span>Informations</span>
-              </h2>
+      <div className="container mx-auto px-6 relative z-10 -mt-10">
+        
+        <div className="flex items-center gap-6 mb-12">
+            <button 
+                onClick={() => play({ title: `Mix de ${artist.name}`, artist: artist.name, image: artist.image })}
+                className="w-20 h-20 rounded-full bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shadow-glow-violet hover:scale-110 transition-all duration-300"
+            >
+                <Play fill="currentColor" size={32} className="ml-2" />
+            </button>
+            <button 
+                onClick={() => setIsLiked(!isLiked)} 
+                className={`p-4 border-2 rounded-full transition-all duration-300 ${isLiked ? 'border-violet-500 text-violet-500 bg-violet-500/10' : 'border-white/20 text-white hover:border-white'}`}
+            >
+                <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
+            </button>
+        </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-3 gap-12">
+            
+            <div className="lg:col-span-2 space-y-8">
+                <h2 className="text-3xl font-bold font-display">Populaires</h2>
                 <div className="space-y-2">
-                  <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider">
-                    Premier Album
-                  </p>
-                  <p className="text-white text-lg font-semibold">{artist.firstAlbum}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider">
-                    Année de création
-                  </p>
-                  <p className="text-white text-lg font-semibold">{artist.creationDate}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Members Card */}
-            <div className="glass-card rounded-2xl p-8 animate-fadeIn animate-delay-100">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Users className="w-8 h-8 text-purple-400" />
-                <span>Membres du groupe</span>
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {artist.members.map((member, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/30 transition-all duration-300 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform">
-                      {member.charAt(0)}
-                    </div>
-                    <span className="text-white font-semibold">{member}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Concert Dates */}
-            {artist.concertDates.length > 0 && (
-              <div className="glass-card rounded-2xl p-8 animate-fadeIn animate-delay-200">
-                <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                  <Clock className="w-8 h-8 text-pink-400" />
-                  <span>Prochains concerts</span>
-                </h2>
-
-                <div className="space-y-3">
-                  {artist.concertDates.slice(0, 5).map((date, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/30 transition-all duration-300 group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-                          <Calendar className="w-6 h-6 text-white" />
+                    {artist.topTracks && artist.topTracks.map((track, index) => (
+                        <div 
+                            key={index}
+                            onClick={() => play({ title: track.title, artist: artist.name, image: artist.image })}
+                            className="group flex items-center justify-between p-4 rounded-xl hover:bg-white/5 cursor-pointer transition-all duration-300 border border-transparent hover:border-white/10"
+                        >
+                            <div className="flex items-center gap-6">
+                                <span className="w-6 text-center text-zinc-500 font-bold group-hover:text-violet-500">{index + 1}</span>
+                                <div className="relative w-14 h-14 rounded-lg overflow-hidden shadow-lg">
+                                    <img src={artist.image} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Play size={20} fill="currentColor" />
+                                    </div>
+                                </div>
+                                <div>
+                                  <div className="font-bold text-lg text-white group-hover:text-violet-400 transition-colors">
+                                      {track.title}
+                                  </div>
+                                  <div className="text-sm text-zinc-500">Master Class • 2024</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-8 text-sm font-medium text-zinc-500">
+                                <span className="hidden md:block">{track.plays}</span>
+                                <span>{track.duration}</span>
+                            </div>
                         </div>
-                        <span className="text-white font-semibold">{date}</span>
-                      </div>
-                      <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-violet-400 transition-colors" />
-                    </div>
-                  ))}
+                    ))}
                 </div>
-
-                {artist.concertDates.length > 5 && (
-                  <button className="w-full mt-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-white font-semibold transition-all duration-300">
-                    Voir tous les {artist.concertDates.length} concerts
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Locations Card */}
-            {artist.locations.length > 0 && (
-              <div className="glass-card rounded-2xl p-8 animate-fadeIn">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                  <MapPin className="w-7 h-7 text-violet-400" />
-                  <span>Lieux de concert</span>
-                </h2>
-
-                <div className="space-y-2">
-                  {artist.locations.map((location, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 group"
-                    >
-                      <MapPin className="w-4 h-4 text-violet-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                      <span className="text-slate-300 text-sm font-medium">{location}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* CTA Card */}
-            <div className="glass-card rounded-2xl p-8 animate-fadeIn animate-delay-100">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white">Ne ratez rien</h3>
-                <p className="text-slate-400">
-                  Soyez alerté des prochains concerts de {artist.name}
-                </p>
-                <button className="btn-primary w-full">
-                  S'abonner aux alertes
-                </button>
-              </div>
             </div>
-          </div>
+
+            <div className="space-y-8">
+                <div className="bg-white/5 border border-white/10 p-8 rounded-3xl space-y-6">
+                    <h3 className="font-bold text-2xl mb-4 font-display">Infos</h3>
+                    <div className="flex items-center gap-4 text-zinc-300">
+                        <div className="p-3 bg-white/5 rounded-full"><Music2 size={20} className="text-violet-400" /></div>
+                        <div>
+                          <p className="text-xs text-zinc-500 uppercase tracking-wider">Genre</p>
+                          <p className="font-bold">{artist.genre}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-zinc-300">
+                        <div className="p-3 bg-white/5 rounded-full"><MapPin size={20} className="text-fuchsia-400" /></div>
+                        <div>
+                          <p className="text-xs text-zinc-500 uppercase tracking-wider">Origine</p>
+                          <p className="font-bold">France / Belgique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-white/10 mt-20">
-        <div className="container mx-auto px-4 py-12 text-center text-slate-500">
-          <p className="mb-2">
-            Powered by <span className="text-violet-400 font-semibold">YNOT</span>
-          </p>
-          <p className="text-sm">© 2026 - Tous droits réservés</p>
-        </div>
-      </footer>
     </div>
   );
 }
