@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	// ⚠️ IMPORTANT : Assure-toi que ces imports correspondent au nom dans ton 'go.mod'
-	// Si ton go.mod dit "module groupie-tracker", change "groupie-backend" par "groupie-tracker" ci-dessous.
+	"groupie-backend/storage"
+
 	"groupie-backend/database"
 	"groupie-backend/handlers"
 	"groupie-backend/middleware"
@@ -21,17 +21,15 @@ import (
 var limiter = rate.NewLimiter(rate.Limit(10), 20)
 
 func main() {
-	// --- 1. CHARGEMENT SÉCURISÉ DU .ENV ---
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("⚠️  Attention : Fichier .env non trouvé, vérification des variables système...")
 	}
 
-	// Vérification immédiate : Est-ce qu'on a l'URL de la base ?
 	if os.Getenv("DATABASE_URL") == "" {
 		log.Fatal("❌ ERREUR CRITIQUE : La variable DATABASE_URL est vide ! Vérifie que ton fichier s'appelle bien '.env' et pas '.env.txt'.")
 	}
-	// ---------------------------------------
+	
 
 	handlers.InitOAuth()
 
@@ -39,6 +37,9 @@ func main() {
 		log.Fatalf("❌ Failed to initialize database: %v", err)
 	}
 	defer database.CloseDB()
+
+
+	storage.InitMinIO()
 
 	r := mux.NewRouter()
 
@@ -84,6 +85,14 @@ func main() {
 	admin.HandleFunc("/artists", handlers.AdminCreateArtist).Methods("POST")
 	admin.HandleFunc("/artists/{id}", handlers.AdminUpdateArtist).Methods("PUT")
 	admin.HandleFunc("/artists/{id}", handlers.AdminDeleteArtist).Methods("DELETE")
+    admin := protected.PathPrefix("/admin").Subrouter()
+    admin.Use(middleware.AdminOnly)
+
+    
+    admin.HandleFunc("/upload", handlers.AdminUploadImage).Methods("POST") 
+
+    admin.HandleFunc("/artists", handlers.AdminGetArtists).Methods("GET")
+    
 
 	admin.HandleFunc("/concerts", handlers.AdminGetConcerts).Methods("GET")
 	admin.HandleFunc("/concerts", handlers.AdminCreateConcert).Methods("POST")
