@@ -8,13 +8,11 @@ import (
 	"groupie-backend/database"
 	"groupie-backend/middleware"
 	"groupie-backend/models"
-
+    "groupie-backend/storage"
 	"github.com/gorilla/mux"
 )
 
-// ============================
-// ADMIN - ARTISTS CRUD
-// ============================
+
 
 func AdminGetArtists(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
@@ -181,9 +179,7 @@ func AdminDeleteArtist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Artist deleted successfully"})
 }
 
-// ============================
-// ADMIN - CONCERTS CRUD
-// ============================
+
 
 func AdminGetConcerts(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
@@ -336,9 +332,7 @@ func AdminDeleteConcert(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Concert deleted successfully"})
 }
 
-// ============================
-// ADMIN - PAYMENTS & USERS
-// ============================
+
 
 func AdminGetPayments(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
@@ -453,4 +447,28 @@ func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
+}
+func AdminUploadImage(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(10 << 20)
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "❌ Fichier manquant ou invalide (le champ doit être 'file')", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	fileURL, err := storage.UploadFile(file, header)
+	if err != nil {
+		http.Error(w, "❌ Erreur interne lors de l'upload: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]string{
+		"message": "Upload réussi !",
+		"url":     fileURL,
+	}
+	
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
