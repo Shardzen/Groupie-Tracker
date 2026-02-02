@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+
 export interface Track {
   title: string;
   artist: string;
   image: string;
-  audioUrl?: string;
+  audioUrl?: string; 
 }
 
 interface PlayerStore {
@@ -17,10 +18,7 @@ interface PlayerStore {
 export const usePlayerStore = create<PlayerStore>((set) => ({
   isPlaying: false,
   currentTrack: null,
-  
   play: (track) => set({ isPlaying: true, currentTrack: track }),
-  
   pause: () => set({ isPlaying: false }),
-  
   toggle: () => set((state) => ({ isPlaying: !state.isPlaying })),
 }));
