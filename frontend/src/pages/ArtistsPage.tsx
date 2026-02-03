@@ -1,118 +1,198 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Music, Mic2, Disc, Zap } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import { useState, useEffect, useMemo } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { mockArtists } from '../data/mockData';
+import { Search, Play, Mic2, Music2, Sparkles, Filter } from 'lucide-react';
+
+// 🎭 1. ON SIMULE DES GENRES POUR TES ARTISTES EXISTANTS
+// (Comme ça le filtre marche vraiment sans changer ta base de données)
+const artistGenres: Record<string, string> = {
+  "1": "Rap",    // Ninho (supposé ID 1)
+  "2": "Pop",    // Angèle
+  "3": "Metal",  // Gojira
+  "4": "R&B",    // The Weeknd
+  "5": "Electro" // Daft Punk
+  // Les autres seront "Divers" par défaut
+};
+
+const genres = ["Tout", "Rap", "Pop", "R&B", "Electro", "Metal", "Rock"];
 
 export default function ArtistsPage() {
-  const [activeGenre, setActiveGenre] = useState('Tous');
-  const [searchQuery, setSearchQuery] = useState('');
+  const location = useLocation();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('Tout');
+  const [animateCards, setAnimateCards] = useState(false);
 
-  const genres = ['Tous', 'Rap FR', 'Pop', 'Metal', 'Electro', 'Rap Cloud'];
+  // Effet d'apparition au chargement
+  useEffect(() => {
+    setAnimateCards(true);
+  }, []);
 
+  // 🧠 2. LOGIQUE DE FILTRAGE INTELLIGENTE
+  // On recalcule la liste à chaque fois que la Recherche OU le Genre change
   const filteredArtists = useMemo(() => {
+    // A. Récupération du mot-clé depuis l'URL (Barre de recherche Navbar)
+    const searchParams = new URLSearchParams(location.search);
+    const queryUrl = searchParams.get('search') || '';
+    
+    // Si l'URL change, on met à jour le state local pour l'affichage
+    if (queryUrl !== searchTerm && queryUrl !== '') {
+        setSearchTerm(queryUrl);
+    }
+
+    const queryToUse = queryUrl || searchTerm;
+
     return mockArtists.filter(artist => {
-      const matchesGenre = activeGenre === 'Tous' || artist.genre === activeGenre;
-      const matchesSearch = artist.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesGenre && matchesSearch;
+      // Filtre 1 : Le Nom
+      const matchesName = artist.name.toLowerCase().includes(queryToUse.toLowerCase());
+      
+      // Filtre 2 : Le Genre (On utilise notre mapping simulé ou "Divers")
+      const artistGenre = artistGenres[artist.id] || "Divers";
+      const matchesGenre = selectedGenre === 'Tout' || artistGenre === selectedGenre || (selectedGenre === 'Divers' && !artistGenres[artist.id]);
+
+      return matchesName && matchesGenre;
     });
-  }, [activeGenre, searchQuery]);
+  }, [location.search, searchTerm, selectedGenre]);
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] text-white">
+    <div className="min-h-screen bg-[#0e0e0e] text-white pt-28 px-6 md:px-12 pb-20 relative overflow-hidden">
+      
+      {/* Fond d'ambiance dynamique */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-violet-900/20 via-black to-black -z-10 pointer-events-none"></div>
+      <div className="absolute top-20 right-0 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-[100px] -z-10 animate-pulse"></div>
 
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <Navbar />
-      </div>
-
-
-      <div className="relative pt-32 pb-12 px-6 bg-[#0e0e0e]">
-        <div className="container mx-auto">
-            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4">
-              Le <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">Catalogue</span>
-            </h1>
-            <p className="text-zinc-400 text-xl max-w-2xl">
-              Explorez l'univers musical. Des légendes du rock aux pépites du rap, tout est là.
-            </p>
+      {/* --- EN-TÊTE & CONTRÔLES --- */}
+      <div className="max-w-7xl mx-auto mb-16 space-y-8">
+        
+        {/* Titre & Stats */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+            <div>
+                <div className="flex items-center gap-3 mb-2">
+                    <span className="p-2 bg-violet-500/10 rounded-lg border border-violet-500/20 text-violet-400">
+                        <Music2 size={20} />
+                    </span>
+                    <span className="text-sm font-bold tracking-widest text-zinc-500 uppercase">Catalogue</span>
+                </div>
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white">
+                  ARTISTES
+                </h1>
+            </div>
+            <div className="text-right">
+                <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
+                    {filteredArtists.length}
+                </p>
+                <p className="text-zinc-500 text-sm font-medium uppercase tracking-wider">Talents trouvés</p>
+            </div>
         </div>
-      </div>
 
-      <div className="sticky top-20 z-40 bg-[#0e0e0e]/80 backdrop-blur-xl border-y border-white/5 py-4">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+        {/* Barre de Filtres Avancée */}
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
             
-            <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
+            {/* Recherche Locale */}
+            <div className="relative w-full lg:w-96 group">
+                <input 
+                    type="text" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Chercher dans la liste..."
+                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 py-3 text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-violet-400 transition-colors" size={20} />
+            </div>
+
+            {/* Filtres Genres (Chips) */}
+            <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 no-scrollbar">
+                <Filter size={16} className="text-zinc-500 mr-2 flex-shrink-0" />
                 {genres.map(genre => (
                     <button
                         key={genre}
-                        onClick={() => setActiveGenre(genre)}
-                        className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                            activeGenre === genre 
-                            ? 'bg-white text-black' 
-                            : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white'
+                        onClick={() => setSelectedGenre(genre)}
+                        className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border ${
+                            selectedGenre === genre
+                            ? 'bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105'
+                            : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
                         }`}
                     >
                         {genre}
                     </button>
                 ))}
             </div>
-
-            <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
-                <input 
-                    type="text" 
-                    placeholder="Rechercher un artiste..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-violet-500 transition-colors placeholder:text-zinc-600"
-                />
-            </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-12 pb-32">
-        
-        {filteredArtists.length === 0 ? (
-            <div className="text-center py-20 text-zinc-500">
-                Aucun artiste ne correspond à votre recherche.
-            </div>
-        ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-                {filteredArtists.map((artist) => (
-                    <Link to={`/artist/${artist.id}`} key={artist.id} className="group block relative">
-
-                        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-zinc-900 mb-4">
-                            <img 
-                                src={artist.image} 
-                                alt={artist.name} 
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
-                            />
-                            
-                            <div className="absolute inset-0 bg-gradient-to-t from-violet-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                                <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
-                                    <Zap className="w-6 h-6 text-black fill-black" />
-                                </div>
-                            </div>
+      {/* --- GRILLE DES ARTISTES --- */}
+      <div className="max-w-7xl mx-auto">
+          {filteredArtists.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+              {filteredArtists.map((artist, index) => (
+                <Link 
+                    key={artist.id} 
+                    to={`/artist/${artist.id}`} 
+                    className={`group relative block transform transition-all duration-500 hover:-translate-y-2 ${animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                    style={{ transitionDelay: `${index * 50}ms` }}
+                >
+                  
+                  {/* Carte (Image) */}
+                  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 bg-zinc-900 shadow-2xl border border-white/5 group-hover:border-violet-500/50 transition-colors">
+                     {/* Image */}
+                     <img 
+                       src={artist.image} 
+                       alt={artist.name} 
+                       className="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:filter group-hover:brightness-110"
+                     />
+                     
+                     {/* Overlay Gradient au survol */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                     
+                     {/* Bouton Play Flottant */}
+                     <div className="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-75">
+                        <div className="bg-white text-black p-4 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform">
+                            <Play fill="currentColor" size={24} />
                         </div>
+                     </div>
 
-                        <div>
-                            <h3 className="text-xl font-bold uppercase tracking-tight group-hover:text-violet-400 transition-colors">
-                                {artist.name}
-                            </h3>
-                            <p className="text-sm text-zinc-500 font-medium flex items-center gap-2">
-                                {artist.genre === 'Rap FR' && <Mic2 size={12} />}
-                                {artist.genre === 'Pop' && <Music size={12} />}
-                                {artist.genre === 'Metal' && <Disc size={12} />}
-                                {artist.genre}
-                            </p>
-                        </div>
-                    </Link>
-                ))}
+                     {/* Badge Genre (Simulé) */}
+                     <div className="absolute top-4 left-4 -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                        <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">
+                            {artistGenres[artist.id] || "Artiste"}
+                        </span>
+                     </div>
+                  </div>
+                  
+                  {/* Infos Artiste */}
+                  <div className="px-2">
+                    <h3 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-violet-400 group-hover:to-fuchsia-400 transition-all truncate">
+                      {artist.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                        <Mic2 size={12} className="text-zinc-500" />
+                        <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                           Vérifié • 1.2M Fans
+                        </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
-        )}
+          ) : (
+            /* --- ETAT VIDE (EMPTY STATE) --- */
+            <div className="flex flex-col items-center justify-center py-32 text-center relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5 rounded-3xl blur-3xl -z-10"></div>
+                <div className="bg-white/5 p-6 rounded-full border border-white/10 mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <Sparkles className="w-12 h-12 text-zinc-400" />
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-2">Aucun résultat trouvé</h3>
+                <p className="text-zinc-400 max-w-md mb-8">
+                    Aucun artiste ne correspond à "<span className="text-white font-bold">{searchTerm}</span>" dans le genre <span className="text-white font-bold">{selectedGenre}</span>.
+                </p>
+                <button 
+                    onClick={() => { setSearchTerm(''); setSelectedGenre('Tout'); }} 
+                    className="px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-zinc-200 hover:scale-105 transition-all shadow-lg"
+                >
+                    Réinitialiser les filtres
+                </button>
+            </div>
+          )}
       </div>
-
     </div>
   );
 }

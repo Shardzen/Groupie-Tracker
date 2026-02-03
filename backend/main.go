@@ -6,11 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"groupie-backend/storage"
-
 	"groupie-backend/database"
 	"groupie-backend/handlers"
 	"groupie-backend/middleware"
+	"groupie-backend/storage" 
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -27,9 +26,8 @@ func main() {
 	}
 
 	if os.Getenv("DATABASE_URL") == "" {
-		log.Fatal("❌ ERREUR CRITIQUE : La variable DATABASE_URL est vide ! Vérifie que ton fichier s'appelle bien '.env' et pas '.env.txt'.")
+		log.Fatal("❌ ERREUR CRITIQUE : La variable DATABASE_URL est vide ! Vérifie que ton fichier s'appelle bien '.env'.")
 	}
-	
 
 	handlers.InitOAuth()
 
@@ -37,7 +35,6 @@ func main() {
 		log.Fatalf("❌ Failed to initialize database: %v", err)
 	}
 	defer database.CloseDB()
-
 
 	storage.InitMinIO()
 
@@ -81,18 +78,13 @@ func main() {
 	admin := protected.PathPrefix("/admin").Subrouter()
 	admin.Use(middleware.AdminOnly)
 
+	// Route d'upload d'image pour l'admin
+	admin.HandleFunc("/upload", handlers.AdminUploadImage).Methods("POST")
+
 	admin.HandleFunc("/artists", handlers.AdminGetArtists).Methods("GET")
 	admin.HandleFunc("/artists", handlers.AdminCreateArtist).Methods("POST")
 	admin.HandleFunc("/artists/{id}", handlers.AdminUpdateArtist).Methods("PUT")
 	admin.HandleFunc("/artists/{id}", handlers.AdminDeleteArtist).Methods("DELETE")
-    admin = protected.PathPrefix("/admin").Subrouter()
-    admin.Use(middleware.AdminOnly)
-
-    
-    admin.HandleFunc("/upload", handlers.AdminUploadImage).Methods("POST") 
-
-    admin.HandleFunc("/artists", handlers.AdminGetArtists).Methods("GET")
-    
 
 	admin.HandleFunc("/concerts", handlers.AdminGetConcerts).Methods("GET")
 	admin.HandleFunc("/concerts", handlers.AdminCreateConcert).Methods("POST")
@@ -193,6 +185,7 @@ func printServerInfo(port string) {
 	log.Printf("   🎫 Concerts CRUD: /api/admin/concerts")
 	log.Printf("   💰 Payments: /api/admin/payments")
 	log.Printf("   👥 Users: /api/admin/users")
+	log.Printf("   ☁️  Upload: /api/admin/upload") // J'ai ajouté l'info ici
 	log.Println("")
 	log.Println("🔒 Security:")
 	log.Printf("   ⚡ Rate Limit: 10 req/s (burst 20)")

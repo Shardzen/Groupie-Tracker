@@ -11,6 +11,8 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
+import ConcertsPage from './pages/ConcertsPage';
+import NotFoundPage from './pages/NotFoundPage'; // ✅ IMPORT NOUVEAU
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -23,19 +25,18 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* On enveloppe toutes les pages dans le Layout */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
           <Route path="/artist/:id" element={<ArtistDetailPage />} />
-          {/* <Route path="/concerts" element={<ConcertsPage />} /> */}
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/concerts" element={<ConcertsPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
+          <Route path="/about" element={<AboutPage />} />
           
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* ✅ Route 404 : Si rien ne correspond, on affiche cette page */}
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        {/* Login hors du layout (ou dedans, au choix) */}
         <Route path="/login" element={<LoginPage />} />
       </Routes>
     </BrowserRouter>

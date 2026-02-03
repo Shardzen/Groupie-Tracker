@@ -1,21 +1,36 @@
 import { useState, useEffect } from 'react';
-import { Search, Sparkles, User, Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search, Sparkles, User, Menu, X, LogOut } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../stores/useAuthStore';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // ✅ CORRECTION : On utilise 'logout' ici
+  const { user, logout } = useAuthStore();
 
+  // Gestion du scroll
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Recherche
+  const handleSearchSubmit = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/artists?search=${encodeURIComponent(searchQuery)}`);
+      setShowSearch(false);
+    }
+  };
 
   const navLinks = [
     { name: 'Accueil', href: '/' },
@@ -28,154 +43,170 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${
           isScrolled
-            ? 'bg-black/90 backdrop-blur-2xl shadow-2xl border-b border-white/5'
-            : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent'
+            ? 'bg-black/80 backdrop-blur-xl border-white/10 py-2'
+            : 'bg-transparent border-transparent py-4'
         }`}
       >
-        <div className="px-4 md:px-8 lg:px-16">
-          <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between">
+            
+            {/* --- LOGO --- */}
             <div className="flex items-center gap-8">
-              <Link to="/" className="flex items-center group">
-                <span className="text-2xl md:text-3xl font-black text-artistic-gradient font-display tracking-tighter hover:scale-105 transition-transform duration-300 relative">
-                  GROUPIE
-                  <span className="absolute -inset-1 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 -z-10"></span>
+              <Link to="/" className="flex items-center group relative z-10">
+                <span className="text-2xl md:text-3xl font-black tracking-tighter hover:scale-105 transition-transform duration-300">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-fuchsia-500 to-white">
+                    GROUPIE
+                  </span>
                 </span>
+                <div className="absolute -inset-4 bg-violet-600/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
               </Link>
 
+              {/* --- MENU DESKTOP --- */}
               <div className="hidden lg:flex items-center gap-8">
-                {navLinks.map((link, idx) => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     to={link.href}
-                    className="text-sm font-semibold text-zinc-300 hover:text-white transition-all duration-300 relative group"
+                    className={`text-sm font-bold transition-all duration-300 relative group ${
+                        location.pathname === link.href ? 'text-white' : 'text-zinc-400 hover:text-white'
+                    }`}
                   >
                     {link.name}
-                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r transition-all duration-300 group-hover:w-full ${
-                      idx % 3 === 0
-                        ? 'from-violet-500 to-fuchsia-500'
-                        : idx % 3 === 1
-                        ? 'from-fuchsia-500 to-orange-500'
-                        : 'from-orange-500 to-violet-500'
+                    <span className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300 ${
+                        location.pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'
                     }`}></span>
                   </Link>
                 ))}
               </div>
             </div>
 
+            {/* --- ACTIONS DROITE --- */}
             <div className="flex items-center gap-3">
 
-              <div className="hidden md:block relative">
-                {showSearch ? (
-                  <div className="flex items-center fade-in-artistic">
+              {/* Barre de Recherche */}
+              <div className="hidden md:flex items-center relative">
+                <div className={`flex items-center transition-all duration-300 overflow-hidden ${
+                    showSearch ? 'w-64 opacity-100 mr-2' : 'w-0 opacity-0'
+                }`}>
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Rechercher l'inspiration..."
-                      className="input-artistic w-64 lg:w-80 pl-11 py-2.5 text-sm"
+                      onKeyDown={handleSearchSubmit}
+                      placeholder="Rechercher..."
+                      className="w-full bg-white/10 border border-white/10 rounded-full pl-4 pr-4 py-2 text-sm text-white focus:outline-none focus:border-violet-500 placeholder:text-zinc-500"
                       autoFocus
-                      onBlur={() => {
-                        if (!searchQuery) setTimeout(() => setShowSearch(false), 200);
-                      }}
+                      onBlur={() => !searchQuery && setShowSearch(false)}
                     />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowSearch(true)}
-                    className="p-2.5 glass-artistic rounded-xl hover:bg-white/10 transition-all duration-300 group"
-                    aria-label="Search"
-                  >
-                    <Search className="w-5 h-5 text-zinc-300 group-hover:text-violet-400 transition-colors" />
-                  </button>
-                )}
+                </div>
+                <button
+                  onClick={() => setShowSearch(!showSearch)}
+                  className="p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 hover:text-violet-400 transition-all duration-300 text-zinc-300"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
               </div>
 
+              {/* Bouton Premium */}
               <Link to="/tickets">
                 <button className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/30 rounded-full hover:scale-105 transition-all duration-300 group backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-violet-400 group-hover:rotate-12 transition-transform" />
-                  <span className="text-sm font-bold text-violet-300">Premium</span>
+                  <span className="text-sm font-bold text-violet-200">Premium</span>
                 </button>
               </Link>
 
-              <Link to="/login">
-                <button className="flex items-center gap-2 p-2 glass-artistic rounded-xl hover:bg-white/10 transition-all duration-300 group">
-                  <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-lg overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-glow-violet">
-                    <User className="w-5 h-5 text-white" />
+              {/* --- USER / LOGOUT --- */}
+              {user ? (
+                  <div className="relative group">
+                    <button className="flex items-center gap-2 p-1 pl-2 bg-zinc-900 border border-white/10 rounded-full hover:border-violet-500/50 transition-all duration-300">
+                        <span className="text-xs font-bold px-2 hidden md:block">{user.email?.split('@')[0]}</span>
+                        <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/20">
+                            {user.email?.[0].toUpperCase()}
+                        </div>
+                    </button>
+                    {/* Menu Déroulant Logout */}
+                    <div className="absolute right-0 top-full mt-2 w-32 bg-zinc-900 border border-white/10 rounded-xl p-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 shadow-xl">
+                        <button onClick={() => logout()} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/5 rounded-lg transition-colors">
+                            <LogOut size={14} /> Déconnexion
+                        </button>
+                    </div>
                   </div>
-                </button>
-              </Link>
+              ) : (
+                <Link to="/login">
+                    <button className="flex items-center gap-2 p-2 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 group">
+                    <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <User className="w-5 h-5 text-zinc-400 group-hover:text-white" />
+                    </div>
+                    </button>
+                </Link>
+              )}
 
+              {/* Mobile Toggle */}
               <button 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 glass-artistic rounded-xl hover:bg-white/10 transition-all duration-300"
+                className="lg:hidden p-2 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 text-white transition-all"
               >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-white" />
-                ) : (
-                  <Menu className="w-5 h-5 text-white" />
-                )}
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
           </div>
         </div>
 
-        <div className="md:hidden px-4 pb-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              className="input-artistic w-full pl-11 py-2.5 text-sm"
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
-          </div>
-        </div>
-
-        <div className={`h-[2px] bg-gradient-to-r from-transparent via-violet-600 to-transparent transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="h-full w-1/3 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-600 animate-gradient"></div>
-        </div>
+        {/* Ligne décorative */}
+        <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500 to-transparent transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
       </nav>
 
+      {/* --- MENU MOBILE --- */}
       <div
         className={`fixed inset-0 z-40 lg:hidden transition-all duration-500 ${
           mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
-
         <div
-          className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+          className="absolute inset-0 bg-black/90 backdrop-blur-xl"
           onClick={() => setMobileMenuOpen(false)}
         ></div>
 
         <div
-          className={`absolute top-20 left-4 right-4 bg-gradient-to-br from-zinc-900/95 via-zinc-900/90 to-zinc-900/95 backdrop-blur-2xl border-2 border-white/10 rounded-3xl p-6 transition-all duration-500 shadow-artistic-multi ${
+          className={`absolute top-24 left-4 right-4 bg-zinc-900 border border-white/10 rounded-3xl p-6 transition-all duration-500 shadow-2xl ${
             mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0'
           }`}
         >
-          <div className="space-y-4">
-            {navLinks.map((link, idx) => (
+          <div className="space-y-2">
+            {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block text-lg font-bold text-white hover:text-artistic-gradient transition-all duration-300 p-3 rounded-xl hover:bg-white/5 ${
-                  idx === 0 ? 'slide-in-left-artistic' : ''
+                className={`block text-lg font-bold p-4 rounded-2xl transition-all duration-300 ${
+                    location.pathname === link.href 
+                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/50' 
+                    : 'text-zinc-400 hover:bg-white/5 hover:text-white'
                 }`}
-                style={{ animationDelay: `${idx * 50}ms` }}
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-          <Link to="/tickets" onClick={() => setMobileMenuOpen(false)}>
-            <button className="w-full mt-6 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 text-white font-bold rounded-xl hover:scale-105 transition-all duration-300 shadow-artistic-multi">
-              <Sparkles className="w-5 h-5" />
-              <span>Devenir Premium</span>
-            </button>
-          </Link>
+          <div className="mt-6 pt-6 border-t border-white/10">
+             <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input
+                    type="text"
+                    placeholder="Rechercher..."
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 py-3 text-white focus:border-violet-500 focus:outline-none"
+                    onKeyDown={(e) => {
+                        if(e.key === 'Enter') {
+                             navigate(`/artists?search=${encodeURIComponent((e.target as HTMLInputElement).value)}`);
+                             setMobileMenuOpen(false);
+                        }
+                    }}
+                />
+             </div>
+          </div>
         </div>
       </div>
     </>
