@@ -9,14 +9,12 @@ interface ArtistCardProps {
 }
 
 export default function ArtistCard({ id, name, image, category }: ArtistCardProps) {
-  // On récupère la fonction play du store
   const { play } = usePlayerStore();
 
   const handlePlay = (e: React.MouseEvent) => {
-    e.preventDefault(); // Empêche de cliquer sur le lien de la carte
+    e.preventDefault();
     e.stopPropagation();
     
-    // On lance la musique !
     play({
       title: `Mix de ${name}`,
       artist: name,

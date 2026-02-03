@@ -36,7 +36,6 @@ export default function Navbar() {
       >
         <div className="px-4 md:px-8 lg:px-16">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo with artistic gradient */}
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center group">
                 <span className="text-2xl md:text-3xl font-black text-artistic-gradient font-display tracking-tighter hover:scale-105 transition-transform duration-300 relative">
@@ -45,7 +44,6 @@ export default function Navbar() {
                 </span>
               </Link>
 
-              {/* Desktop navigation */}
               <div className="hidden lg:flex items-center gap-8">
                 {navLinks.map((link, idx) => (
                   <Link
@@ -66,9 +64,8 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Right side actions */}
             <div className="flex items-center gap-3">
-              {/* Search */}
+
               <div className="hidden md:block relative">
                 {showSearch ? (
                   <div className="flex items-center fade-in-artistic">
@@ -96,7 +93,6 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Premium badge */}
               <Link to="/tickets">
                 <button className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/30 rounded-full hover:scale-105 transition-all duration-300 group backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-violet-400 group-hover:rotate-12 transition-transform" />
@@ -104,7 +100,6 @@ export default function Navbar() {
                 </button>
               </Link>
 
-              {/* User profile */}
               <Link to="/login">
                 <button className="flex items-center gap-2 p-2 glass-artistic rounded-xl hover:bg-white/10 transition-all duration-300 group">
                   <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-lg overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-glow-violet">
@@ -113,7 +108,6 @@ export default function Navbar() {
                 </button>
               </Link>
 
-              {/* Mobile menu button */}
               <button 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden p-2 glass-artistic rounded-xl hover:bg-white/10 transition-all duration-300"
@@ -128,7 +122,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile search */}
         <div className="md:hidden px-4 pb-4">
           <div className="relative">
             <input
@@ -140,25 +133,22 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Animated bottom border */}
         <div className={`h-[2px] bg-gradient-to-r from-transparent via-violet-600 to-transparent transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}>
           <div className="h-full w-1/3 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-600 animate-gradient"></div>
         </div>
       </nav>
 
-      {/* Mobile menu */}
       <div
         className={`fixed inset-0 z-40 lg:hidden transition-all duration-500 ${
           mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
-        {/* Backdrop */}
+
         <div
           className="absolute inset-0 bg-black/80 backdrop-blur-xl"
           onClick={() => setMobileMenuOpen(false)}
         ></div>
 
-        {/* Menu content */}
         <div
           className={`absolute top-20 left-4 right-4 bg-gradient-to-br from-zinc-900/95 via-zinc-900/90 to-zinc-900/95 backdrop-blur-2xl border-2 border-white/10 rounded-3xl p-6 transition-all duration-500 shadow-artistic-multi ${
             mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0'
@@ -180,7 +170,6 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Mobile premium button */}
           <Link to="/tickets" onClick={() => setMobileMenuOpen(false)}>
             <button className="w-full mt-6 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 text-white font-bold rounded-xl hover:scale-105 transition-all duration-300 shadow-artistic-multi">
               <Sparkles className="w-5 h-5" />

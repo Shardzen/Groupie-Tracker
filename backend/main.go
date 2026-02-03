@@ -85,7 +85,7 @@ func main() {
 	admin.HandleFunc("/artists", handlers.AdminCreateArtist).Methods("POST")
 	admin.HandleFunc("/artists/{id}", handlers.AdminUpdateArtist).Methods("PUT")
 	admin.HandleFunc("/artists/{id}", handlers.AdminDeleteArtist).Methods("DELETE")
-    admin := protected.PathPrefix("/admin").Subrouter()
+    admin = protected.PathPrefix("/admin").Subrouter()
     admin.Use(middleware.AdminOnly)
 
     

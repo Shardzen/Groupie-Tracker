@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Toaster } from 'sonner'; // <--- Import 1
+import { Toaster } from 'sonner';
 import Navbar from './Navbar'; 
 import Player from './Player';
 import CartDrawer from './CartDrawer';
@@ -16,8 +16,7 @@ export default function Layout() {
       <Player />
       <CartDrawer />
       
-      {/* Le gestionnaire de notifications */}
-      <Toaster position="top-center" theme="dark" richColors /> {/* <--- Ajout 2 */}
+      <Toaster position="top-center" theme="dark" richColors />
     </div>
   );
 }
