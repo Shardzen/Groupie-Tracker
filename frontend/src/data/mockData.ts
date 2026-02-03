@@ -41,7 +41,7 @@ export const mockArtists: Artist[] = [
     id: '1',
     name: 'Ninho',
     genre: 'Rap FR',
-    image: '/artists/ninho.jpg',
+    image: '/artists/ninho.jpg.jpg',
     bio: 'Le recordman du rap français.',
     topTracks: [
       { 

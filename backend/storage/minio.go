@@ -56,8 +56,6 @@ func UploadFile(file multipart.File, fileHeader *multipart.FileHeader) (string, 
 
 	log.Printf("✅ Fichier uploadé: %s (Taille: %d bytes)", uniqueName, info.Size)
 
-	// Construction de l'URL publique pour le Frontend
-	// Attention: Assure-toi que ton bucket est en mode "Public" ou "Download"
 	publicHost := "http://localhos&t:9000" 
 	fileURL := fmt.Sprintf("%s/%s/%s", publicHost, bucketName, uniqueName)
 
