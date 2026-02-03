@@ -35,8 +35,9 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
 
-        {/* Login hors du layout (ou dedans, au choix) */}
+        {/* 2. Ajoute la route Register ici, à côté du Login */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<registerpage />} /> 
       </Routes>
     </BrowserRouter>
   );
