@@ -11,7 +11,7 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
-
+import RegisterPage from './pages/RegisterPage';
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
@@ -37,7 +37,7 @@ function App() {
 
         {/* 2. Ajoute la route Register ici, à côté du Login */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<registerpage />} /> 
+        <Route path="/register" element={<RegisterPage />} /> 
       </Routes>
     </BrowserRouter>
   );
