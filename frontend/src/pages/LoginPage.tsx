@@ -155,20 +155,25 @@ export default function LoginPage() {
             </div>
 
             {/* Remember & Forgot */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded bg-white/5 border border-white/10 checked:bg-violet-600 checked:border-violet-600 transition-all"
-                />
-                <span className="text-sm text-slate-400 group-hover:text-white transition-colors">
-                  Se souvenir de moi
-                </span>
-              </label>
-              <a href="#" className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors">
-                Mot de passe oublié ?
-              </a>
-            </div>
+<div className="flex items-center justify-between">
+  <label className="flex items-center gap-2 cursor-pointer group">
+    <input
+      type="checkbox"
+      className="w-4 h-4 rounded bg-white/5 border border-white/10 checked:bg-violet-600 checked:border-violet-600 transition-all"
+    />
+    <span className="text-sm text-slate-400 group-hover:text-white transition-colors">
+      Se souvenir de moi
+    </span>
+  </label>
+  
+  {/* On remplace juste le <a> par le <Link> ici */}
+  <Link 
+    to="/forgot-password" 
+    className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors"
+  >
+    Mot de passe oublié ?
+  </Link>
+</div>
 
             {/* Submit Button */}
             <button

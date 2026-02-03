@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
-
+import ForgotPassword from './pages/ForgotPassword';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ArtistsPage from './pages/ArtistsPage';
@@ -33,6 +33,7 @@ function AnimatedRoutes() {
         {/* Routes sans Layout pour le Login et Register */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </AnimatePresence>
   );
