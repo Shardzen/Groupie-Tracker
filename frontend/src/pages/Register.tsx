@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Music, ArrowRight, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
@@ -20,14 +21,18 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Background Vidéo */}
-      <div className="absolute inset-0 z-0">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-20">
-          <source src="/videos/background.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950"></div>
-      </div>
-
+      {/* Background Image */}
+<div className="absolute inset-0 z-0">
+<div className="absolute inset-0 flex items-center justify-center z-0">
+  <img 
+    src="/img/background.png" 
+    alt="Background" 
+    className="w-[100%] h-[100%] object-contain opacity-40" 
+  />
+</div>
+  {/* Le dégradé par-dessus pour le style "sombre" */}
+ 
+</div>
       <Link to="/" className="absolute top-8 left-8 z-50 flex items-center gap-3">
         <div className="bg-white p-2 rounded-xl"><Music className="w-6 h-6 text-black" /></div>
         <span className="text-2xl font-ultra-heavy text-white">YNOT</span>
@@ -36,8 +41,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-10">
-            <h2 className="text-5xl font-ultra-heavy text-white mb-2">S'INSCRIRE</h2>
-            <p className="text-slate-500 font-sans text-xs uppercase tracking-[0.2em]">Create New Access</p>
+           <h2 className="text-5xl font-display italic text-white mb-2">S'INSCRIRE</h2>
+            <p className="text-slate-500 font-sans text-xs uppercase tracking-[0.2em]">Bienvenue</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -51,10 +56,11 @@ export default function RegisterPage() {
                   required
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-white/30 outline-none transition-all"
-                  placeholder="CHOOSE_NAME"
+                  placeholder="nom "
                 />
               </div>
             </div>
+            
 
             {/* Email */}
             <div className="space-y-1">
@@ -66,7 +72,7 @@ export default function RegisterPage() {
                   required
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-white/30 outline-none transition-all"
-                  placeholder="EMAIL@EXAMPLE.COM"
+                  placeholder="email"
                 />
               </div>
             </div>
