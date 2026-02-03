@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -17,6 +16,30 @@ import (
 var Client *minio.Client
 
 func InitMinIO() {
+	endpoint := os.Getenv("MINIO_ENDPOINT")
+	accessKeyID := os.Getenv("MINIO_ACCESS_KEY")
+	secretAccessKey := os.Getenv("MINIO_SECRET_KEY")
+	bucketName := os.Getenv("MINIO_BUCKET_NAME")
+	useSSL := false 
+
+	var err error
+	Client, err = minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+
+	if err != nil {
+		log.Fatalf("❌ Erreur connexion MinIO: %v", err)
+	}
+
+	exists, err := Client.BucketExists(context.Background(), bucketName)
+	if err != nil {
+		log.Printf("⚠️  Attention: Impossible de vérifier le bucket MinIO: %v", err)
+	} else if !exists {
+		log.Printf("⚠️  Attention: Le bucket '%s' n'existe pas encore. Pense à le créer dans l'interface MinIO.", bucketName)
+	} else {
+		log.Printf("✅ Connecté à MinIO avec succès (Bucket: %s)", bucketName)
+	}
 }
 
 func UploadFile(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
@@ -29,7 +52,6 @@ func UploadFile(file multipart.File, fileHeader *multipart.FileHeader) (string, 
 		ContentType: fileHeader.Header.Get("Content-Type"),
 	}
 
-
 	info, err := Client.PutObject(ctx, bucketName, uniqueName, file, fileHeader.Size, opts)
 	if err != nil {
 		return "", err
@@ -37,10 +59,8 @@ func UploadFile(file multipart.File, fileHeader *multipart.FileHeader) (string, 
 
 	log.Printf("✅ Fichier uploadé: %s (Taille: %d bytes)", uniqueName, info.Size)
 
-	minioEndpoint := os.Getenv("MINIO_ENDPOINT") 
-    
 
-    publicHost := "http://localhost:9000" 
+	publicHost := "http://localhost:9000"
 
 	fileURL := fmt.Sprintf("%s/%s/%s", publicHost, bucketName, uniqueName)
 
