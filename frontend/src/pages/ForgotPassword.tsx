@@ -9,21 +9,23 @@ export default function ForgotPassword() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Plus tard, on appellera ton API Go ici
     setIsSent(true);
   };
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden"
+      initial={{ opacity: 0, x: 100 }}
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: -100 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: 'url("/img/background.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
     >
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-[120px] pointer-events-none" />
-
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] z-0" />
       <div className="w-full max-w-md relative z-10">
         <div className="glass-card rounded-3xl p-8 md:p-10 shadow-2xl">
           <div className="text-center mb-8">
@@ -31,7 +33,7 @@ export default function ForgotPassword() {
               MOT DE PASSE OUBLIÉ ?
             </h2>
             <p className="text-slate-400 text-sm">
-              Pas de panique ! Entre ton email et on t'envoie un lien magique.
+              calma calma ! Entre ton email et on t'envoie un lien magique.
             </p>
           </div>
 
@@ -47,7 +49,7 @@ export default function ForgotPassword() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-violet-500/50 outline-none transition-all"
-                    placeholder="ton@email.com"
+                    placeholder="email"
                   />
                 </div>
               </div>

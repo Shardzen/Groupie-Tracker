@@ -12,43 +12,50 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulation d'inscription
     setTimeout(() => {
       setIsLoading(false);
-      navigate('/login'); // Redirige vers le login après inscription
+      navigate('/login');
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Background Image */}
-<div className="absolute inset-0 z-0">
-<div className="absolute inset-0 flex items-center justify-center z-0">
-  <img 
-    src="/img/background.png" 
-    alt="Background" 
-    className="w-[100%] h-[100%] object-contain opacity-40" 
-  />
-</div>
-  {/* Le dégradé par-dessus pour le style "sombre" */}
- 
-</div>
+    <motion.div 
+  initial={{ opacity: 0, x: 100 }}
+  animate={{ opacity: 1, x: 0 }} 
+  exit={{ opacity: 0, x: -100 }}
+  transition={{ duration: 0.4, ease: "easeInOut" }}
+  className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4"
+>
+    
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/img/background.png" 
+          alt="Background" 
+          className="w-full h-full object-cover opacity-100" 
+        />
+      </div>
+
+   
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
+
+    
       <Link to="/" className="absolute top-8 left-8 z-50 flex items-center gap-3">
         <div className="bg-white p-2 rounded-xl"><Music className="w-6 h-6 text-black" /></div>
         <span className="text-2xl font-ultra-heavy text-white">YNOT</span>
       </Link>
 
+     
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-10">
-           <h2 className="text-5xl font-display italic text-white mb-2">S'INSCRIRE</h2>
+            <h2 className="text-5xl font-display italic text-white mb-2">S'INSCRIRE</h2>
             <p className="text-slate-500 font-sans text-xs uppercase tracking-[0.2em]">Bienvenue</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username */}
             <div className="space-y-1">
-              <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Username</label>
+              <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Nom D'utilisateur</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
@@ -56,13 +63,11 @@ export default function RegisterPage() {
                   required
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-white/30 outline-none transition-all"
-                  placeholder="nom "
+                  placeholder="Ton nom"
                 />
               </div>
             </div>
-            
 
-            {/* Email */}
             <div className="space-y-1">
               <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Email</label>
               <div className="relative">
@@ -98,9 +103,9 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-white text-black font-ultra-heavy py-5 rounded-xl flex items-center justify-center gap-3 hover:bg-violet-600 hover:text-white transition-all"
+              className="w-full bg-white text-black font-ultra-heavy py-5 rounded-xl flex items-center justify-center gap-3 hover:bg-violet-600 hover:text-white transition-all shadow-lg shadow-white/5"
             >
-              {isLoading ? "CREATION..." : "CREER LE COMPTE"}
+              {isLoading ? "CRÉATION..." : "CRÉER LE COMPTE"}
               <ArrowRight size={20} />
             </button>
           </form>
@@ -112,6 +117,8 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </motion.div>
+    
+      
+);
 }
