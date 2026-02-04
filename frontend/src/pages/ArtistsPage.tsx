@@ -4,14 +4,32 @@ import { mockArtists } from '../data/mockData';
 import { Search, Play, Mic2, Music2, Sparkles, Filter } from 'lucide-react';
 
 const artistGenres: Record<string, string> = {
-  "1": "Rap",  
-  "2": "Pop",    
-  "3": "Metal",  
-  "4": "R&B",    
-  "5": "Electro"
+  "1": "Rap",
+  "2": "Pop",
+  "3": "Metal",
+  "4": "Rap",
+  "5": "Electro",
+  "6": "Rap",
+  "7": "Rap",
+  "8": "Rap",
+  "9": "Rap",
+  "10": "Rap",
+  "11": "Rap",
+  "12": "Pop",
+  "13": "Pop",
+  "14": "Pop",
+  "15": "Pop",
+  "16": "Metal",
+  "17": "Metal",
+  "18": "Metal",
+  "19": "Electro",
+  "20": "Electro",
+  "21": "Electro",
+  "22": "Rap",
+  "23": "Rap",
 };
 
-const genres = ["Tout", "Rap", "Pop", "R&B", "Electro", "Metal", "Rock"];
+const genres = ["Tout", "Rap", "Pop", "R&B", "Electro", "Metal"];
 
 export default function ArtistsPage() {
   const location = useLocation();
@@ -35,9 +53,8 @@ export default function ArtistsPage() {
 
     return mockArtists.filter(artist => {
       const matchesName = artist.name.toLowerCase().includes(queryToUse.toLowerCase());
-      
       const artistGenre = artistGenres[artist.id] || "Divers";
-      const matchesGenre = selectedGenre === 'Tout' || artistGenre === selectedGenre || (selectedGenre === 'Divers' && !artistGenres[artist.id]);
+      const matchesGenre = selectedGenre === 'Tout' || artistGenre === selectedGenre;
 
       return matchesName && matchesGenre;
     });
@@ -78,7 +95,7 @@ export default function ArtistsPage() {
                     type="text" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Chercher dans la liste..."
+                    placeholder="Chercher un artiste..."
                     className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 py-3 text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-violet-400 transition-colors" size={20} />
@@ -114,14 +131,18 @@ export default function ArtistsPage() {
                     style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   
-        
                   <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 bg-zinc-900 shadow-2xl border border-white/5 group-hover:border-violet-500/50 transition-colors">
                      <img 
                        src={artist.image} 
                        alt={artist.name} 
                        className="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:filter group-hover:brightness-110"
+                       loading="lazy"
+                       onError={(e) => {
+                         const target = e.target as HTMLImageElement;
+                         target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&size=400&background=random`;
+                       }}
                      />
-
+                     
                      <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                      
                      <div className="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-75">
@@ -132,7 +153,7 @@ export default function ArtistsPage() {
 
                      <div className="absolute top-4 left-4 -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                         <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">
-                            {artistGenres[artist.id] || "Artiste"}
+                            {artistGenres[artist.id] || artist.genre}
                         </span>
                      </div>
                   </div>
@@ -144,7 +165,7 @@ export default function ArtistsPage() {
                     <div className="flex items-center gap-2 mt-1">
                         <Mic2 size={12} className="text-zinc-500" />
                         <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                           Vérifié • 1.2M Fans
+                           Vérifié • {artist.genre}
                         </p>
                     </div>
                   </div>

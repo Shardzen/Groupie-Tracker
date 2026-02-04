@@ -29,20 +29,40 @@ async function apiRequest<T>(
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...fetchOptions,
-    headers,
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Request failed' }))
-    throw new APIError(
-      errorData.error || errorData.message || `HTTP ${response.status}`,
-      response.status
-    )
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...fetchOptions,
+      headers,
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Request failed' }))
+      throw new APIError(
+        errorData.error || errorData.message || `HTTP ${response.status}`,
+        response.status
+      )
+    }
+
+    return response.json()
+  } catch (error) {
+    clearTimeout(timeoutId)
+    
+    if (error instanceof APIError) {
+      throw error
+    }
+    
+    if ((error as Error).name === 'AbortError') {
+      throw new APIError('Request timeout', 408)
+    }
+    
+    throw new APIError('Network error', 0)
   }
-
-  return response.json()
 }
 
 export const api = {

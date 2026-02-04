@@ -17,7 +17,8 @@ import (
 	"golang.org/x/time/rate"
 )
 
-var limiter = rate.NewLimiter(rate.Limit(10), 20)
+// Rate limiter: 5 requests per second with burst of 10
+var limiter = rate.NewLimiter(rate.Limit(5), 10)
 
 func main() {
 	err := godotenv.Load()
@@ -44,12 +45,16 @@ func main() {
 
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(rateLimitMiddleware)
-	api.Use(securityHeadersMiddleware)
+    api.Use(securityHeadersMiddleware)
 
 	api.HandleFunc("/artists", handlers.GetArtists).Methods("GET")
 	api.HandleFunc("/artists/{id}", handlers.GetArtist).Methods("GET")
 	api.HandleFunc("/concerts", handlers.GetConcerts).Methods("GET")
 	api.HandleFunc("/concerts/search", handlers.SearchConcerts).Methods("GET")
+	
+	// Deezer integration (remplace Spotify)
+    deezerHandler := handlers.NewDeezerHandler()
+	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
 	auth := api.PathPrefix("/auth").Subrouter()
 	auth.HandleFunc("/register", handlers.Register).Methods("POST")
@@ -78,7 +83,6 @@ func main() {
 	admin := protected.PathPrefix("/admin").Subrouter()
 	admin.Use(middleware.AdminOnly)
 
-	// Route d'upload d'image pour l'admin
 	admin.HandleFunc("/upload", handlers.AdminUploadImage).Methods("POST")
 
 	admin.HandleFunc("/artists", handlers.AdminGetArtists).Methods("GET")
@@ -120,7 +124,9 @@ func main() {
 func rateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
-			http.Error(w, `{"error":"Rate limit exceeded. Please try again later."}`, http.StatusTooManyRequests)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			w.Write([]byte(`{"error":"Too many requests. Please slow down."}`))
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -128,14 +134,25 @@ func rateLimitMiddleware(next http.Handler) http.Handler {
 }
 
 func securityHeadersMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Enhanced Content Security Policy
+        w.Header().Set("Content-Security-Policy", 
+			"default-src 'self'; "+
+			"img-src 'self' data: https: *.amazonaws.com *.cloudfront.net; "+
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; "+
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "+
+			"font-src 'self' https://fonts.gstatic.com; "+
+			"frame-src 'self' *.deezer.com *.stripe.com; "+
+			"connect-src 'self' *.stripe.com *.deezer.com")
+		
+		// Additional security headers
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
-		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-		w.Header().Set("Content-Security-Policy", "default-src 'self'")
-		next.ServeHTTP(w, r)
-	})
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		
+        next.ServeHTTP(w, r)
+    })
 }
 
 func getAllowedOrigins() []string {
@@ -167,6 +184,7 @@ func printServerInfo(port string) {
 	log.Println("📍 Public Endpoints:")
 	log.Printf("   🎤 Artists: /api/artists")
 	log.Printf("   🎫 Concerts: /api/concerts")
+	log.Printf("   🎵 Deezer Widget: /api/deezer/widget")
 	log.Println("")
 	log.Println("🔐 Auth Endpoints:")
 	log.Printf("   📧 Register: /api/auth/register")
@@ -185,11 +203,11 @@ func printServerInfo(port string) {
 	log.Printf("   🎫 Concerts CRUD: /api/admin/concerts")
 	log.Printf("   💰 Payments: /api/admin/payments")
 	log.Printf("   👥 Users: /api/admin/users")
-	log.Printf("   ☁️  Upload: /api/admin/upload") // J'ai ajouté l'info ici
+	log.Printf("   ☁️  Upload: /api/admin/upload")
 	log.Println("")
 	log.Println("🔒 Security:")
-	log.Printf("   ⚡ Rate Limit: 10 req/s (burst 20)")
-	log.Printf("   🛡️  Security Headers: Enabled")
+	log.Printf("   ⚡ Rate Limit: 5 req/s (burst 10)")
+	log.Printf("   🛡️  Security Headers: Enhanced")
 	log.Printf("   🌐 CORS: %v", getAllowedOrigins())
 	log.Println("🎵 ========================================")
 }
