@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, Sparkles, User, Menu, X, LogOut } from 'lucide-react';
+import { Search, User, Menu, X, LogOut, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
+import { useCartStore } from '../stores/useCartStore';
+import CartDrawer from './CartDrawer';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,11 +13,11 @@ export default function Navbar() {
   
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // ✅ CORRECTION : On utilise 'logout' ici
   const { user, logout } = useAuthStore();
+  const { items, toggleCart } = useCartStore();
+  
+  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Gestion du scroll
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -24,7 +26,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Recherche
   const handleSearchSubmit = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       navigate(`/artists?search=${encodeURIComponent(searchQuery)}`);
@@ -52,7 +53,7 @@ export default function Navbar() {
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             
-            {/* --- LOGO --- */}
+            {/* LOGO */}
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center group relative z-10">
                 <span className="text-2xl md:text-3xl font-black tracking-tighter hover:scale-105 transition-transform duration-300">
@@ -63,7 +64,7 @@ export default function Navbar() {
                 <div className="absolute -inset-4 bg-violet-600/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
               </Link>
 
-              {/* --- MENU DESKTOP --- */}
+              {/* MENU */}
               <div className="hidden lg:flex items-center gap-8">
                 {navLinks.map((link) => (
                   <Link
@@ -82,10 +83,8 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* --- ACTIONS DROITE --- */}
+            {/* ACTIONS */}
             <div className="flex items-center gap-3">
-
-              {/* Barre de Recherche */}
               <div className="hidden md:flex items-center relative">
                 <div className={`flex items-center transition-all duration-300 overflow-hidden ${
                     showSearch ? 'w-64 opacity-100 mr-2' : 'w-0 opacity-0'
@@ -97,36 +96,31 @@ export default function Navbar() {
                       onKeyDown={handleSearchSubmit}
                       placeholder="Rechercher..."
                       className="w-full bg-white/10 border border-white/10 rounded-full pl-4 pr-4 py-2 text-sm text-white focus:outline-none focus:border-violet-500 placeholder:text-zinc-500"
-                      autoFocus
                       onBlur={() => !searchQuery && setShowSearch(false)}
                     />
                 </div>
-                <button
-                  onClick={() => setShowSearch(!showSearch)}
-                  className="p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 hover:text-violet-400 transition-all duration-300 text-zinc-300"
-                >
+                <button onClick={() => setShowSearch(!showSearch)} className="p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 hover:text-violet-400 transition-all text-zinc-300">
                   <Search className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Bouton Premium */}
-              <Link to="/tickets">
-                <button className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/30 rounded-full hover:scale-105 transition-all duration-300 group backdrop-blur-xl">
-                  <Sparkles className="w-4 h-4 text-violet-400 group-hover:rotate-12 transition-transform" />
-                  <span className="text-sm font-bold text-violet-200">Premium</span>
-                </button>
-              </Link>
+              <button onClick={toggleCart} className="relative p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 text-white transition-all group mr-2">
+                <ShoppingCart className="w-5 h-5 group-hover:text-[#D4AF37] transition-colors" />
+                {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D4AF37] text-black text-xs font-bold flex items-center justify-center rounded-full animate-bounce">
+                        {totalItems}
+                    </span>
+                )}
+              </button>
 
-              {/* --- USER / LOGOUT --- */}
               {user ? (
                   <div className="relative group">
-                    <button className="flex items-center gap-2 p-1 pl-2 bg-zinc-900 border border-white/10 rounded-full hover:border-violet-500/50 transition-all duration-300">
+                    <button className="flex items-center gap-2 p-1 pl-2 bg-zinc-900 border border-white/10 rounded-full hover:border-violet-500/50 transition-all">
                         <span className="text-xs font-bold px-2 hidden md:block">{user.email?.split('@')[0]}</span>
-                        <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/20">
+                        <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full flex items-center justify-center text-white font-bold">
                             {user.email?.[0].toUpperCase()}
                         </div>
                     </button>
-                    {/* Menu Déroulant Logout */}
                     <div className="absolute right-0 top-full mt-2 w-32 bg-zinc-900 border border-white/10 rounded-xl p-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 shadow-xl">
                         <button onClick={() => logout()} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/5 rounded-lg transition-colors">
                             <LogOut size={14} /> Déconnexion
@@ -135,80 +129,24 @@ export default function Navbar() {
                   </div>
               ) : (
                 <Link to="/login">
-                    <button className="flex items-center gap-2 p-2 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 group">
-                    <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <button className="flex items-center gap-2 p-2 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all group">
+                    <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                         <User className="w-5 h-5 text-zinc-400 group-hover:text-white" />
                     </div>
                     </button>
                 </Link>
               )}
 
-              {/* Mobile Toggle */}
-              <button 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 text-white transition-all"
-              >
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 bg-white/5 border border-white/5 rounded-xl text-white">
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
           </div>
         </div>
-
-        {/* Ligne décorative */}
         <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500 to-transparent transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
       </nav>
-
-      {/* --- MENU MOBILE --- */}
-      <div
-        className={`fixed inset-0 z-40 lg:hidden transition-all duration-500 ${
-          mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-        }`}
-      >
-        <div
-          className="absolute inset-0 bg-black/90 backdrop-blur-xl"
-          onClick={() => setMobileMenuOpen(false)}
-        ></div>
-
-        <div
-          className={`absolute top-24 left-4 right-4 bg-zinc-900 border border-white/10 rounded-3xl p-6 transition-all duration-500 shadow-2xl ${
-            mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0'
-          }`}
-        >
-          <div className="space-y-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block text-lg font-bold p-4 rounded-2xl transition-all duration-300 ${
-                    location.pathname === link.href 
-                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/50' 
-                    : 'text-zinc-400 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-white/10">
-             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                <input
-                    type="text"
-                    placeholder="Rechercher..."
-                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 py-3 text-white focus:border-violet-500 focus:outline-none"
-                    onKeyDown={(e) => {
-                        if(e.key === 'Enter') {
-                             navigate(`/artists?search=${encodeURIComponent((e.target as HTMLInputElement).value)}`);
-                             setMobileMenuOpen(false);
-                        }
-                    }}
-                />
-             </div>
-          </div>
-        </div>
-      </div>
+      {/* Drawer */}
+      <CartDrawer />
     </>
   );
 }

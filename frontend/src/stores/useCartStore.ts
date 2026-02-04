@@ -25,7 +25,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   isOpen: false,
 
   addItem: (newItem) => set((state) => {
-    // Vérifie si l'article existe déjà (même ID ET même type de billet)
+
     const existingItem = state.items.find(
       (i) => i.id === newItem.id && i.type === newItem.type
     );
@@ -41,7 +41,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       updatedItems = [...state.items, { ...newItem, quantity: 1 }];
     }
 
-    return { items: updatedItems, isOpen: true }; // On ouvre le panier quand on ajoute !
+    return { items: updatedItems, isOpen: true };
   }),
 
   removeItem: (id, type) => set((state) => ({
