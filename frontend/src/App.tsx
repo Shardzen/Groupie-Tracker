@@ -12,7 +12,7 @@ import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import ConcertsPage from './pages/ConcertsPage';
-import NotFoundPage from './pages/NotFoundPage'; // ✅ IMPORT NOUVEAU
+import NotFoundPage from './pages/NotFoundPage'; 
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -33,7 +33,6 @@ function App() {
           <Route path="/tickets" element={<TicketsPage />} />
           <Route path="/about" element={<AboutPage />} />
           
-          {/* ✅ Route 404 : Si rien ne correspond, on affiche cette page */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
