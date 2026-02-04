@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Mail,
   Lock,
@@ -12,20 +12,54 @@ import {
   ArrowRight,
   Shield,
 } from 'lucide-react';
+import { api, APIError } from '../lib/api';
+import { useAuthStore } from '../stores/useAuthStore';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
-    // API call simulation
-    setTimeout(() => {
+
+    try {
+      const response = await api.post<{ token: string; user: any }>('/auth/login', {
+        email,
+        password,
+      });
+
+      login(response.token, response.user);
+      toast.success('Connexion réussie !');
+      navigate('/');
+    } catch (err) {
+      if (err instanceof APIError) {
+        setError(err.message);
+        toast.error(err.message);
+      } else {
+        setError('Une erreur est survenue. Veuillez réessayer.');
+        toast.error('Erreur de connexion');
+      }
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await api.get<{ url: string }>('/auth/google');
+      window.location.href = response.url;
+    } catch (err) {
+      toast.error('Erreur lors de la connexion Google');
+    }
   };
 
   return (
@@ -107,6 +141,12 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+              <p className="text-red-400 text-sm font-semibold">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Input */}
             <div className="space-y-2">
@@ -123,6 +163,7 @@ export default function LoginPage() {
                   placeholder="votre.email@exemple.com"
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-all duration-300"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -142,11 +183,13 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-all duration-300"
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -159,14 +202,18 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   className="w-4 h-4 rounded bg-white/5 border border-white/10 checked:bg-violet-600 checked:border-violet-600 transition-all"
+                  disabled={isLoading}
                 />
                 <span className="text-sm text-slate-400 group-hover:text-white transition-colors">
                   Se souvenir de moi
                 </span>
               </label>
-              <a href="#" className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+              <Link 
+                to="/forgot-password" 
+                className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors"
+              >
                 Mot de passe oublié ?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
@@ -203,12 +250,19 @@ export default function LoginPage() {
 
           {/* Social Login */}
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-white font-semibold transition-all duration-300 group">
+            <button 
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-white font-semibold transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Chrome className="w-5 h-5 group-hover:scale-110 transition-transform" />
               <span>Google</span>
             </button>
-            <button className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-white font-semibold transition-all duration-300 group">
-              <Github className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <button 
+              disabled
+              className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-500 font-semibold cursor-not-allowed opacity-50"
+            >
+              <Github className="w-5 h-5" />
               <span>GitHub</span>
             </button>
           </div>
