@@ -118,7 +118,7 @@ func main() {
 
 	printServerInfo(port)
 
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
 }
 
 func rateLimitMiddleware(next http.Handler) http.Handler {
