@@ -1,3 +1,5 @@
+// Migration effectuée le: 
+
 export interface Track {
   title: string;
   plays: string;
@@ -40,11 +42,21 @@ export const mockArtists: Artist[] = [
     id: '1',
     name: 'Ninho',
     genre: 'Rap FR',
-    image: '/artists/ninho.jpg.jpg', // Gardé tel quel selon ton fichier
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/1/ninho.jpg.jpg',
     bio: 'Le recordman du rap français.',
     topTracks: [
-      { title: 'Jefe', plays: '145M', duration: '3:12', previewUrl: 'https://cdns-preview-d.dzcdn.net/stream/c-d8f5b81a6243ddfa4c97b6a4b8c6d40b-4.mp3' },
-      { title: 'Lettre à une femme', plays: '120M', duration: '2:58', previewUrl: 'https://cdns-preview-9.dzcdn.net/stream/c-922634e062f928e08d6c703d1544a031-4.mp3' },
+      { 
+        title: 'Jefe', 
+        plays: '145M', 
+        duration: '3:12',
+        previewUrl: 'https://cdns-preview-d.dzcdn.net/stream/c-d8f5b81a6243ddfa4c97b6a4b8c6d40b-4.mp3' 
+      },
+      { 
+        title: 'Lettre à une femme', 
+        plays: '120M', 
+        duration: '2:58',
+        previewUrl: 'https://cdns-preview-9.dzcdn.net/stream/c-922634e062f928e08d6c703d1544a031-4.mp3'
+      },
       { title: 'La vie qu\'on mène', plays: '155M', duration: '3:29' },
       { title: 'Goutte d\'eau', plays: '110M', duration: '3:02' },
       { title: 'Maman ne le sait pas', plays: '95M', duration: '3:22' },
@@ -55,10 +67,56 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
+    id: '2',
+    name: 'Angèle',
+    genre: 'Pop',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/2/angele.jpg.webp',
+    bio: 'La reine de la pop belge.',
+    topTracks: [
+      { 
+        title: 'Bruxelles je t\'aime', 
+        plays: '95M', 
+        duration: '3:45', 
+        previewUrl: 'https://cdns-preview-b.dzcdn.net/stream/c-b93952701f6630f55e0031846c434226-6.mp3'
+      },
+      { 
+        title: 'Balance ton quoi', 
+        plays: '110M', 
+        duration: '3:10',
+        previewUrl: 'https://cdns-preview-8.dzcdn.net/stream/c-89260c07d353683f12b6946059632832-6.mp3'
+      },
+      { title: 'Tout oublier', plays: '180M', duration: '3:22' },
+      { title: 'Oui ou Non', plays: '85M', duration: '3:16' },
+      { title: 'Ta Reine', plays: '110M', duration: '3:33' },
+      { title: 'Fever', plays: '250M', duration: '2:37' },
+      { title: 'Libre', plays: '70M', duration: '2:44' },
+      { title: 'Flou', plays: '60M', duration: '3:19' }
+    ],
+    upcomingDates: []
+  },
+  {
+    id: '3',
+    name: 'Gojira',
+    genre: 'Metal',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
+    bio: 'La puissance du metal français.',
+    topTracks: [
+      { title: 'Stranded', plays: '80M', duration: '4:30' },
+      { title: 'Silvera', plays: '70M', duration: '3:50' },
+      { title: 'L\'enfant sauvage', plays: '60M', duration: '4:17' },
+      { title: 'Flying Whales', plays: '55M', duration: '7:44' },
+      { title: 'Amazonia', plays: '35M', duration: '5:00' },
+      { title: 'Another World', plays: '40M', duration: '4:25' },
+      { title: 'The Shooting Star', plays: '30M', duration: '5:42' },
+      { title: 'Born For One Thing', plays: '25M', duration: '4:20' }
+    ],
+    upcomingDates: []
+  },
+  {
     id: '4',
     name: 'Orelsan',
     genre: 'Rap FR',
-    image: '/artists/orelsan.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/4/orelsan.jpg',
     bio: 'Civilisation. La plume la plus aiguisée de Caen.',
     topTracks: [
       { title: 'La Quête', plays: '90M', duration: '4:00' },
@@ -73,10 +131,46 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
+    id: '5',
+    name: 'Daft Punk',
+    genre: 'Electro',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/5/daftpunk.jpg',
+    bio: 'Les légendes. One More Time.',
+    topTracks: [
+        { title: 'One More Time', plays: '500M', duration: '5:20' },
+        { title: 'Get Lucky', plays: '1B', duration: '4:08' },
+        { title: 'Harder, Better, Faster, Stronger', plays: '700M', duration: '3:45' },
+        { title: 'Instant Crush', plays: '600M', duration: '5:37' },
+        { title: 'Around the World', plays: '550M', duration: '7:09' },
+        { title: 'Da Funk', plays: '400M', duration: '5:28' },
+        { title: 'Lose Yourself to Dance', plays: '350M', duration: '5:53' },
+        { title: 'Technologic', plays: '300M', duration: '4:44' }
+    ],
+    upcomingDates: []
+  },
+  {
+    id: '6',
+    name: 'PNL',
+    genre: 'Rap Cloud',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/6/pnl.jpg',
+    bio: 'Deux frères. QLF.',
+    topTracks: [
+        { title: 'Au DD', plays: '300M', duration: '4:00' },
+        { title: 'Da', plays: '250M', duration: '3:50' },
+        { title: 'Naha', plays: '200M', duration: '4:45' },
+        { title: 'Onizuka', plays: '220M', duration: '4:12' },
+        { title: 'Bené', plays: '180M', duration: '3:10' },
+        { title: '91\'s', plays: '190M', duration: '3:55' },
+        { title: 'Blanka', plays: '150M', duration: '4:15' },
+        { title: 'A l\'ammoniaque', plays: '170M', duration: '5:16' }
+    ],
+    upcomingDates: []
+  },
+  {
     id: '7',
     name: 'Leto',
     genre: 'Rap FR',
-    image: '/artists/leto.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/7/leto.jpg',
     bio: 'Le roi de la Trap parisienne. Capitaine Jackson.',
     topTracks: [
       { title: 'Macaroni', plays: '80M', duration: '3:20' },
@@ -94,7 +188,7 @@ export const mockArtists: Artist[] = [
     id: '8',
     name: 'Nono La Grinta',
     genre: 'Rap FR',
-    image: '/artists/nonolagrinta.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/8/nonolagrinta.jpg',
     bio: 'La nouvelle pépite du 91. Flow agressif et technique.',
     topTracks: [
       { title: 'LA QUOI??', plays: '15M', duration: '2:50' },
@@ -112,7 +206,7 @@ export const mockArtists: Artist[] = [
     id: '9',
     name: 'Keeqaid',
     genre: 'Rap FR',
-    image: '/artists/keeqaid.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/9/keeqaid.jpg',
     bio: 'Le futur de la scène. Un style unique qui mélange les genres.',
     topTracks: [
       { title: 'Tequila', plays: '5M', duration: '2:40' },
@@ -130,7 +224,7 @@ export const mockArtists: Artist[] = [
     id: '10',
     name: 'Timar',
     genre: 'Rap FR',
-    image: '/artists/timar.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/10/timar.jpg',
     bio: 'Une voix qui marque et des textes qui percutent.',
     topTracks: [
       { title: 'Sierra Leone', plays: '3M', duration: '2:55' },
@@ -148,7 +242,7 @@ export const mockArtists: Artist[] = [
     id: '11',
     name: 'Lamano',
     genre: 'Rap FR',
-    image: '/artists/lamano.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/11/lamano.jpg',
     bio: 'L\'étoile montante. À suivre de très près cette année.',
     topTracks: [
       { title: 'Im sorry', plays: '8M', duration: '2:30' },
@@ -163,28 +257,10 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '2',
-    name: 'Angèle',
-    genre: 'Pop',
-    image: '/artists/angele.jpg.webp',
-    bio: 'La reine de la pop belge.',
-    topTracks: [
-      { title: 'Bruxelles je t\'aime', plays: '95M', duration: '3:45', previewUrl: 'https://cdns-preview-b.dzcdn.net/stream/c-b93952701f6630f55e0031846c434226-6.mp3' },
-      { title: 'Balance ton quoi', plays: '110M', duration: '3:10', previewUrl: 'https://cdns-preview-8.dzcdn.net/stream/c-89260c07d353683f12b6946059632832-6.mp3' },
-      { title: 'Tout oublier', plays: '180M', duration: '3:22' },
-      { title: 'Oui ou Non', plays: '85M', duration: '3:16' },
-      { title: 'Ta Reine', plays: '110M', duration: '3:33' },
-      { title: 'Fever', plays: '250M', duration: '2:37' },
-      { title: 'Libre', plays: '70M', duration: '2:44' },
-      { title: 'Flou', plays: '60M', duration: '3:19' }
-    ],
-    upcomingDates: []
-  },
-  {
     id: '12',
     name: 'The Weeknd',
     genre: 'Pop',
-    image: '/artists/theweeknd.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/12/theweeknd.jpg',
     bio: 'Starboy. L\'artiste le plus écouté au monde.',
     topTracks: [
       { title: 'Blinding Lights', plays: '3B', duration: '3:20' },
@@ -202,7 +278,7 @@ export const mockArtists: Artist[] = [
     id: '13',
     name: 'Dua Lipa',
     genre: 'Pop',
-    image: '/artists/dualipa.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/13/dualipa.jpg',
     bio: 'La reine du Disco Pop moderne.',
     topTracks: [
       { title: 'Levitating', plays: '1.5B', duration: '3:23' },
@@ -220,7 +296,7 @@ export const mockArtists: Artist[] = [
     id: '14',
     name: 'Stromae',
     genre: 'Pop',
-    image: '/artists/stromae.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/14/stromae.jpg',
     bio: 'Le maestro belge. Des textes sombres sur des rythmes dansants.',
     topTracks: [
       { title: 'Alors on danse', plays: '900M', duration: '3:26' },
@@ -238,7 +314,7 @@ export const mockArtists: Artist[] = [
     id: '15',
     name: 'Aya Nakamura',
     genre: 'Pop',
-    image: '/artists/nakamura.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/15/nakamura.jpg',
     bio: 'La reine de France. L\'artiste francophone la plus écoutée à l\'international.',
     topTracks: [
       { title: 'Djadja', plays: '850M', duration: '2:50' },
@@ -253,28 +329,10 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '3',
-    name: 'Gojira',
-    genre: 'Metal',
-    image: '/artists/gojira.jpg',
-    bio: 'La puissance du metal français.',
-    topTracks: [
-      { title: 'Stranded', plays: '80M', duration: '4:30' },
-      { title: 'Silvera', plays: '70M', duration: '3:50' },
-      { title: 'L\'enfant sauvage', plays: '60M', duration: '4:17' },
-      { title: 'Flying Whales', plays: '55M', duration: '7:44' },
-      { title: 'Amazonia', plays: '35M', duration: '5:00' },
-      { title: 'Another World', plays: '40M', duration: '4:25' },
-      { title: 'The Shooting Star', plays: '30M', duration: '5:42' },
-      { title: 'Born For One Thing', plays: '25M', duration: '4:20' }
-    ],
-    upcomingDates: []
-  },
-  {
     id: '16',
     name: 'Metallica',
     genre: 'Metal',
-    image: '/artists/metallica.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/16/metallica.jpg',
     bio: 'Les pères fondateurs du Thrash Metal.',
     topTracks: [
       { title: 'Enter Sandman', plays: '1B', duration: '5:31' },
@@ -292,7 +350,7 @@ export const mockArtists: Artist[] = [
     id: '17',
     name: 'Rammstein',
     genre: 'Metal',
-    image: '/artists/rammstein.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/17/rammstein.jpg',
     bio: 'Le metal industriel allemand à son paroxysme. Du feu et de la fureur.',
     topTracks: [
       { title: 'Du Hast', plays: '600M', duration: '3:54' },
@@ -310,7 +368,7 @@ export const mockArtists: Artist[] = [
     id: '18',
     name: 'System of a Down',
     genre: 'Metal',
-    image: '/artists/systemofadown.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/18/systemofadown.jpg',
     bio: 'L\'énergie brute arméno-américaine.',
     topTracks: [
       { title: 'Chop Suey!', plays: '1.2B', duration: '3:30' },
@@ -325,28 +383,10 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '5',
-    name: 'Daft Punk',
-    genre: 'Electro',
-    image: '/artists/daftpunk.jpg',
-    bio: 'Les légendes. One More Time.',
-    topTracks: [
-      { title: 'One More Time', plays: '500M', duration: '5:20' },
-      { title: 'Get Lucky', plays: '1B', duration: '4:08' },
-      { title: 'Harder, Better, Faster, Stronger', plays: '700M', duration: '3:45' },
-      { title: 'Instant Crush', plays: '600M', duration: '5:37' },
-      { title: 'Around the World', plays: '550M', duration: '7:09' },
-      { title: 'Da Funk', plays: '400M', duration: '5:28' },
-      { title: 'Lose Yourself to Dance', plays: '350M', duration: '5:53' },
-      { title: 'Technologic', plays: '300M', duration: '4:44' }
-    ],
-    upcomingDates: []
-  },
-  {
     id: '19',
     name: 'DJ Snake',
     genre: 'Electro',
-    image: '/artists/djsnake.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/19/djsnake.jpg',
     bio: 'Le français qui fait danser la planète entière.',
     topTracks: [
       { title: 'Turn Down for What', plays: '1.1B', duration: '3:33' },
@@ -364,7 +404,7 @@ export const mockArtists: Artist[] = [
     id: '20',
     name: 'David Guetta',
     genre: 'Electro',
-    image: '/artists/davidguetta.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/20/davidguetta.jpg',
     bio: 'Le numéro 1 mondial des platines.',
     topTracks: [
       { title: 'Sexy Bitch', plays: '1.5B', duration: '4:05' },
@@ -382,7 +422,7 @@ export const mockArtists: Artist[] = [
     id: '21',
     name: 'Kavinsky',
     genre: 'Electro',
-    image: '/artists/kavinsky.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/21/kavinsky.jpg',
     bio: 'Synthwave legend. Nightcall.',
     topTracks: [
       { title: 'Nightcall', plays: '400M', duration: '4:18' },
@@ -397,28 +437,10 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '6',
-    name: 'PNL',
-    genre: 'Rap Cloud',
-    image: '/artists/pnl.jpg',
-    bio: 'Deux frères. QLF.',
-    topTracks: [
-      { title: 'Au DD', plays: '300M', duration: '4:00' },
-      { title: 'Da', plays: '250M', duration: '3:50' },
-      { title: 'Naha', plays: '200M', duration: '4:45' },
-      { title: 'Onizuka', plays: '220M', duration: '4:12' },
-      { title: 'Bené', plays: '180M', duration: '3:10' },
-      { title: '91\'s', plays: '190M', duration: '3:55' },
-      { title: 'Blanka', plays: '150M', duration: '4:15' },
-      { title: 'A l\'ammoniaque', plays: '170M', duration: '5:16' }
-    ],
-    upcomingDates: []
-  },
-  {
     id: '22',
     name: 'Hamza',
     genre: 'Rap Cloud',
-    image: '/artists/hamza.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/22/hamza.jpg',
     bio: 'Le Sauce God belge. Des mélodies imparables.',
     topTracks: [
       { title: 'Life', plays: '80M', duration: '3:05' },
@@ -436,7 +458,7 @@ export const mockArtists: Artist[] = [
     id: '23',
     name: 'Laylow',
     genre: 'Rap Cloud',
-    image: '/artists/laylow.jpg',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/23/laylow.jpg',
     bio: 'L\'étrange histoire de Mr. Anderson. Digital et émotionnel.',
     topTracks: [
       { title: 'Megatron', plays: '45M', duration: '3:20' },
