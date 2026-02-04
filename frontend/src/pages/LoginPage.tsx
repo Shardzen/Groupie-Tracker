@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import {
   Mail,
   Lock,
@@ -46,7 +45,7 @@ export default function LoginPage() {
         setError(err.message);
         toast.error(err.message);
       } else {
-        setError('Une erreur est survenue. Veuillez réessayer.');
+        setError('Une erreur est survenue.');
         toast.error('Erreur de connexion');
       }
     } finally {
@@ -59,55 +58,51 @@ export default function LoginPage() {
       const response = await api.get<{ url: string }>('/auth/google');
       window.location.href = response.url;
     } catch (err) {
-      toast.error('Erreur lors de la connexion Google');
+      toast.error('Erreur Google Login');
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
-          <div className="absolute inset-0 z-0">
-        <img src="/img/background.png"
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/img/background.png"
           alt="Background" 
-          className="w-full h-full object-cover opacity-100" />
-<div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
-        
+          className="w-full h-full object-cover opacity-100" 
+        />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
       </div> 
-      {/* Logo in top-left */}
+
       <Link to="/" className="absolute top-8 left-8 z-50 group">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-black-500 to-white-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative bg-gradient-to-br from-black-600 to-grey-600 p-2 rounded-xl shadow-lg">
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-500 to-white rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 p-2 rounded-xl shadow-lg">
               <Music className="w-6 h-6 text-white" />
             </div>
           </div>
-          <span className="text-2xl font-black gradient-text">YNOT</span>
+          <span className="text-2xl font-black text-white">YNOT</span>
         </div>
       </Link>
 
-      {/* Main Content */}
       <div className="w-full max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        {/* Left Side - Branding */}
         <div className="hidden lg:block space-y-8 animate-fadeIn">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
               <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
-              <span className="text-sm font-semibold text-slate-300">
-                Plateforme Premium
-              </span>
+              <span className="text-sm font-semibold text-slate-300">Plateforme Premium</span>
             </div>
 
-        <h1 className="text-6xl font-black font-display tracking-tighter">
-            <span className="block text-white mb-2">Bienvenue sur</span>
-            <span className="block gradient-text">YNOT Music</span>
-        </h1>
+            <h1 className="text-6xl font-black font-display tracking-tighter">
+              <span className="block text-white mb-2">Bienvenue sur</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-500">YNOT Music</span>
+            </h1>
 
             <p className="text-xl text-slate-400 leading-relaxed max-w-md">
               Accédez à des milliers de concerts, réservez vos places et vivez des expériences musicales inoubliables.
             </p>
           </div>
 
-          {/* Features */}
           <div className="space-y-4">
             {[
               { icon: Shield, text: 'Connexion 100% sécurisée' },
@@ -116,11 +111,7 @@ export default function LoginPage() {
             ].map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-4 glass-effect rounded-xl animate-fadeIn"
-                  style={{ animationDelay: `${200 + index * 100}ms` }}
-                >
+                <div key={index} className="flex items-center gap-4 p-4 glass-effect rounded-xl">
                   <div className="p-2 bg-gradient-to-br from-violet-600 to-purple-600 rounded-lg">
                     <Icon className="w-5 h-5 text-white" />
                   </div>
@@ -131,168 +122,94 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
-        <div className="glass-card rounded-3xl p-8 md:p-12 shadow-2xl animate-fadeInScale">
+        <div className="glass-card rounded-3xl p-8 md:p-12 shadow-2xl">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-black text-white mb-3 font-display">
-              Connexion
-            </h2>
-            <p className="text-slate-400">
-              Entrez vos identifiants pour continuer
-            </p>
+            <h2 className="text-4xl font-black text-white mb-3 font-display uppercase">Connexion</h2>
+            <p className="text-slate-400">Entrez vos identifiants pour continuer</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
-              <p className="text-red-400 text-sm font-semibold">{error}</p>
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm font-semibold">
+              {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Input */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-300">
-                Adresse email
-              </label>
+              <label className="block text-sm font-semibold text-slate-300">Adresse email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
-                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-violet-500/50 outline-none transition-all"
                   placeholder="votre.email@exemple.com"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-all duration-300"
                   required
-                  disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Password Input */}
             <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-300">
-                Mot de passe
-              </label>
+              <label className="block text-sm font-semibold text-slate-300">Mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
-                  id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white focus:border-violet-500/50 outline-none transition-all"
                   placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-all duration-300"
                   required
-                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-                  disabled={isLoading}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
 
-            {/* Remember & Forgot */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded bg-white/5 border border-white/10 checked:bg-violet-600 checked:border-violet-600 transition-all"
-                  disabled={isLoading}
-                />
-                <span className="text-sm text-slate-400 group-hover:text-white transition-colors">
-                  Se souvenir de moi
-                </span>
+                <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 checked:bg-violet-600" />
+                <span className="text-sm text-slate-400 group-hover:text-white transition-colors">Se souvenir de moi</span>
               </label>
-              <Link 
-                to="/forgot-password" 
-                className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors"
-              >
-                Mot de passe oublié ?
+              <Link to="/forgot-password" size="sm" className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+                Oublié ?
               </Link>
             </div>
-<div className="flex items-center justify-between">
-  <label className="flex items-center gap-2 cursor-pointer group">
-    <input
-      type="checkbox"
-      className="w-4 h-4 rounded bg-white/5 border border-white/10 checked:bg-violet-600 checked:border-violet-600 transition-all"
-    />
-    <span className="text-sm text-slate-400 group-hover:text-white transition-colors">
-      Se souvenir de moi
-    </span>
-  </label>
-  
-  {/* On remplace juste le <a> par le <Link> ici */}
-  <Link 
-    to="/forgot-password" 
-    className="text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors"
-  >
-    Mot de passe oublié ?
-  </Link>
-</div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn-primary py-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-violet-600 hover:text-white transition-all"
             >
-              {isLoading ? (
-                <>
-                  <div className="spinner w-5 h-5 border-2"></div>
-                  <span>Connexion en cours...</span>
-                </>
-              ) : (
-                <>
-                  <span className="font-bold">Se connecter</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
+              {isLoading ? "CHARGEMENT..." : "SE CONNECTER"}
+              {!isLoading && <ArrowRight className="w-5 h-5" />}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-slate-1 text-slate-500 font-semibold">
-                Ou continuer avec
-              </span>
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+            <div className="relative flex justify-center text-sm"><span className="px-4 bg-slate-950 text-slate-500 font-semibold">Ou continuer avec</span></div>
           </div>
 
-          {/* Social Login */}
           <div className="grid grid-cols-2 gap-4">
-            <button 
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-white font-semibold transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Chrome className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Google</span>
+            <button onClick={handleGoogleLogin} className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white hover:border-violet-500/50 transition-all">
+              <Chrome size={20} />
+              <span className="text-sm font-bold">Google</span>
             </button>
-            <button 
-              disabled
-              className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-500 font-semibold cursor-not-allowed opacity-50"
-            >
-              <Github className="w-5 h-5" />
-              <span>GitHub</span>
+            <button disabled className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed opacity-50">
+              <Github size={20} />
+              <span className="text-sm font-bold">GitHub</span>
             </button>
           </div>
 
-          {/* Sign Up Link */}
           <p className="mt-8 text-center text-slate-400">
-            Pas encore de compte ?{' '}
-            <Link to="/register" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">
-              S'inscrire gratuitement
-            </Link>
+            Nouveau ici ? <Link to="/register" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">S'inscrire gratuitement</Link>
           </p>
         </div>
       </div>
