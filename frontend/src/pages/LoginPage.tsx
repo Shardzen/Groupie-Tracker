@@ -201,7 +201,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-slate-900 text-slate-500 font-semibold">
+              <span className="px-4 bg-slate-1 text-slate-500 font-semibold">
                 Ou continuer avec
               </span>
             </div>
