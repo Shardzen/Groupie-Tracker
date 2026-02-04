@@ -40,7 +40,7 @@ export const mockArtists: Artist[] = [
     id: '1',
     name: 'Ninho',
     genre: 'Rap FR',
-    image: '/artists/ninho.jpg.jpg',
+    image: '/artists/ninho.jpg.jpg', // Gardé tel quel selon ton fichier
     bio: 'Le recordman du rap français.',
     topTracks: [
       { title: 'Jefe', plays: '145M', duration: '3:12', previewUrl: 'https://cdns-preview-d.dzcdn.net/stream/c-d8f5b81a6243ddfa4c97b6a4b8c6d40b-4.mp3' },
@@ -58,7 +58,7 @@ export const mockArtists: Artist[] = [
     id: '4',
     name: 'Orelsan',
     genre: 'Rap FR',
-    image: 'artists/orelsan.jpg',
+    image: '/artists/orelsan.jpg',
     bio: 'Civilisation. La plume la plus aiguisée de Caen.',
     topTracks: [
       { title: 'La Quête', plays: '90M', duration: '4:00' },
@@ -76,7 +76,7 @@ export const mockArtists: Artist[] = [
     id: '7',
     name: 'Leto',
     genre: 'Rap FR',
-    image: 'artists/leto.jpg',
+    image: '/artists/leto.jpg',
     bio: 'Le roi de la Trap parisienne. Capitaine Jackson.',
     topTracks: [
       { title: 'Macaroni', plays: '80M', duration: '3:20' },
@@ -94,7 +94,7 @@ export const mockArtists: Artist[] = [
     id: '8',
     name: 'Nono La Grinta',
     genre: 'Rap FR',
-    image: 'artists/nonolagrinta.jpg',
+    image: '/artists/nonolagrinta.jpg',
     bio: 'La nouvelle pépite du 91. Flow agressif et technique.',
     topTracks: [
       { title: 'LA QUOI??', plays: '15M', duration: '2:50' },
@@ -112,7 +112,7 @@ export const mockArtists: Artist[] = [
     id: '9',
     name: 'Keeqaid',
     genre: 'Rap FR',
-    image: 'artists/keeqaid.jpg',
+    image: '/artists/keeqaid.jpg',
     bio: 'Le futur de la scène. Un style unique qui mélange les genres.',
     topTracks: [
       { title: 'Tequila', plays: '5M', duration: '2:40' },
@@ -130,7 +130,7 @@ export const mockArtists: Artist[] = [
     id: '10',
     name: 'Timar',
     genre: 'Rap FR',
-    image: 'artists/timar.jpg',
+    image: '/artists/timar.jpg',
     bio: 'Une voix qui marque et des textes qui percutent.',
     topTracks: [
       { title: 'Sierra Leone', plays: '3M', duration: '2:55' },
@@ -148,7 +148,7 @@ export const mockArtists: Artist[] = [
     id: '11',
     name: 'Lamano',
     genre: 'Rap FR',
-    image: 'artists/lamano.jpg',
+    image: '/artists/lamano.jpg',
     bio: 'L\'étoile montante. À suivre de très près cette année.',
     topTracks: [
       { title: 'Im sorry', plays: '8M', duration: '2:30' },
@@ -184,7 +184,7 @@ export const mockArtists: Artist[] = [
     id: '12',
     name: 'The Weeknd',
     genre: 'Pop',
-    image: 'artists/theweeknd.jpg',
+    image: '/artists/theweeknd.jpg',
     bio: 'Starboy. L\'artiste le plus écouté au monde.',
     topTracks: [
       { title: 'Blinding Lights', plays: '3B', duration: '3:20' },
@@ -202,7 +202,7 @@ export const mockArtists: Artist[] = [
     id: '13',
     name: 'Dua Lipa',
     genre: 'Pop',
-    image: 'artists/dualipa.jpg',
+    image: '/artists/dualipa.jpg',
     bio: 'La reine du Disco Pop moderne.',
     topTracks: [
       { title: 'Levitating', plays: '1.5B', duration: '3:23' },
@@ -220,7 +220,7 @@ export const mockArtists: Artist[] = [
     id: '14',
     name: 'Stromae',
     genre: 'Pop',
-    image: 'artists/stromae.jpg',
+    image: '/artists/stromae.jpg',
     bio: 'Le maestro belge. Des textes sombres sur des rythmes dansants.',
     topTracks: [
       { title: 'Alors on danse', plays: '900M', duration: '3:26' },
@@ -238,7 +238,7 @@ export const mockArtists: Artist[] = [
     id: '15',
     name: 'Aya Nakamura',
     genre: 'Pop',
-    image: 'artists/nakamura.jpg',
+    image: '/artists/nakamura.jpg',
     bio: 'La reine de France. L\'artiste francophone la plus écoutée à l\'international.',
     topTracks: [
       { title: 'Djadja', plays: '850M', duration: '2:50' },
@@ -256,7 +256,7 @@ export const mockArtists: Artist[] = [
     id: '3',
     name: 'Gojira',
     genre: 'Metal',
-    image: 'artists/gojira.jpg',
+    image: '/artists/gojira.jpg',
     bio: 'La puissance du metal français.',
     topTracks: [
       { title: 'Stranded', plays: '80M', duration: '4:30' },
@@ -274,7 +274,7 @@ export const mockArtists: Artist[] = [
     id: '16',
     name: 'Metallica',
     genre: 'Metal',
-    image: 'artists/metallica.jpg',
+    image: '/artists/metallica.jpg',
     bio: 'Les pères fondateurs du Thrash Metal.',
     topTracks: [
       { title: 'Enter Sandman', plays: '1B', duration: '5:31' },
@@ -292,7 +292,7 @@ export const mockArtists: Artist[] = [
     id: '17',
     name: 'Rammstein',
     genre: 'Metal',
-    image: 'artists/rammstein.jpg',
+    image: '/artists/rammstein.jpg',
     bio: 'Le metal industriel allemand à son paroxysme. Du feu et de la fureur.',
     topTracks: [
       { title: 'Du Hast', plays: '600M', duration: '3:54' },
@@ -310,7 +310,7 @@ export const mockArtists: Artist[] = [
     id: '18',
     name: 'System of a Down',
     genre: 'Metal',
-    image: 'artists/systemofadown.jpg',
+    image: '/artists/systemofadown.jpg',
     bio: 'L\'énergie brute arméno-américaine.',
     topTracks: [
       { title: 'Chop Suey!', plays: '1.2B', duration: '3:30' },
@@ -328,7 +328,7 @@ export const mockArtists: Artist[] = [
     id: '5',
     name: 'Daft Punk',
     genre: 'Electro',
-    image: 'artists/daftpunk.jpg',
+    image: '/artists/daftpunk.jpg',
     bio: 'Les légendes. One More Time.',
     topTracks: [
       { title: 'One More Time', plays: '500M', duration: '5:20' },
@@ -346,7 +346,7 @@ export const mockArtists: Artist[] = [
     id: '19',
     name: 'DJ Snake',
     genre: 'Electro',
-    image: 'artists/djsnake.jpg',
+    image: '/artists/djsnake.jpg',
     bio: 'Le français qui fait danser la planète entière.',
     topTracks: [
       { title: 'Turn Down for What', plays: '1.1B', duration: '3:33' },
@@ -364,7 +364,7 @@ export const mockArtists: Artist[] = [
     id: '20',
     name: 'David Guetta',
     genre: 'Electro',
-    image: 'artists/davidguetta.jpg',
+    image: '/artists/davidguetta.jpg',
     bio: 'Le numéro 1 mondial des platines.',
     topTracks: [
       { title: 'Sexy Bitch', plays: '1.5B', duration: '4:05' },
@@ -382,7 +382,7 @@ export const mockArtists: Artist[] = [
     id: '21',
     name: 'Kavinsky',
     genre: 'Electro',
-    image: 'artists/kavinsky.jpg',
+    image: '/artists/kavinsky.jpg',
     bio: 'Synthwave legend. Nightcall.',
     topTracks: [
       { title: 'Nightcall', plays: '400M', duration: '4:18' },
@@ -400,7 +400,7 @@ export const mockArtists: Artist[] = [
     id: '6',
     name: 'PNL',
     genre: 'Rap Cloud',
-    image: 'artists/pnl.jpg',
+    image: '/artists/pnl.jpg',
     bio: 'Deux frères. QLF.',
     topTracks: [
       { title: 'Au DD', plays: '300M', duration: '4:00' },
@@ -418,7 +418,7 @@ export const mockArtists: Artist[] = [
     id: '22',
     name: 'Hamza',
     genre: 'Rap Cloud',
-    image: 'artists/hamza.jpg',
+    image: '/artists/hamza.jpg',
     bio: 'Le Sauce God belge. Des mélodies imparables.',
     topTracks: [
       { title: 'Life', plays: '80M', duration: '3:05' },
@@ -436,7 +436,7 @@ export const mockArtists: Artist[] = [
     id: '23',
     name: 'Laylow',
     genre: 'Rap Cloud',
-    image: 'artists/laylow.jpg',
+    image: '/artists/laylow.jpg',
     bio: 'L\'étrange histoire de Mr. Anderson. Digital et émotionnel.',
     topTracks: [
       { title: 'Megatron', plays: '45M', duration: '3:20' },

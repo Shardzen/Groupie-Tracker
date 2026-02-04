@@ -9,8 +9,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white overflow-x-hidden font-sans">
-      
-      {/* NOTE : J'ai retiré la Navbar ici car elle est gérée par le Layout */}
 
       <div className="relative pt-40 pb-20 px-6 container mx-auto flex flex-col items-center justify-center text-center z-10 min-h-[70vh]">
         
@@ -133,8 +131,6 @@ export default function Home() {
            </button>
         </div>
       </div>
-
-      {/* NOTE : Le Footer a été supprimé d'ici car il est dans le Layout */}
 
     </div>
   );
