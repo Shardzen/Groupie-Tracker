@@ -1,3 +1,5 @@
+/* Tout en haut de index.css */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -22,6 +24,7 @@
 }
 
 .font-display {
+  font-family: 'Archivo Black', sans-serif; /* <--- AJOUTE CETTE LIGNE */
   font-weight: 900;
   letter-spacing: -0.05em;
   text-transform: uppercase;

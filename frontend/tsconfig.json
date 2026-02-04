@@ -7,8 +7,7 @@
     "skipLibCheck": true,
 
     "types": [
-      "vite/client",            
-      "vite-plugin-pwa/client"
+      "vite/client"
     ],
 
     "moduleResolution": "bundler",
