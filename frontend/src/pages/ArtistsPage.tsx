@@ -3,18 +3,33 @@ import { useLocation, Link } from 'react-router-dom';
 import { mockArtists } from '../data/mockData';
 import { Search, Play, Mic2, Music2, Sparkles, Filter } from 'lucide-react';
 
-// 🎭 1. ON SIMULE DES GENRES POUR TES ARTISTES EXISTANTS
-// (Comme ça le filtre marche vraiment sans changer ta base de données)
 const artistGenres: Record<string, string> = {
-  "1": "Rap",    // Ninho (supposé ID 1)
-  "2": "Pop",    // Angèle
-  "3": "Metal",  // Gojira
-  "4": "R&B",    // The Weeknd
-  "5": "Electro" // Daft Punk
-  // Les autres seront "Divers" par défaut
+  "1": "Rap",
+  "2": "Pop",
+  "3": "Metal",
+  "4": "Rap",
+  "5": "Electro",
+  "6": "Rap",
+  "7": "Rap",
+  "8": "Rap",
+  "9": "Rap",
+  "10": "Rap",
+  "11": "Rap",
+  "12": "Pop",
+  "13": "Pop",
+  "14": "Pop",
+  "15": "Pop",
+  "16": "Metal",
+  "17": "Metal",
+  "18": "Metal",
+  "19": "Electro",
+  "20": "Electro",
+  "21": "Electro",
+  "22": "Rap",
+  "23": "Rap",
 };
 
-const genres = ["Tout", "Rap", "Pop", "R&B", "Electro", "Metal", "Rock"];
+const genres = ["Tout", "Rap", "Pop", "R&B", "Electro", "Metal"];
 
 export default function ArtistsPage() {
   const location = useLocation();
@@ -22,19 +37,14 @@ export default function ArtistsPage() {
   const [selectedGenre, setSelectedGenre] = useState('Tout');
   const [animateCards, setAnimateCards] = useState(false);
 
-  // Effet d'apparition au chargement
   useEffect(() => {
     setAnimateCards(true);
   }, []);
 
-  // 🧠 2. LOGIQUE DE FILTRAGE INTELLIGENTE
-  // On recalcule la liste à chaque fois que la Recherche OU le Genre change
   const filteredArtists = useMemo(() => {
-    // A. Récupération du mot-clé depuis l'URL (Barre de recherche Navbar)
     const searchParams = new URLSearchParams(location.search);
     const queryUrl = searchParams.get('search') || '';
     
-    // Si l'URL change, on met à jour le state local pour l'affichage
     if (queryUrl !== searchTerm && queryUrl !== '') {
         setSearchTerm(queryUrl);
     }
@@ -42,12 +52,9 @@ export default function ArtistsPage() {
     const queryToUse = queryUrl || searchTerm;
 
     return mockArtists.filter(artist => {
-      // Filtre 1 : Le Nom
       const matchesName = artist.name.toLowerCase().includes(queryToUse.toLowerCase());
-      
-      // Filtre 2 : Le Genre (On utilise notre mapping simulé ou "Divers")
       const artistGenre = artistGenres[artist.id] || "Divers";
-      const matchesGenre = selectedGenre === 'Tout' || artistGenre === selectedGenre || (selectedGenre === 'Divers' && !artistGenres[artist.id]);
+      const matchesGenre = selectedGenre === 'Tout' || artistGenre === selectedGenre;
 
       return matchesName && matchesGenre;
     });
@@ -56,14 +63,11 @@ export default function ArtistsPage() {
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white pt-28 px-6 md:px-12 pb-20 relative overflow-hidden">
       
-      {/* Fond d'ambiance dynamique */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-violet-900/20 via-black to-black -z-10 pointer-events-none"></div>
       <div className="absolute top-20 right-0 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-[100px] -z-10 animate-pulse"></div>
 
-      {/* --- EN-TÊTE & CONTRÔLES --- */}
       <div className="max-w-7xl mx-auto mb-16 space-y-8">
         
-        {/* Titre & Stats */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
             <div>
                 <div className="flex items-center gap-3 mb-2">
@@ -84,22 +88,19 @@ export default function ArtistsPage() {
             </div>
         </div>
 
-        {/* Barre de Filtres Avancée */}
         <div className="flex flex-col lg:flex-row gap-6 items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
             
-            {/* Recherche Locale */}
             <div className="relative w-full lg:w-96 group">
                 <input 
                     type="text" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Chercher dans la liste..."
+                    placeholder="Chercher un artiste..."
                     className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 py-3 text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-violet-400 transition-colors" size={20} />
             </div>
 
-            {/* Filtres Genres (Chips) */}
             <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 no-scrollbar">
                 <Filter size={16} className="text-zinc-500 mr-2 flex-shrink-0" />
                 {genres.map(genre => (
@@ -119,7 +120,6 @@ export default function ArtistsPage() {
         </div>
       </div>
 
-      {/* --- GRILLE DES ARTISTES --- */}
       <div className="max-w-7xl mx-auto">
           {filteredArtists.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
@@ -131,34 +131,33 @@ export default function ArtistsPage() {
                     style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   
-                  {/* Carte (Image) */}
                   <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 bg-zinc-900 shadow-2xl border border-white/5 group-hover:border-violet-500/50 transition-colors">
-                     {/* Image */}
                      <img 
                        src={artist.image} 
                        alt={artist.name} 
                        className="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:filter group-hover:brightness-110"
+                       loading="lazy"
+                       onError={(e) => {
+                         const target = e.target as HTMLImageElement;
+                         target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&size=400&background=random`;
+                       }}
                      />
                      
-                     {/* Overlay Gradient au survol */}
                      <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                      
-                     {/* Bouton Play Flottant */}
                      <div className="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-75">
                         <div className="bg-white text-black p-4 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform">
                             <Play fill="currentColor" size={24} />
                         </div>
                      </div>
 
-                     {/* Badge Genre (Simulé) */}
                      <div className="absolute top-4 left-4 -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                         <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">
-                            {artistGenres[artist.id] || "Artiste"}
+                            {artistGenres[artist.id] || artist.genre}
                         </span>
                      </div>
                   </div>
                   
-                  {/* Infos Artiste */}
                   <div className="px-2">
                     <h3 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-violet-400 group-hover:to-fuchsia-400 transition-all truncate">
                       {artist.name}
@@ -166,7 +165,7 @@ export default function ArtistsPage() {
                     <div className="flex items-center gap-2 mt-1">
                         <Mic2 size={12} className="text-zinc-500" />
                         <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                           Vérifié • 1.2M Fans
+                           Vérifié • {artist.genre}
                         </p>
                     </div>
                   </div>
@@ -174,7 +173,6 @@ export default function ArtistsPage() {
               ))}
             </div>
           ) : (
-            /* --- ETAT VIDE (EMPTY STATE) --- */
             <div className="flex flex-col items-center justify-center py-32 text-center relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5 rounded-3xl blur-3xl -z-10"></div>
                 <div className="bg-white/5 p-6 rounded-full border border-white/10 mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
