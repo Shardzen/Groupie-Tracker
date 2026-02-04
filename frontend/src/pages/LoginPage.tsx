@@ -22,7 +22,6 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // API call simulation
     setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -30,14 +29,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute inset-0 grid-pattern opacity-10"></div>
       </div>
 
-      {/* Logo in top-left */}
       <Link to="/" className="absolute top-8 left-8 z-50 group">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -50,9 +47,7 @@ export default function LoginPage() {
         </div>
       </Link>
 
-      {/* Main Content */}
       <div className="w-full max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        {/* Left Side - Branding */}
         <div className="hidden lg:block space-y-8 animate-fadeIn">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
@@ -72,7 +67,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Features */}
           <div className="space-y-4">
             {[
               { icon: Shield, text: 'Connexion 100% sécurisée' },
@@ -96,7 +90,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
         <div className="glass-card rounded-3xl p-8 md:p-12 shadow-2xl animate-fadeInScale">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-black text-white mb-2 text-display">
@@ -108,7 +101,6 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Input */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-semibold text-slate-300">
                 Adresse email
@@ -127,7 +119,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Password Input */}
             <div className="space-y-2">
               <label htmlFor="password" className="block text-sm font-semibold text-slate-300">
                 Mot de passe
@@ -153,7 +144,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember & Forgot */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
@@ -169,7 +159,6 @@ export default function LoginPage() {
               </a>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -189,7 +178,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/10"></div>
@@ -201,7 +189,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Social Login */}
           <div className="grid grid-cols-2 gap-4">
             <button className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/50 text-white font-semibold transition-all duration-300 group">
               <Chrome className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -213,7 +200,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Sign Up Link */}
           <p className="mt-8 text-center text-slate-400">
             Pas encore de compte ?{' '}
             <Link to="/register" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">

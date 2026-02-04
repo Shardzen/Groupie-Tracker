@@ -1,187 +1,129 @@
 import Navbar from '../components/Navbar';
-import { Heart, Users, Zap, Shield, Sparkles, Star, Music, Rocket } from 'lucide-react';
+import { Heart, Users, Zap, Shield, Sparkles, Music, Globe, Award } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="blob-artistic w-96 h-96 bg-violet-500 top-0 left-0 opacity-10"></div>
-        <div className="blob-artistic w-96 h-96 bg-fuchsia-500 top-1/3 right-0 opacity-10 animation-delay-2000"></div>
-        <div className="blob-artistic w-96 h-96 bg-orange-500 bottom-0 left-1/2 opacity-10 animation-delay-4000"></div>
+    <div className="min-h-screen bg-[#0e0e0e] text-white overflow-hidden font-sans">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar />
       </div>
 
-      <Navbar />
+      <div className="relative pt-32 pb-20 px-6">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-violet-600/20 rounded-full blur-[120px] -z-10 opacity-50"></div>
 
-      <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-20 fade-in-artistic">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 glass-artistic rounded-full mb-8 border border-violet-500/30">
-              <Star className="w-4 h-4 text-violet-400 animate-pulse" />
-              <span className="text-sm font-bold text-violet-300">Notre Vision</span>
+        <div className="max-w-4xl mx-auto text-center mb-24">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+            </span>
+            <span className="text-xs font-bold tracking-widest uppercase text-zinc-300">Notre Mission</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-tight">
+            Réinventer la <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-white">
+              Culture Live.
+            </span>
+          </h1>
+          
+          <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed font-light">
+            Nous sommes nés d'une frustration : la difficulté d'accéder aux événements qui nous font vibrer. Aujourd'hui, nous construisons le pont le plus direct entre les artistes et leurs fans.
+          </p>
+        </div>
+
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
+          <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl hover:border-violet-500/30 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center mb-6 text-violet-400 group-hover:scale-110 transition-transform">
+              <Globe size={24} />
             </div>
-
-            <h1 className="text-6xl md:text-8xl font-display font-black mb-6 leading-tight">
-              <span className="text-artistic-gradient">À propos</span>
-              <br />
-              <span className="text-white">de Groupie</span>
-            </h1>
-            <p className="text-2xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-              La passion de la musique, sublimée par l'art et la technologie
+            <h3 className="text-2xl font-bold mb-4">Mondial</h3>
+            <p className="text-zinc-400 leading-relaxed">
+              Une présence dans plus de 30 pays pour vous offrir les meilleures scènes, où que vous soyez.
             </p>
           </div>
 
-          {/* Story Section */}
-          <div className="card-artistic p-10 md:p-14 mb-12 fade-in-artistic animation-delay-200">
-            <div className="flex items-start gap-6 mb-8">
-              <div className="p-4 bg-gradient-to-br from-fuchsia-600 to-orange-600 rounded-3xl shadow-glow-magenta">
-                <Heart className="text-white w-10 h-10" />
-              </div>
-              <div>
-                <h2 className="text-4xl font-display font-black mb-3 text-artistic-gradient">
-                  Notre Histoire
-                </h2>
-                <p className="text-zinc-400">Depuis 2024</p>
-              </div>
+          <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl hover:border-fuchsia-500/30 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-fuchsia-500/10 rounded-2xl flex items-center justify-center mb-6 text-fuchsia-400 group-hover:scale-110 transition-transform">
+              <Zap size={24} />
             </div>
-            <div className="space-y-6 text-zinc-300 leading-relaxed text-lg">
-              <p>
-                <span className="text-white font-bold">YNOT</span> est né d'une conviction simple : 
-                <span className="text-artistic-gradient font-bold"> la culture doit être accessible à tous</span>. 
-                Fondée par une équipe de passionnés de musique et d'innovation, notre plateforme révolutionne 
-                l'accès aux concerts et festivals à travers le monde.
-              </p>
-              <p>
-               Pourquoi YNOT ? Parce que nous croyons que chaque mélomane est un groupie dans l'âme, animé par cette envie de se dire "Why Not?" : pourquoi ne pas suivre sa passion sans limites et vivre la musique à 100 % ? <span className="text-white font-semibold">passion dévorante pour la musique live</span>. 
-                Nous avons transformé cette passion en une expérience digitale artistique et immersive.
-              </p>
-              <p>
-                Nous croyons que chaque amateur de musique mérite de vivre des expériences inoubliables, 
-                que ce soit dans la fosse d'un petit club intimiste ou dans une loge VIP d'un festival international. 
-                Notre mission ? <span className="text-white font-semibold">Démocratiser l'accès à la musique live</span> tout 
-                en proposant des expériences premium pour ceux qui cherchent l'exception.
-              </p>
-            </div>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <div className="card-artistic p-8 group hover:shadow-glow-violet fade-in-artistic animation-delay-200">
-              <div className="p-4 bg-gradient-to-br from-violet-600/30 to-fuchsia-600/30 w-20 h-20 rounded-3xl flex items-center justify-center mb-6 border-2 border-violet-500/30 group-hover:scale-110 transition-transform duration-300">
-                <Users className="text-violet-400 w-10 h-10" />
-              </div>
-              <h3 className="text-2xl font-display font-bold mb-4 text-white">Pour les Fans</h3>
-              <p className="text-zinc-300 leading-relaxed">
-                Découvrez de nouveaux artistes, réservez vos billets en quelques clics, 
-                et vivez des expériences musicales inoubliables. Notre sélection exclusive 
-                vous garantit de ne jamais rater les événements qui comptent.
-              </p>
-            </div>
-
-            <div className="card-artistic p-8 group hover:shadow-glow-magenta fade-in-artistic animation-delay-200">
-              <div className="p-4 bg-gradient-to-br from-fuchsia-600/30 to-orange-600/30 w-20 h-20 rounded-3xl flex items-center justify-center mb-6 border-2 border-fuchsia-500/30 group-hover:scale-110 transition-transform duration-300">
-                <Zap className="text-fuchsia-400 w-10 h-10" />
-              </div>
-              <h3 className="text-2xl font-display font-bold mb-4 text-white">Pour les Artistes</h3>
-              <p className="text-zinc-300 leading-relaxed">
-                Une visibilité accrue auprès d'une communauté engagée de mélomanes passionnés. 
-                Nos outils de promotion vous permettent de toucher votre public cible 
-                et de créer une connexion authentique avec vos fans.
-              </p>
-            </div>
-          </div>
-
-          {/* Values Section */}
-          <div className="card-artistic p-10 md:p-14 mb-12 fade-in-artistic animation-delay-200">
-            <div className="flex items-start gap-6 mb-10">
-              <div className="p-4 bg-gradient-to-br from-violet-600 to-orange-600 rounded-3xl shadow-artistic-multi">
-                <Shield className="text-white w-10 h-10" />
-              </div>
-              <div>
-                <h2 className="text-4xl font-display font-black mb-3 text-artistic-gradient">
-                  Nos Valeurs
-                </h2>
-                <p className="text-zinc-400">Ce qui nous guide au quotidien</p>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="group">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-violet-600/20 rounded-xl border border-violet-500/30 group-hover:bg-violet-600/30 transition-colors">
-                    <Sparkles className="w-5 h-5 text-violet-400" />
-                  </div>
-                  <h4 className="text-xl font-bold text-white">Accessibilité</h4>
-                </div>
-                <p className="text-zinc-400 leading-relaxed">
-                  Des billets pour tous les budgets, sans compromis sur la qualité de l'expérience musicale.
-                </p>
-              </div>
-              <div className="group">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-fuchsia-600/20 rounded-xl border border-fuchsia-500/30 group-hover:bg-fuchsia-600/30 transition-colors">
-                    <Star className="w-5 h-5 text-fuchsia-400" />
-                  </div>
-                  <h4 className="text-xl font-bold text-white">Transparence</h4>
-                </div>
-                <p className="text-zinc-400 leading-relaxed">
-                  Pas de frais cachés, pas de surprises. Ce que vous voyez est exactement ce que vous payez.
-                </p>
-              </div>
-              <div className="group">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-orange-600/20 rounded-xl border border-orange-500/30 group-hover:bg-orange-600/30 transition-colors">
-                    <Rocket className="w-5 h-5 text-orange-400" />
-                  </div>
-                  <h4 className="text-xl font-bold text-white">Innovation</h4>
-                </div>
-                <p className="text-zinc-400 leading-relaxed">
-                  Une technologie de pointe pour une expérience utilisateur fluide, artistique et moderne.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA Section */}
-          <div className="card-artistic p-10 md:p-14 text-center relative overflow-hidden fade-in-artistic animation-delay-200">
-            <div className="blob-artistic w-64 h-64 bg-violet-500 top-0 right-0 opacity-20"></div>
-            <div className="blob-artistic w-48 h-48 bg-fuchsia-500 bottom-0 left-0 opacity-20 animation-delay-2000"></div>
-            
-            <div className="relative z-10">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-3xl mb-6 shadow-glow-violet">
-                <Music className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="text-4xl font-display font-black mb-4 text-white">
-                Rejoignez l'Aventure
-              </h2>
-              <p className="text-zinc-300 mb-8 text-xl max-w-2xl mx-auto leading-relaxed">
-                Des milliers de fans nous font déjà confiance pour découvrir et vivre la musique autrement. 
-                Et vous ?
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/tickets" className="btn-artistic-primary group">
-                  <Sparkles className="inline-block w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                  Découvrir les événements
-                </a>
-                <a href="/login" className="btn-artistic-outline">
-                  <Star className="inline-block w-5 h-5 mr-2" />
-                  Créer un compte
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer text */}
-          <div className="mt-16 text-center text-zinc-500 text-sm space-y-2 fade-in-artistic animation-delay-200">
-            <p className="flex items-center justify-center gap-2">
-              Une plateforme développée avec{' '}
-              <Heart className="w-4 h-4 text-fuchsia-400 fill-fuchsia-400 animate-pulse" />
-              {' '}et{' '}
-              <Sparkles className="w-4 h-4 text-violet-400" />
-              {' '}pour la musique
+            <h3 className="text-2xl font-bold mb-4">Instantané</h3>
+            <p className="text-zinc-400 leading-relaxed">
+              Une technologie de pointe pour garantir des réservations en temps réel, sans file d'attente interminable.
             </p>
-            <p>© 2026 Groupie Tracker - Tous droits réservés</p>
           </div>
+
+          <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl hover:border-orange-500/30 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 text-orange-400 group-hover:scale-110 transition-transform">
+              <Award size={24} />
+            </div>
+            <h3 className="text-2xl font-bold mb-4">Premium</h3>
+            <p className="text-zinc-400 leading-relaxed">
+              Des accès VIP, des rencontres artistes et des expériences exclusives réservées à notre communauté.
+            </p>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 mb-32">
+          <div className="flex-1 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-[2rem] blur-2xl opacity-30"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop" 
+              alt="Concert Crowd" 
+              className="relative w-full rounded-[2rem] shadow-2xl border border-white/10 grayscale hover:grayscale-0 transition-all duration-700"
+            />
+          </div>
+          <div className="flex-1 space-y-8">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+              Plus qu'une billetterie, <br />
+              <span className="text-violet-400">une communauté.</span>
+            </h2>
+            <p className="text-zinc-400 text-lg leading-relaxed">
+              Groupie n'est pas seulement une plateforme technologique. C'est le rassemblement de passionnés qui croient que la musique live a le pouvoir de changer des vies.
+            </p>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <h4 className="text-3xl font-black text-white">2M+</h4>
+                <p className="text-sm text-zinc-500 uppercase tracking-wider font-bold">Utilisateurs Actifs</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-3xl font-black text-white">15k+</h4>
+                <p className="text-sm text-zinc-500 uppercase tracking-wider font-bold">Événements / An</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-3xl font-black text-white">98%</h4>
+                <p className="text-sm text-zinc-500 uppercase tracking-wider font-bold">Satisfaction Client</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-3xl font-black text-white">24/7</h4>
+                <p className="text-sm text-zinc-500 uppercase tracking-wider font-bold">Support Dédié</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto bg-gradient-to-br from-[#18181b] to-[#0e0e0e] rounded-[2.5rem] p-12 text-center border border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-[80px]"></div>
+          
+          <Sparkles className="w-12 h-12 text-violet-400 mx-auto mb-6" />
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Prêt à vivre l'expérience ?</h2>
+          <p className="text-zinc-400 mb-10 max-w-xl mx-auto">
+            Rejoignez des milliers de fans et accédez aux événements les plus exclusifs dès maintenant.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/artists" className="px-8 py-4 bg-white text-black rounded-full font-bold hover:scale-105 transition-transform">
+              Explorer les Artistes
+            </a>
+            <a href="/tickets" className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-bold hover:bg-white/10 transition-colors">
+              Voir les Offres Premium
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-20 text-center border-t border-white/5 pt-8">
+          <p className="text-zinc-600 text-sm flex items-center justify-center gap-2">
+            Fait avec <Heart size={14} className="text-red-500 fill-red-500" /> par l'équipe Groupie Tracker
+          </p>
         </div>
       </div>
     </div>

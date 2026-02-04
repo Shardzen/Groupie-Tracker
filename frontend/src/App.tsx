@@ -12,7 +12,7 @@ import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import ConcertsPage from './pages/ConcertsPage';
-import NotFoundPage from './pages/NotFoundPage'; // ✅ IMPORT NOUVEAU
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
