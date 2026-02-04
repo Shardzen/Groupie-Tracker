@@ -1,26 +1,72 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockArtists } from '../data/mockData';
-import { Play, Heart, Clock, MapPin, Calendar, Disc, Share2, MoreHorizontal } from 'lucide-react';
+// CORRECTION 1 : Ajout de Calendar dans l'import
+import { Play, Heart, MapPin, Music, Share2, ArrowLeft, Clock, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { usePlayerStore } from '../stores/usePlayerStore';
+import { useState } from 'react';
 
 export default function ArtistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { play, currentTrack, isPlaying, toggle } = usePlayerStore();
+  // On sécurise l'appel au store (au cas où il ne soit pas initialisé)
+  const playerStore = usePlayerStore();
+  const open = playerStore?.open || (() => console.log("Player not ready"));
+  
+  const [isLiked, setIsLiked] = useState(false);
   
   const artist = mockArtists.find(a => a.id === id);
 
-  if (!artist) return <div className="text-white text-center mt-20">Artiste introuvable</div>;
+  if (!artist) {
+    return (
+      <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold mb-4">Artiste introuvable</h2>
+          <p className="text-zinc-400 mb-8">Cet artiste n'existe pas dans notre catalogue</p>
+          <button 
+            onClick={() => navigate('/artists')}
+            className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-full font-bold transition-colors"
+          >
+            Retour aux artistes
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const handlePlayTrack = (track: any) => {
-    play({
-      title: track.title,
+  const handleOpenDeezer = () => {
+    open({
+      title: `Top titres de ${artist.name}`,
       artist: artist.name,
       image: artist.image,
-      audioUrl: track.previewUrl || ""
     });
   };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: artist.name,
+          text: `Découvre ${artist.name} sur YNOT Music!`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Partage annulé');
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Lien copié dans le presse-papier!');
+    }
+  };
+
+  const mockConcerts = [
+    { date: 'MAI 15', venue: 'Accor Arena', city: 'Paris, France' },
+    { date: 'MAI 18', venue: 'Zénith', city: 'Lyon, France' },
+    { date: 'MAI 22', venue: 'Arkéa Arena', city: 'Bordeaux, France' },
+    { date: 'MAI 25', venue: 'Palais 12', city: 'Bruxelles, Belgique' },
+    { date: 'MAI 28', venue: 'Forest National', city: 'Bruxelles, Belgique' },
+    { date: 'JUN 02', venue: 'O2 Arena', city: 'Londres, UK' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white overflow-x-hidden">
@@ -28,46 +74,79 @@ export default function ArtistDetailPage() {
         <Navbar />
       </div>
 
+      <button
+        onClick={() => navigate('/artists')}
+        className="fixed top-24 left-6 z-40 bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full border border-white/10 hover:border-violet-500/50 transition-all flex items-center gap-2 group"
+      >
+        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-semibold">Retour</span>
+      </button>
+
+      {/* Hero Section */}
       <div className="relative h-[85vh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <img 
             src={artist.image} 
             alt={artist.name} 
-            className="w-full h-full object-cover animate-slow-zoom" 
+            className="w-full h-full object-cover" 
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&size=1200&background=random`;
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/40 to-transparent"></div>
         </div>
 
-        <div className="absolute bottom-0 left-0 w-full p-8 pb-16 container mx-auto flex flex-col items-start z-10 animate-fade-in">
+        {/* CORRECTION 2: Suppression de animate-fade-in qui peut cacher le texte */}
+        <div className="absolute bottom-0 left-0 w-full p-8 pb-16 container mx-auto flex flex-col items-start z-10">
             
             <div className="flex items-center gap-2 mb-4">
-                <span className="bg-blue-500 text-white p-1 rounded-full"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg></span>
+                <span className="bg-blue-500 text-white p-1 rounded-full">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
                 <span className="text-sm font-medium tracking-widest uppercase text-white/80">Artiste Vérifié</span>
             </div>
 
-            <h1 className="text-7xl md:text-9xl font-black uppercase tracking-tighter mb-6 drop-shadow-2xl">
+            <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-6 drop-shadow-2xl">
               {artist.name}
             </h1>
 
-            <p className="text-zinc-300 text-lg max-w-2xl mb-8 line-clamp-2 drop-shadow-md">
+            <p className="text-zinc-300 text-lg max-w-2xl mb-4 drop-shadow-md">
               {artist.bio}
             </p>
-            <p className="text-white/60 font-mono text-sm mb-8">
-               14,583,902 AUDITEURS MENSUELS
-            </p>
+            
+            <div className="flex items-center gap-3 mb-8">
+              <span className="px-3 py-1 bg-violet-600/20 border border-violet-500/30 rounded-full text-violet-300 text-sm font-bold">
+                {artist.genre}
+              </span>
+              <span className="text-white/60 font-mono text-sm">
+                14.5M AUDITEURS
+              </span>
+            </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
                 <button 
-                  onClick={() => handlePlayTrack(artist.topTracks[0])}
-                  className="bg-violet-600 hover:bg-violet-500 text-white rounded-full px-8 py-4 font-bold text-lg flex items-center gap-3 transition-transform hover:scale-105 shadow-[0_0_40px_rgba(124,58,237,0.5)]"
+                  onClick={handleOpenDeezer}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full px-8 py-4 font-bold text-lg flex items-center gap-3 transition-transform hover:scale-105 shadow-[0_0_40px_rgba(168,85,247,0.5)]"
                 >
-                   <Play fill="currentColor" size={24} /> ÉCOUTER
+                   <Music size={24} />
+                   ÉCOUTER SUR DEEZER
                 </button>
                 
-                <button className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition backdrop-blur-sm">
-                   <Heart size={24} />
+                <button 
+                  onClick={() => setIsLiked(!isLiked)}
+                  className={`w-14 h-14 rounded-full border border-white/20 flex items-center justify-center transition backdrop-blur-sm ${
+                    isLiked ? 'bg-red-500 border-red-500' : 'hover:bg-white/10'
+                  }`}
+                >
+                   <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
                 </button>
-                <button className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition backdrop-blur-sm">
+                <button 
+                  onClick={handleShare}
+                  className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition backdrop-blur-sm"
+                >
                    <Share2 size={24} />
                 </button>
             </div>
@@ -76,122 +155,157 @@ export default function ArtistDetailPage() {
 
       <div className="container mx-auto px-6 py-12 space-y-20 relative z-20 -mt-10">
         
-        <div className="flex flex-col lg:flex-row gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-            <div className="flex-1 animate-fade-in delay-100">
+            {/* CORRECTION 3: Suppression de animate-fade-in */}
+            <div className="lg:col-span-2">
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                   <Disc className="text-violet-500" /> Titres Populaires
+                   <Music className="text-purple-500" /> Titres Populaires
                 </h2>
                 
                 <div className="flex flex-col gap-2">
-                   {artist.topTracks.map((track, index) => (
+                   {/* CORRECTION 4: Ajout de ?. pour éviter le crash si topTracks est undefined */}
+                   {artist.topTracks && artist.topTracks.length > 0 ? (
+                      artist.topTracks.map((track, index) => (
                       <div 
                         key={index}
-                        onClick={() => handlePlayTrack(track)}
+                        onClick={handleOpenDeezer}
                         className="group flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition cursor-pointer border border-transparent hover:border-white/5"
                       >
-                         <span className="text-zinc-500 font-mono w-6 text-center group-hover:text-violet-400 transition">
-                            <span className="group-hover:hidden">{index + 1}</span>
-                            <Play size={16} className="hidden group-hover:block mx-auto" fill="currentColor"/>
-                         </span>
-                         
-                         <img src={artist.image} alt="cover" className="w-12 h-12 rounded object-cover" />
-                         
-                         <div className="flex-1">
-                            <h3 className="font-bold text-white group-hover:text-violet-400 transition">{track.title}</h3>
-                            <span className="text-xs text-zinc-500">145M lectures</span>
-                         </div>
-                         
-                         <span className="text-zinc-500 text-sm font-mono">{track.duration}</span>
-                         <button className="opacity-0 group-hover:opacity-100 p-2 text-zinc-400 hover:text-white">
-                            <Heart size={16} />
-                         </button>
+                          <span className="text-zinc-500 font-mono w-6 text-center group-hover:text-purple-400 transition">
+                             <span className="group-hover:hidden">{index + 1}</span>
+                             <Play size={16} className="hidden group-hover:block mx-auto" fill="currentColor"/>
+                          </span>
+                          
+                          <img 
+                            src={artist.image} 
+                            alt="cover" 
+                            className="w-12 h-12 rounded object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(track.title)}&size=100&background=random`;
+                            }}
+                          />
+                          
+                          <div className="flex-1 min-w-0">
+                             <h3 className="font-bold text-white group-hover:text-purple-400 transition truncate">{track.title}</h3>
+                             <span className="text-xs text-zinc-500 flex items-center gap-1">
+                               <Music size={12} /> {track.plays} lectures
+                             </span>
+                          </div>
+                          
+                          <span className="text-zinc-500 text-sm font-mono hidden sm:block">{track.duration}</span>
+                          <button className="opacity-0 group-hover:opacity-100 p-2 text-zinc-400 hover:text-white">
+                             <Heart size={16} />
+                          </button>
                       </div>
-                   ))}
-                   {[3,4,5].map(i => (
-                     <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition cursor-pointer opacity-50">
-                        <span className="text-zinc-500 font-mono w-6 text-center">{i}</span>
-                        <div className="w-12 h-12 rounded bg-zinc-800"></div>
-                        <div className="flex-1"><div className="h-4 w-32 bg-zinc-800 rounded"></div></div>
-                        <span className="text-zinc-500 text-sm">--:--</span>
-                     </div>
-                   ))}
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-zinc-500">
+                        <p>Aucun titre disponible</p>
+                      </div>
+                    )}
+                </div>
+
+                <div className="mt-6 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20">
+                  <p className="text-sm text-zinc-300 text-center">
+                    🎵 <strong>Cliquez sur "Écouter sur Deezer"</strong> pour lancer le lecteur et découvrir les meilleurs titres de {artist.name} !
+                  </p>
                 </div>
             </div>
 
-            <div className="w-full lg:w-1/3 animate-fade-in delay-200">
-               <h2 className="text-2xl font-bold mb-6">Dernière Sortie</h2>
-               <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-3xl p-6 hover:border-violet-500/50 transition duration-500 group cursor-pointer">
-                  <div className="aspect-square rounded-2xl overflow-hidden mb-6 shadow-2xl relative">
-                     <img src={artist.image} className="w-full h-full object-cover group-hover:scale-105 transition duration-700" alt="album" />
-                     <div className="absolute bottom-4 right-4 bg-violet-600 text-black p-3 rounded-full opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                        <Play fill="currentColor" size={20} />
-                     </div>
+            <div>
+               <h2 className="text-2xl font-bold mb-6">À propos</h2>
+               <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-3xl p-6 hover:border-purple-500/50 transition duration-500 group space-y-6">
+                  
+                  <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
+                     <img 
+                       src={artist.image} 
+                       className="w-full h-full object-cover group-hover:scale-105 transition duration-700" 
+                       alt="album"
+                       onError={(e) => {
+                         const target = e.target as HTMLImageElement;
+                         target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&size=600&background=random`;
+                       }}
+                     />
                   </div>
-                  <h3 className="text-2xl font-bold mb-1">Jefe (Réédition)</h3>
-                  <p className="text-zinc-400 text-sm mb-4">Album • 2024</p>
-                  <div className="flex gap-2">
-                     <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">Rap FR</span>
-                     <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">Trap</span>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold mb-2">{artist.name}</h3>
+                      <p className="text-zinc-400 text-sm leading-relaxed">{artist.bio}</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">{artist.genre}</span>
+                      <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">Vérifié</span>
+                      <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">Top 100</span>
+                    </div>
                   </div>
                </div>
             </div>
         </div>
 
-        <div className="animate-fade-in delay-300">
-           <h2 className="text-3xl font-bold mb-8 uppercase tracking-tight">Tournée 2026</h2>
+        <div>
+           {/* C'est ici que l'erreur Calendar se produisait avant */}
+           <h2 className="text-3xl font-bold mb-8 uppercase tracking-tight flex items-center gap-3">
+             <Calendar className="text-purple-500" />
+             Prochaines Dates
+           </h2>
            
-           <div className="flex flex-col lg:flex-row gap-6 h-[500px]">
-              
-              <div className="w-full lg:w-1/3 bg-[#121212] rounded-3xl p-2 overflow-y-auto custom-scrollbar border border-white/5">
-                 {[1,2,3,4,5,6].map((date) => (
-                    <div key={date} className="p-4 rounded-2xl hover:bg-white/5 transition cursor-pointer flex items-center gap-4 group border-b border-white/5 last:border-0">
-                       <div className="bg-zinc-900 text-center px-4 py-2 rounded-xl group-hover:bg-violet-600 transition-colors">
-                          <span className="block text-sm font-bold text-zinc-400 group-hover:text-white/80">MAI</span>
-                          <span className="block text-xl font-black">{12 + date}</span>
-                       </div>
-                       <div>
-                          <h4 className="font-bold text-lg">Accor Arena</h4>
-                          <p className="text-zinc-400 text-sm flex items-center gap-1"><MapPin size={12} /> Paris, France</p>
-                       </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {mockConcerts.map((concert, index) => (
+                <div 
+                  key={index} 
+                  className="p-6 rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-white/10 hover:border-purple-500/50 transition cursor-pointer group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="bg-zinc-900 text-center px-4 py-3 rounded-xl group-hover:bg-purple-600 transition-colors flex-shrink-0">
+                      <span className="block text-xs font-bold text-zinc-400 group-hover:text-white/80 uppercase">{concert.date.split(' ')[0]}</span>
+                      <span className="block text-2xl font-black">{concert.date.split(' ')[1]}</span>
                     </div>
-                 ))}
-              </div>
-
-              <div className="w-full lg:w-2/3 bg-zinc-800 rounded-3xl overflow-hidden relative border border-white/10 grayscale hover:grayscale-0 transition-all duration-700">
-                 <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/e/ec/Paris_night_map.png" 
-                    className="w-full h-full object-cover opacity-60"
-                    alt="Map" 
-                 />
-                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="relative">
-                        <span className="absolute -inset-4 bg-violet-500/30 rounded-full animate-ping"></span>
-                        <MapPin size={48} className="text-violet-500 drop-shadow-[0_0_15px_rgba(139,92,246,1)]" fill="currentColor" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-lg mb-1 group-hover:text-purple-400 transition truncate">{concert.venue}</h4>
+                      <p className="text-zinc-400 text-sm flex items-center gap-1">
+                        <MapPin size={12} /> {concert.city}
+                      </p>
+                      <button className="mt-3 w-full px-4 py-2 bg-white/5 hover:bg-purple-600 rounded-lg text-sm font-bold transition border border-white/10">
+                        Réserver
+                      </button>
                     </div>
-                 </div>
-                 <div className="absolute bottom-6 left-6 bg-black/80 backdrop-blur px-6 py-3 rounded-xl border border-white/10">
-                    <p className="font-bold text-white">Paris, Accor Arena</p>
-                    <p className="text-xs text-violet-400">Prochaine date • 24 Mai 2026</p>
-                 </div>
-              </div>
-
+                  </div>
+                </div>
+              ))}
            </div>
         </div>
 
-        <div className="pb-32 animate-fade-in delay-300">
-           <h2 className="text-2xl font-bold mb-8">Les fans écoutent aussi</h2>
-           <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-              {mockArtists.filter(a => a.id !== artist.id).map((similaire) => (
+        <div className="pb-32">
+           <h2 className="text-2xl font-bold mb-8">Artistes similaires</h2>
+           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+              {/* Correction: Sécurisation du filtre */}
+              {mockArtists
+                .filter(a => a.id !== artist.id && a.genre === artist.genre)
+                .slice(0, 8)
+                .map((similaire) => (
                  <div 
-                    key={similaire.id} 
-                    onClick={() => navigate(`/artist/${similaire.id}`)}
-                    className="group flex flex-col items-center gap-3 cursor-pointer min-w-[120px]"
+                   key={similaire.id} 
+                   onClick={() => navigate(`/artist/${similaire.id}`)}
+                   className="group flex flex-col items-center gap-3 cursor-pointer"
                  >
-                    <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-violet-500 transition-all duration-300 shadow-lg">
-                       <img src={similaire.image} alt={similaire.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                    <div className="w-full aspect-square rounded-full overflow-hidden border-2 border-transparent group-hover:border-purple-500 transition-all duration-300 shadow-lg">
+                       <img 
+                         src={similaire.image} 
+                         alt={similaire.name} 
+                         className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                         onError={(e) => {
+                           const target = e.target as HTMLImageElement;
+                           target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(similaire.name)}&size=200&background=random`;
+                         }}
+                       />
                     </div>
-                    <span className="text-sm font-bold text-zinc-400 group-hover:text-white transition">{similaire.name}</span>
+                    <span className="text-xs font-bold text-zinc-400 group-hover:text-white transition text-center truncate w-full px-1">
+                      {similaire.name}
+                    </span>
                  </div>
               ))}
            </div>
