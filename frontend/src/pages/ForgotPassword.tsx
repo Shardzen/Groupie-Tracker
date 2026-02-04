@@ -25,11 +25,11 @@ export default function ForgotPassword() {
         backgroundPosition: 'center'
       }}
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] z-0" />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px] z-0" />
       <div className="w-full max-w-md relative z-10">
-        <div className="glass-card rounded-3xl p-8 md:p-10 shadow-2xl">
+        <div className="glass-card rounded-3xl p-8 md:p-10 shadow-6xl">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-white mb-3 font-display">
+            <h2 className="text-4xl font-black text-white mb-3 font-display">
               MOT DE PASSE OUBLIÉ ?
             </h2>
             <p className="text-slate-400 text-sm">

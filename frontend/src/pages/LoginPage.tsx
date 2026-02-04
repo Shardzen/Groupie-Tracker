@@ -31,19 +31,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute inset-0 grid-pattern opacity-10"></div>
-      </div>
-
+          <div className="absolute inset-0 z-0">
+        <img src="/img/background.png"
+          alt="Background" 
+          className="w-full h-full object-cover opacity-100" />
+<div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
+        
+      </div> 
       {/* Logo in top-left */}
       <Link to="/" className="absolute top-8 left-8 z-50 group">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative bg-gradient-to-br from-violet-600 to-purple-600 p-2 rounded-xl shadow-lg">
+            <div className="absolute inset-0 bg-gradient-to-r from-black-500 to-white-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative bg-gradient-to-br from-black-600 to-grey-600 p-2 rounded-xl shadow-lg">
               <Music className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -63,10 +63,10 @@ export default function LoginPage() {
               </span>
             </div>
 
-            <h1 className="text-6xl font-black text-display">
-              <span className="block text-white mb-2">Bienvenue sur</span>
-              <span className="block gradient-text">YNOT Music</span>
-            </h1>
+        <h1 className="text-6xl font-black font-display tracking-tighter">
+            <span className="block text-white mb-2">Bienvenue sur</span>
+            <span className="block gradient-text">YNOT Music</span>
+        </h1>
 
             <p className="text-xl text-slate-400 leading-relaxed max-w-md">
               Accédez à des milliers de concerts, réservez vos places et vivez des expériences musicales inoubliables.
@@ -100,7 +100,7 @@ export default function LoginPage() {
         {/* Right Side - Login Form */}
         <div className="glass-card rounded-3xl p-8 md:p-12 shadow-2xl animate-fadeInScale">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-black text-white mb-2 text-display">
+            <h2 className="text-4xl font-black text-white mb-3 font-display">
               Connexion
             </h2>
             <p className="text-slate-400">

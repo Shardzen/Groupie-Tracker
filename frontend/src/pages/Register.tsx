@@ -48,7 +48,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-10">
-            <h2 className="text-5xl font-display italic text-white mb-2">S'INSCRIRE</h2>
+             <h2 className="text-4xl font-black text-white mb-3 font-display">
+              Inscription</h2>
             <p className="text-slate-500 font-sans text-xs uppercase tracking-[0.2em]">Bienvenue</p>
           </div>
 
