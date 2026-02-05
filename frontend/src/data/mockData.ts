@@ -1,5 +1,3 @@
-// Migration effectuée le: Ajout des coordonnées GPS
-
 export interface Track {
   title: string;
   plays: string;
@@ -13,8 +11,8 @@ export interface ConcertDate {
   city: string;
   date: string;
   ticketsUrl: string;
-  lat: number;   // Latitude (Nord/Sud)
-  lng: number;   // Longitude (Est/Ouest)
+  lat: number;
+  lng: number;
 }
 
 export interface Artist {

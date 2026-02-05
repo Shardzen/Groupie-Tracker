@@ -11,6 +11,7 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
+import ConcertsPage from './pages/ConcertsPage';
 import RegisterPage from './pages/Register';
 
 function AnimatedRoutes() {
@@ -23,11 +24,11 @@ function AnimatedRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
           <Route path="/artist/:id" element={<ArtistDetailPage />} />
+          <Route path="/concerts" element={<ConcertsPage />} /> {/* Ajouté ici ! */}
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

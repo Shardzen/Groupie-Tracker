@@ -1,134 +1,170 @@
 import { useState } from 'react';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { mockArtists } from '../data/mockData';
-import { MapPin, Ticket, ArrowRight, Globe } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Music } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const cityCoordinates: Record<string, { top: string, left: string }> = {
-  "Paris": { top: "27%", left: "49%" },
-  "Lyon": { top: "29%", left: "49.5%" },
-  "Marseille": { top: "31%", left: "50%" },
-  "Bruxelles": { top: "26%", left: "49.5%" },
-  "Genève": { top: "29%", left: "50%" },
-  "Londres": { top: "25%", left: "48%" },
-  "Berlin": { top: "25%", left: "51%" },
-  "Madrid": { top: "33%", left: "47%" },
-  "default": { top: "45%", left: "50%" } 
+// 1. Style de la carte (doit prendre 100% du conteneur)
+const containerStyle = {
+  width: '100%',
+  height: '100%'
+};
+
+// 2. Coordonnées par défaut (Centre de la France) pour le démarrage
+const defaultCenter = {
+  lat: 46.603354,
+  lng: 1.888334
+};
+
+// 3. Style "Sombre" pour la carte (Google Maps Dark Mode)
+const mapOptions = {
+  disableDefaultUI: false, // On garde le zoom +/-
+  zoomControl: true,
+  mapTypeControl: false,
+  streetViewControl: false,
+  styles: [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
+    { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+    { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
+    { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
+    { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+    { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
+  ]
 };
 
 export default function ConcertsPage() {
-  const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+  // On crée une liste unique de tous les concerts (artistes mélangés)
+  // On ajoute l'image et le nom de l'artiste à chaque concert pour l'affichage
+  const allConcerts = mockArtists.flatMap(artist => 
+    artist.upcomingDates.map(date => ({
+      ...date,
+      artistName: artist.name,
+      artistImage: artist.image,
+      genre: artist.genre
+    }))
+  );
 
-  const cities = ["Paris", "Lyon", "Marseille", "Bruxelles", "Genève", "Londres"];
-  const venues = ["Accor Arena", "Groupama Stadium", "Vélodrome", "Forest National", "Arena", "O2"];
-
-  const realConcerts = mockArtists.slice(0, 6).map((artist, index) => ({
-    id: artist.id,
-    artist: artist.name,
-    image: artist.image,
-    tour: "World Tour 2026",
-    city: cities[index] || "Paris",
-    venue: venues[index] || "Zénith",
-    date: `${10 + index} JUIN`,
-    price: `${45 + index * 10}€`,
-    status: index === 0 ? "Complet" : "Dispo"
-  }));
-
-  const activePosition = hoveredCity && cityCoordinates[hoveredCity] 
-    ? cityCoordinates[hoveredCity] 
-    : cityCoordinates["Paris"];
+  // État pour savoir quel concert est sélectionné (pour ouvrir l'info-bulle sur la carte)
+  const [selectedConcert, setSelectedConcert] = useState<any>(null);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white pt-24 pb-20">
+    <div className="flex flex-col h-screen bg-[#0e0e0e] text-white pt-20">
       
-      <div className="container mx-auto px-6 mb-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-              </span>
-              <span className="text-xs font-bold tracking-widest uppercase">Live Nation</span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-2">
-            Prochaines <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">Dates</span>
-          </h1>
+      {/* En-tête de la page */}
+      <div className="container mx-auto px-6 py-6 shrink-0">
+        <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 flex items-center gap-3">
+          <Ticket className="text-violet-500" />
+          Tournées <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">2026</span>
+        </h1>
+        <p className="text-zinc-400 text-sm">Sélectionnez une date pour la voir sur la carte.</p>
       </div>
 
-      <div className="container mx-auto px-6 flex flex-col lg:flex-row gap-8 items-start">
-        <div className="w-full lg:w-2/3 space-y-3">
-           {realConcerts.map((gig) => (
-             <div 
-               key={gig.id}
-               onMouseEnter={() => setHoveredCity(gig.city)}
-               onMouseLeave={() => setHoveredCity(null)}
-               className="group relative bg-[#121212] border border-white/5 rounded-2xl p-4 flex items-center gap-6 hover:border-violet-500/50 transition-all duration-300 cursor-pointer hover:bg-white/5"
-             >
-                 
-                 <div className="bg-[#1a1a1a] rounded-xl p-3 min-w-[80px] text-center border border-white/5 group-hover:scale-105 transition-transform">
-                     <span className="block text-xl font-black text-white">{gig.date.split(' ')[0]}</span>
-                     <span className="block text-[10px] font-bold text-violet-400 uppercase">{gig.date.split(' ')[1]}</span>
-                 </div>
-
-                
-                 <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-violet-500 transition-colors hidden sm:block">
-                     <img src={gig.image} alt={gig.artist} className="w-full h-full object-cover" />
-                 </div>
-
-                
-                 <div className="flex-1">
-                     <h3 className="text-lg font-bold text-white group-hover:text-violet-300 transition-colors">{gig.artist}</h3>
-                     <div className="flex items-center gap-4 mt-1 text-xs text-zinc-500 font-medium">
-                         <span className="flex items-center gap-1 text-zinc-300"><MapPin size={12}/> {gig.city}</span>
-                         <span className="hidden sm:flex items-center gap-1"><Ticket size={12}/> {gig.venue}</span>
-                     </div>
-                 </div>
-
-                
-                 <div className="min-w-[100px] text-right">
-                     {gig.status === 'Complet' ? (
-                         <span className="text-red-500 text-xs font-bold uppercase border border-red-500/30 px-3 py-1 rounded-full bg-red-500/10">Sold Out</span>
-                     ) : (
-                         <button className="bg-white text-black text-xs font-bold px-4 py-2 rounded-full hover:bg-violet-500 hover:text-white transition-colors">
-                             {gig.price}
-                         </button>
-                     )}
-                 </div>
-             </div>
-           ))}
-        </div>
-
-        <div className="hidden lg:block w-1/3 sticky top-28">
-           <div className="bg-[#121212] rounded-3xl p-6 border border-white/10 relative overflow-hidden shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                 <h3 className="font-bold text-lg flex items-center gap-2"><Globe className="text-violet-500" /> Tournée</h3>
-                 <span className="text-xs text-zinc-500 font-mono">LIVE TRACKING</span>
-              </div>
-
-              <div className="aspect-square bg-[#0a0a0a] rounded-2xl relative overflow-hidden group border border-white/5">
-                 <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/World_map_blank_without_borders.svg/2000px-World_map_blank_without_borders.svg.png" 
-                    className="w-full h-full object-cover opacity-30 invert grayscale" alt="Map"
-                 />
-
-                 <div 
-                    className="absolute transition-all duration-700 ease-in-out"
-                    style={{ 
-                        top: activePosition.top, 
-                        left: activePosition.left,
-                        transform: 'translate(-50%, -50%)'
-                    }}
-                 >
-                    <div className="relative">
-                        <div className="absolute -inset-4 bg-violet-500/30 rounded-full animate-ping"></div>
-                        <div className="absolute -inset-2 bg-violet-500/50 rounded-full animate-pulse"></div>
-                        <div className="w-3 h-3 bg-violet-400 rounded-full border-2 border-white shadow-[0_0_15px_rgba(167,139,250,1)] relative z-10"></div>
-                        
-                        <div className={`absolute top-6 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur px-3 py-1 rounded-lg border border-white/20 whitespace-nowrap transition-opacity duration-300 ${hoveredCity ? 'opacity-100' : 'opacity-0'}`}>
-                            <span className="text-xs font-bold text-white">{hoveredCity || "Paris"}</span>
-                        </div>
+      {/* Zone principale (Liste + Carte) */}
+      <div className="flex-1 flex flex-col md:flex-row border-t border-white/10 overflow-hidden">
+        
+        {/* COLONNE GAUCHE : LISTE (Scrollable) */}
+        <div className="w-full md:w-1/3 lg:w-1/4 bg-[#121212] overflow-y-auto custom-scrollbar p-4">
+          <div className="space-y-3">
+             {allConcerts.map((concert) => (
+               <div 
+                 key={concert.id} 
+                 onClick={() => setSelectedConcert(concert)}
+                 className={`p-4 rounded-xl border transition-all cursor-pointer group ${
+                   selectedConcert?.id === concert.id 
+                     ? 'bg-violet-500/10 border-violet-500/50' 
+                     : 'bg-white/5 border-white/5 hover:bg-white/10'
+                 }`}
+               >
+                 <div className="flex items-center gap-3">
+                    <img 
+                      src={concert.artistImage} 
+                      alt={concert.artistName} 
+                      className="w-12 h-12 rounded-lg object-cover" 
+                    />
+                    <div>
+                        <h3 className="font-bold leading-tight">{concert.artistName}</h3>
+                        <p className="text-xs text-zinc-400 flex items-center gap-1 mt-1">
+                          <Music size={10} /> {concert.genre}
+                        </p>
                     </div>
                  </div>
+                 
+                 <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-zinc-300">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <Calendar size={12} className="text-violet-400"/> 
+                      {concert.date}
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <MapPin size={12} className="text-fuchsia-400"/> 
+                      {concert.city}
+                    </span>
+                 </div>
+               </div>
+             ))}
 
-              </div>
-           </div>
+             {allConcerts.length === 0 && (
+                <div className="text-center py-10 text-zinc-500">
+                  <p>Aucune date de concert trouvée.</p>
+                </div>
+             )}
+          </div>
+        </div>
+
+        {/* COLONNE DROITE : CARTE */}
+        <div className="w-full md:w-2/3 lg:w-3/4 relative bg-[#1a1a1a]">
+          {/* IMPORTANT : googleMapsApiKey est vide pour l'instant = Mode DEV */}
+          <LoadScript googleMapsApiKey=""> 
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={selectedConcert ? { lat: selectedConcert.lat, lng: selectedConcert.lng } : defaultCenter}
+              zoom={selectedConcert ? 12 : 5}
+              options={mapOptions}
+            >
+              {/* On place les marqueurs pour chaque concert */}
+              {allConcerts.map((concert) => (
+                <Marker
+                  key={concert.id}
+                  position={{ lat: concert.lat, lng: concert.lng }}
+                  onClick={() => setSelectedConcert(concert)}
+                />
+              ))}
+
+              {/* Si un concert est sélectionné, on affiche la petite bulle */}
+              {selectedConcert && (
+                <InfoWindow
+                  position={{ lat: selectedConcert.lat, lng: selectedConcert.lng }}
+                  onCloseClick={() => setSelectedConcert(null)}
+                >
+                  <div className="text-black p-1 min-w-[200px]">
+                    <div className="flex items-center gap-2 mb-2">
+                         <img src={selectedConcert.artistImage} className="w-8 h-8 rounded object-cover" />
+                         <span className="font-bold">{selectedConcert.artistName}</span>
+                    </div>
+                    <div className="text-xs text-gray-600 mb-2">
+                        <p className="font-bold">{selectedConcert.venue}</p>
+                        <p>{selectedConcert.city} - {selectedConcert.date}</p>
+                    </div>
+                    <Link 
+                        to="/tickets" 
+                        className="block w-full bg-black text-white text-center py-2 rounded text-xs font-bold uppercase hover:bg-violet-600 transition-colors"
+                    >
+                        Réserver un billet
+                    </Link>
+                  </div>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+          </LoadScript>
         </div>
 
       </div>
