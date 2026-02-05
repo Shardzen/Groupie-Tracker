@@ -11,26 +11,42 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
+<<<<<<< HEAD
 import RegisterPage from './pages/Register';
 
 // On crée ce composant pour pouvoir utiliser useLocation() à l'intérieur
+=======
+import ConcertsPage from './pages/ConcertsPage';
+import RegisterPage from './pages/Register';
+
+>>>>>>> feat/concerts-map
 function AnimatedRoutes() {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+<<<<<<< HEAD
         {/* On enveloppe les pages dans le Layout */}
+=======
+>>>>>>> feat/concerts-map
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
           <Route path="/artist/:id" element={<ArtistDetailPage />} />
+<<<<<<< HEAD
+=======
+          <Route path="/concerts" element={<ConcertsPage />} /> {/* Ajouté ici ! */}
+>>>>>>> feat/concerts-map
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
+<<<<<<< HEAD
 
         {/* Routes sans Layout pour le Login et Register */}
+=======
+>>>>>>> feat/concerts-map
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
