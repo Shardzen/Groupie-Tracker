@@ -1,3 +1,5 @@
+// Fichier FINAL : Playlist complètes (8-10 sons) + Dates Internationales avec GPS
+
 export interface Track {
   title: string;
   plays: string;
@@ -78,7 +80,30 @@ export const mockArtists: Artist[] = [
     ],
     upcomingDates: [
         { id: 'c4', venue: 'Forest National', city: 'Bruxelles', date: '2026-06-10', ticketsUrl: '/tickets', lat: 50.811569, lng: 4.329868 },
-        { id: 'c5', venue: 'Zénith', city: 'Lille', date: '2026-06-12', ticketsUrl: '/tickets', lat: 50.630663, lng: 3.080772 }
+        { id: 'c5', venue: 'Zénith', city: 'Lille', date: '2026-06-12', ticketsUrl: '/tickets', lat: 50.630663, lng: 3.080772 },
+        { id: 'c5b', venue: 'O2 Arena', city: 'Londres', date: '2026-06-15', ticketsUrl: '/tickets', lat: 51.503038, lng: 0.003154 }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Gojira',
+    genre: 'Metal',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
+    bio: 'La puissance du metal français.',
+    topTracks: [
+      { title: 'Stranded', plays: '80M', duration: '4:30' },
+      { title: 'Silvera', plays: '70M', duration: '3:50' },
+      { title: 'L\'enfant sauvage', plays: '60M', duration: '4:17' },
+      { title: 'Flying Whales', plays: '55M', duration: '7:44' },
+      { title: 'Amazonia', plays: '35M', duration: '5:00' },
+      { title: 'Another World', plays: '40M', duration: '4:25' },
+      { title: 'The Shooting Star', plays: '30M', duration: '5:42' },
+      { title: 'Born For One Thing', plays: '25M', duration: '4:20' }
+    ],
+    upcomingDates: [
+        { id: 'g1', venue: 'Hellfest', city: 'Clisson', date: '2026-06-20', ticketsUrl: '/tickets', lat: 47.097193, lng: -1.271104 },
+        { id: 'g2', venue: 'Red Rocks', city: 'Denver (USA)', date: '2026-07-15', ticketsUrl: '/tickets', lat: 39.665438, lng: -105.205702 },
+        { id: 'g3', venue: 'Budokan', city: 'Tokyo (Japon)', date: '2026-08-02', ticketsUrl: '/tickets', lat: 35.693318, lng: 139.749885 }
     ]
   },
   {
@@ -99,26 +124,72 @@ export const mockArtists: Artist[] = [
     ],
     upcomingDates: [
         { id: 'c6', venue: 'Accor Arena', city: 'Paris', date: '2026-11-15', ticketsUrl: '/tickets', lat: 48.838580, lng: 2.378435 },
-        { id: 'c7', venue: 'Zénith', city: 'Caen', date: '2026-11-20', ticketsUrl: '/tickets', lat: 49.165684, lng: -0.395156 }
+        { id: 'c7', venue: 'Zénith', city: 'Caen', date: '2026-11-20', ticketsUrl: '/tickets', lat: 49.165684, lng: -0.395156 },
+        { id: 'c8', venue: 'Arena', city: 'Bordeaux', date: '2026-11-25', ticketsUrl: '/tickets', lat: 44.821415, lng: -0.536979 }
     ]
   },
   {
-    id: '3',
-    name: 'Gojira',
-    genre: 'Metal',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
-    bio: 'La puissance du metal français.',
+    id: '12',
+    name: 'The Weeknd',
+    genre: 'Pop',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/12/theweeknd.jpg',
+    bio: 'Starboy. L\'artiste le plus écouté au monde.',
     topTracks: [
-      { title: 'Stranded', plays: '80M', duration: '4:30' },
-      { title: 'Silvera', plays: '70M', duration: '3:50' },
-      { title: 'L\'enfant sauvage', plays: '60M', duration: '4:17' },
-      { title: 'Flying Whales', plays: '55M', duration: '7:44' },
-      { title: 'Amazonia', plays: '35M', duration: '5:00' },
-      { title: 'Another World', plays: '40M', duration: '4:25' },
-      { title: 'The Shooting Star', plays: '30M', duration: '5:42' },
-      { title: 'Born For One Thing', plays: '25M', duration: '4:20' }
+      { title: 'Blinding Lights', plays: '3B', duration: '3:20' },
+      { title: 'Starboy', plays: '2B', duration: '3:50' },
+      { title: 'The Hills', plays: '1.8B', duration: '4:02' },
+      { title: 'Save Your Tears', plays: '1.5B', duration: '3:35' },
+      { title: 'Can\'t Feel My Face', plays: '1.3B', duration: '3:33' },
+      { title: 'I Feel It Coming', plays: '1.2B', duration: '4:29' },
+      { title: 'Call Out My Name', plays: '900M', duration: '3:48' },
+      { title: 'Take My Breath', plays: '500M', duration: '3:40' }
     ],
-    upcomingDates: []
+    upcomingDates: [
+        { id: 'w1', venue: 'SoFi Stadium', city: 'Los Angeles', date: '2026-09-10', ticketsUrl: '/tickets', lat: 33.953463, lng: -118.339174 },
+        { id: 'w2', venue: 'MetLife Stadium', city: 'New York', date: '2026-09-15', ticketsUrl: '/tickets', lat: 40.812840, lng: -74.074209 },
+        { id: 'w3', venue: 'Wembley Stadium', city: 'Londres', date: '2026-09-22', ticketsUrl: '/tickets', lat: 51.556025, lng: -0.279618 }
+    ]
+  },
+  {
+    id: '13',
+    name: 'Dua Lipa',
+    genre: 'Pop',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/13/dualipa.jpg',
+    bio: 'La reine du Disco Pop moderne.',
+    topTracks: [
+      { title: 'Levitating', plays: '1.5B', duration: '3:23' },
+      { title: 'Don\'t Start Now', plays: '1.8B', duration: '3:03' },
+      { title: 'New Rules', plays: '1.6B', duration: '3:29' },
+      { title: 'Physical', plays: '1.1B', duration: '3:13' },
+      { title: 'Break My Heart', plays: '1B', duration: '3:41' },
+      { title: 'One Kiss', plays: '1.3B', duration: '3:34' },
+      { title: 'IDGAF', plays: '1.2B', duration: '3:37' },
+      { title: 'Love Again', plays: '800M', duration: '4:18' }
+    ],
+    upcomingDates: [
+        { id: 'd1', venue: 'Palau Sant Jordi', city: 'Barcelone', date: '2026-07-10', ticketsUrl: '/tickets', lat: 41.363385, lng: 2.152433 },
+        { id: 'd2', venue: 'Mediolanum Forum', city: 'Milan', date: '2026-07-14', ticketsUrl: '/tickets', lat: 45.402283, lng: 9.145899 }
+    ]
+  },
+  {
+    id: '6',
+    name: 'PNL',
+    genre: 'Rap Cloud',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/6/pnl.jpg',
+    bio: 'Deux frères. QLF.',
+    topTracks: [
+        { title: 'Au DD', plays: '300M', duration: '4:00' },
+        { title: 'Da', plays: '250M', duration: '3:50' },
+        { title: 'Naha', plays: '200M', duration: '4:45' },
+        { title: 'Onizuka', plays: '220M', duration: '4:12' },
+        { title: 'Bené', plays: '180M', duration: '3:10' },
+        { title: '91\'s', plays: '190M', duration: '3:55' },
+        { title: 'Blanka', plays: '150M', duration: '4:15' },
+        { title: 'A l\'ammoniaque', plays: '170M', duration: '5:16' }
+    ],
+    upcomingDates: [
+        { id: 'p1', venue: 'Tour Eiffel', city: 'Paris', date: '2026-06-21', ticketsUrl: '/tickets', lat: 48.858370, lng: 2.294481 }
+    ]
   },
   {
     id: '5',
@@ -139,29 +210,11 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '6',
-    name: 'PNL',
-    genre: 'Rap Cloud',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/6/pnl.jpg',
-    bio: 'Deux frères. QLF.',
-    topTracks: [
-        { title: 'Au DD', plays: '300M', duration: '4:00' },
-        { title: 'Da', plays: '250M', duration: '3:50' },
-        { title: 'Naha', plays: '200M', duration: '4:45' },
-        { title: 'Onizuka', plays: '220M', duration: '4:12' },
-        { title: 'Bené', plays: '180M', duration: '3:10' },
-        { title: '91\'s', plays: '190M', duration: '3:55' },
-        { title: 'Blanka', plays: '150M', duration: '4:15' },
-        { title: 'A l\'ammoniaque', plays: '170M', duration: '5:16' }
-    ],
-    upcomingDates: []
-  },
-  {
     id: '7',
     name: 'Leto',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/7/leto.jpg',
-    bio: 'Le roi de la Trap parisienne. Capitaine Jackson.',
+    bio: 'Le roi de la Trap parisienne.',
     topTracks: [
       { title: 'Macaroni', plays: '80M', duration: '3:20' },
       { title: 'Tes parents', plays: '65M', duration: '3:45' },
@@ -179,7 +232,7 @@ export const mockArtists: Artist[] = [
     name: 'Nono La Grinta',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/8/nonolagrinta.jpg',
-    bio: 'La nouvelle pépite du 91. Flow agressif et technique.',
+    bio: 'La nouvelle pépite du 91.',
     topTracks: [
       { title: 'LA QUOI??', plays: '15M', duration: '2:50' },
       { title: 'Paris', plays: '10M', duration: '3:00' },
@@ -197,7 +250,7 @@ export const mockArtists: Artist[] = [
     name: 'Keeqaid',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/9/keeqaid.jpg',
-    bio: 'Le futur de la scène. Un style unique qui mélange les genres.',
+    bio: 'Le futur de la scène.',
     topTracks: [
       { title: 'Tequila', plays: '5M', duration: '2:40' },
       { title: 'Coachella', plays: '4M', duration: '3:10' },
@@ -215,7 +268,7 @@ export const mockArtists: Artist[] = [
     name: 'Timar',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/10/timar.jpg',
-    bio: 'Une voix qui marque et des textes qui percutent.',
+    bio: 'Une voix qui marque.',
     topTracks: [
       { title: 'Sierra Leone', plays: '3M', duration: '2:55' },
       { title: '4h44', plays: '2M', duration: '3:05' },
@@ -233,7 +286,7 @@ export const mockArtists: Artist[] = [
     name: 'Lamano',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/11/lamano.jpg',
-    bio: 'L\'étoile montante. À suivre de très près cette année.',
+    bio: 'L\'étoile montante.',
     topTracks: [
       { title: 'Im sorry', plays: '8M', duration: '2:30' },
       { title: 'Canon', plays: '6M', duration: '2:45' },
@@ -247,47 +300,11 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '12',
-    name: 'The Weeknd',
-    genre: 'Pop',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/12/theweeknd.jpg',
-    bio: 'Starboy. L\'artiste le plus écouté au monde.',
-    topTracks: [
-      { title: 'Blinding Lights', plays: '3B', duration: '3:20' },
-      { title: 'Starboy', plays: '2B', duration: '3:50' },
-      { title: 'The Hills', plays: '1.8B', duration: '4:02' },
-      { title: 'Save Your Tears', plays: '1.5B', duration: '3:35' },
-      { title: 'Can\'t Feel My Face', plays: '1.3B', duration: '3:33' },
-      { title: 'I Feel It Coming', plays: '1.2B', duration: '4:29' },
-      { title: 'Call Out My Name', plays: '900M', duration: '3:48' },
-      { title: 'Take My Breath', plays: '500M', duration: '3:40' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '13',
-    name: 'Dua Lipa',
-    genre: 'Pop',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/13/dualipa.jpg',
-    bio: 'La reine du Disco Pop moderne.',
-    topTracks: [
-      { title: 'Levitating', plays: '1.5B', duration: '3:23' },
-      { title: 'Don\'t Start Now', plays: '1.8B', duration: '3:03' },
-      { title: 'New Rules', plays: '1.6B', duration: '3:29' },
-      { title: 'Physical', plays: '1.1B', duration: '3:13' },
-      { title: 'Break My Heart', plays: '1B', duration: '3:41' },
-      { title: 'One Kiss', plays: '1.3B', duration: '3:34' },
-      { title: 'IDGAF', plays: '1.2B', duration: '3:37' },
-      { title: 'Love Again', plays: '800M', duration: '4:18' }
-    ],
-    upcomingDates: []
-  },
-  {
     id: '14',
     name: 'Stromae',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/14/stromae.jpg',
-    bio: 'Le maestro belge. Des textes sombres sur des rythmes dansants.',
+    bio: 'Le maestro belge.',
     topTracks: [
       { title: 'Alors on danse', plays: '900M', duration: '3:26' },
       { title: 'Papaoutai', plays: '800M', duration: '3:52' },
@@ -305,7 +322,7 @@ export const mockArtists: Artist[] = [
     name: 'Aya Nakamura',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/15/nakamura.jpg',
-    bio: 'La reine de France. L\'artiste francophone la plus écoutée à l\'international.',
+    bio: 'La reine de France.',
     topTracks: [
       { title: 'Djadja', plays: '850M', duration: '2:50' },
       { title: 'Pookie', plays: '600M', duration: '3:00' },
@@ -323,7 +340,7 @@ export const mockArtists: Artist[] = [
     name: 'Metallica',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/16/metallica.jpg',
-    bio: 'Les pères fondateurs du Thrash Metal.',
+    bio: 'Les pères fondateurs.',
     topTracks: [
       { title: 'Enter Sandman', plays: '1B', duration: '5:31' },
       { title: 'Master of Puppets', plays: '900M', duration: '8:35' },
@@ -341,7 +358,7 @@ export const mockArtists: Artist[] = [
     name: 'Rammstein',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/17/rammstein.jpg',
-    bio: 'Le metal industriel allemand à son paroxysme. Du feu et de la fureur.',
+    bio: 'Le metal industriel allemand.',
     topTracks: [
       { title: 'Du Hast', plays: '600M', duration: '3:54' },
       { title: 'Sonne', plays: '500M', duration: '4:32' },
@@ -359,7 +376,7 @@ export const mockArtists: Artist[] = [
     name: 'System of a Down',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/18/systemofadown.jpg',
-    bio: 'L\'énergie brute arméno-américaine.',
+    bio: 'L\'énergie brute.',
     topTracks: [
       { title: 'Chop Suey!', plays: '1.2B', duration: '3:30' },
       { title: 'Toxicity', plays: '900M', duration: '3:39' },
@@ -377,7 +394,7 @@ export const mockArtists: Artist[] = [
     name: 'DJ Snake',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/19/djsnake.jpg',
-    bio: 'Le français qui fait danser la planète entière.',
+    bio: 'Le français qui fait danser la planète.',
     topTracks: [
       { title: 'Turn Down for What', plays: '1.1B', duration: '3:33' },
       { title: 'Let Me Love You', plays: '1.8B', duration: '3:25' },
@@ -395,7 +412,7 @@ export const mockArtists: Artist[] = [
     name: 'David Guetta',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/20/davidguetta.jpg',
-    bio: 'Le numéro 1 mondial des platines.',
+    bio: 'Le numéro 1 mondial.',
     topTracks: [
       { title: 'Sexy Bitch', plays: '1.5B', duration: '4:05' },
       { title: 'Memories', plays: '1.2B', duration: '2:55' },
@@ -413,7 +430,7 @@ export const mockArtists: Artist[] = [
     name: 'Kavinsky',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/21/kavinsky.jpg',
-    bio: 'Synthwave legend. Nightcall.',
+    bio: 'Synthwave legend.',
     topTracks: [
       { title: 'Nightcall', plays: '400M', duration: '4:18' },
       { title: 'Roadgame', plays: '100M', duration: '3:44' },
@@ -431,7 +448,7 @@ export const mockArtists: Artist[] = [
     name: 'Hamza',
     genre: 'Rap Cloud',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/22/hamza.jpg',
-    bio: 'Le Sauce God belge. Des mélodies imparables.',
+    bio: 'Le Sauce God belge.',
     topTracks: [
       { title: 'Life', plays: '80M', duration: '3:05' },
       { title: 'Fade Up', plays: '110M', duration: '3:30' },
@@ -449,7 +466,7 @@ export const mockArtists: Artist[] = [
     name: 'Laylow',
     genre: 'Rap Cloud',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/23/laylow.jpg',
-    bio: 'L\'étrange histoire de Mr. Anderson. Digital et émotionnel.',
+    bio: 'Digital et émotionnel.',
     topTracks: [
       { title: 'Megatron', plays: '45M', duration: '3:20' },
       { title: 'Special', plays: '40M', duration: '3:15' },

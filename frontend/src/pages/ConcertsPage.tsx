@@ -1,27 +1,29 @@
 import { useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { mockArtists } from '../data/mockData';
-import { Calendar, MapPin, Ticket, Music } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Music, Globe, Navigation } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// 1. Style de la carte (doit prendre 100% du conteneur)
+// Style de la carte : on arrondit les coins pour faire "App"
 const containerStyle = {
   width: '100%',
-  height: '100%'
+  height: '100%',
+  borderRadius: '16px',
 };
 
-// 2. Coordonnées par défaut (Centre de la France) pour le démarrage
+// Centre par défaut (Europe)
 const defaultCenter = {
-  lat: 46.603354,
-  lng: 1.888334
+  lat: 48.8566,
+  lng: 2.3522
 };
 
-// 3. Style "Sombre" pour la carte (Google Maps Dark Mode)
+// Style sombre Premium
 const mapOptions = {
-  disableDefaultUI: false, // On garde le zoom +/-
+  disableDefaultUI: false,
   zoomControl: true,
   mapTypeControl: false,
   streetViewControl: false,
+  fullscreenControl: false,
   styles: [
     { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -43,8 +45,6 @@ const mapOptions = {
 };
 
 export default function ConcertsPage() {
-  // On crée une liste unique de tous les concerts (artistes mélangés)
-  // On ajoute l'image et le nom de l'artiste à chaque concert pour l'affichage
   const allConcerts = mockArtists.flatMap(artist => 
     artist.upcomingDates.map(date => ({
       ...date,
@@ -54,83 +54,85 @@ export default function ConcertsPage() {
     }))
   );
 
-  // État pour savoir quel concert est sélectionné (pour ouvrir l'info-bulle sur la carte)
   const [selectedConcert, setSelectedConcert] = useState<any>(null);
 
   return (
-    <div className="flex flex-col h-screen bg-[#0e0e0e] text-white pt-20">
+    <div className="flex flex-col h-screen bg-[#050505] text-white pt-20 pb-4">
       
-      {/* En-tête de la page */}
-      <div className="container mx-auto px-6 py-6 shrink-0">
-        <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 flex items-center gap-3">
-          <Ticket className="text-violet-500" />
-          Tournées <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">2026</span>
-        </h1>
-        <p className="text-zinc-400 text-sm">Sélectionnez une date pour la voir sur la carte.</p>
+      {/* En-tête simplifié */}
+      <div className="container mx-auto px-6 mb-4 flex justify-between items-end">
+        <div>
+            <h1 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
+              <Globe className="text-violet-500 animate-pulse" />
+              World Tour <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">2026</span>
+            </h1>
+        </div>
+        <div className="text-right hidden md:block">
+            <span className="text-zinc-400 text-sm">Prochaines dates : </span>
+            <span className="text-white font-bold">{allConcerts.length}</span>
+        </div>
       </div>
 
-      {/* Zone principale (Liste + Carte) */}
-      <div className="flex-1 flex flex-col md:flex-row border-t border-white/10 overflow-hidden">
+      {/* Layout Principal */}
+      <div className="flex-1 container mx-auto px-4 flex gap-6 overflow-hidden">
         
-        {/* COLONNE GAUCHE : LISTE (Scrollable) */}
-        <div className="w-full md:w-1/3 lg:w-1/4 bg-[#121212] overflow-y-auto custom-scrollbar p-4">
-          <div className="space-y-3">
+        {/* LISTE FLOTTANTE (Sidebar) */}
+        <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+          <div className="p-4 border-b border-white/5 bg-white/5">
+             <h2 className="font-bold text-sm uppercase tracking-wider text-zinc-400">Liste des concerts</h2>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
              {allConcerts.map((concert) => (
                <div 
                  key={concert.id} 
                  onClick={() => setSelectedConcert(concert)}
-                 className={`p-4 rounded-xl border transition-all cursor-pointer group ${
+                 className={`relative p-3 rounded-xl border transition-all duration-300 cursor-pointer group ${
                    selectedConcert?.id === concert.id 
-                     ? 'bg-violet-500/10 border-violet-500/50' 
-                     : 'bg-white/5 border-white/5 hover:bg-white/10'
+                     ? 'bg-violet-500/10 border-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.3)]' 
+                     : 'bg-zinc-900/40 border-white/5 hover:bg-zinc-800 hover:border-white/20'
                  }`}
                >
                  <div className="flex items-center gap-3">
                     <img 
                       src={concert.artistImage} 
                       alt={concert.artistName} 
-                      className="w-12 h-12 rounded-lg object-cover" 
+                      className="w-12 h-12 rounded-lg object-cover shadow-lg group-hover:scale-105 transition-transform" 
                     />
-                    <div>
-                        <h3 className="font-bold leading-tight">{concert.artistName}</h3>
-                        <p className="text-xs text-zinc-400 flex items-center gap-1 mt-1">
-                          <Music size={10} /> {concert.genre}
+                    <div className="min-w-0">
+                        <h3 className={`font-bold truncate text-sm ${selectedConcert?.id === concert.id ? 'text-white' : 'text-zinc-200'}`}>
+                            {concert.artistName}
+                        </h3>
+                        <p className="text-[10px] text-zinc-500 uppercase tracking-wide mt-0.5">
+                           {concert.genre}
                         </p>
                     </div>
                  </div>
                  
-                 <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-zinc-300">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <Calendar size={12} className="text-violet-400"/> 
+                 <div className="mt-3 flex justify-between items-center text-xs text-zinc-400">
+                    <span className="flex items-center gap-1.5 font-medium bg-black/30 px-2 py-1 rounded-md">
+                      <Calendar size={10} className="text-violet-400"/> 
                       {concert.date}
                     </span>
                     <span className="flex items-center gap-1.5 font-medium">
-                      <MapPin size={12} className="text-fuchsia-400"/> 
+                      <Navigation size={10} className="text-fuchsia-400"/> 
                       {concert.city}
                     </span>
                  </div>
                </div>
              ))}
-
-             {allConcerts.length === 0 && (
-                <div className="text-center py-10 text-zinc-500">
-                  <p>Aucune date de concert trouvée.</p>
-                </div>
-             )}
           </div>
         </div>
 
-        {/* COLONNE DROITE : CARTE */}
-        <div className="w-full md:w-2/3 lg:w-3/4 relative bg-[#1a1a1a]">
-          {/* IMPORTANT : googleMapsApiKey est vide pour l'instant = Mode DEV */}
+        {/* CARTE GOOGLE MAPS (Zone Principale) */}
+        <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block">
           <LoadScript googleMapsApiKey=""> 
             <GoogleMap
               mapContainerStyle={containerStyle}
               center={selectedConcert ? { lat: selectedConcert.lat, lng: selectedConcert.lng } : defaultCenter}
-              zoom={selectedConcert ? 12 : 5}
+              zoom={selectedConcert ? 12 : 4} 
               options={mapOptions}
             >
-              {/* On place les marqueurs pour chaque concert */}
               {allConcerts.map((concert) => (
                 <Marker
                   key={concert.id}
@@ -139,26 +141,32 @@ export default function ConcertsPage() {
                 />
               ))}
 
-              {/* Si un concert est sélectionné, on affiche la petite bulle */}
               {selectedConcert && (
                 <InfoWindow
                   position={{ lat: selectedConcert.lat, lng: selectedConcert.lng }}
                   onCloseClick={() => setSelectedConcert(null)}
+                  options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
                 >
-                  <div className="text-black p-1 min-w-[200px]">
-                    <div className="flex items-center gap-2 mb-2">
-                         <img src={selectedConcert.artistImage} className="w-8 h-8 rounded object-cover" />
-                         <span className="font-bold">{selectedConcert.artistName}</span>
+                  <div className="text-black p-2 min-w-[200px]">
+                    <div className="flex items-center gap-3 mb-2">
+                         <img src={selectedConcert.artistImage} className="w-10 h-10 rounded-md object-cover" />
+                         <div>
+                            <span className="font-bold text-sm block">{selectedConcert.artistName}</span>
+                            <span className="text-[10px] text-gray-500 uppercase">{selectedConcert.genre}</span>
+                         </div>
                     </div>
-                    <div className="text-xs text-gray-600 mb-2">
+                    
+                    <div className="bg-gray-100 rounded p-2 mb-2 text-xs space-y-1">
                         <p className="font-bold">{selectedConcert.venue}</p>
-                        <p>{selectedConcert.city} - {selectedConcert.date}</p>
+                        <p>{selectedConcert.city}</p>
+                        <p className="text-violet-700 font-semibold">{selectedConcert.date}</p>
                     </div>
+
                     <Link 
                         to="/tickets" 
-                        className="block w-full bg-black text-white text-center py-2 rounded text-xs font-bold uppercase hover:bg-violet-600 transition-colors"
+                        className="block w-full bg-black text-white text-center py-2 rounded text-[10px] font-bold uppercase hover:bg-violet-600 transition-colors"
                     >
-                        Réserver un billet
+                        Réserver
                     </Link>
                   </div>
                 </InfoWindow>
