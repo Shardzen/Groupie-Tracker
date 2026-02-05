@@ -1,10 +1,20 @@
-// Migration effectuée le: 
+// Migration effectuée le: Ajout des coordonnées GPS
 
 export interface Track {
   title: string;
   plays: string;
   duration: string;
   previewUrl?: string;
+}
+
+export interface ConcertDate {
+  id: string;
+  venue: string;
+  city: string;
+  date: string;
+  ticketsUrl: string;
+  lat: number;   // Latitude (Nord/Sud)
+  lng: number;   // Longitude (Est/Ouest)
 }
 
 export interface Artist {
@@ -15,14 +25,6 @@ export interface Artist {
   bio: string;
   topTracks: Track[];
   upcomingDates: ConcertDate[];
-}
-
-export interface ConcertDate {
-  id: string;
-  venue: string;
-  city: string;
-  date: string;
-  ticketsUrl: string;
 }
 
 export interface Event {
@@ -45,18 +47,8 @@ export const mockArtists: Artist[] = [
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/1/ninho.jpg.jpg',
     bio: 'Le recordman du rap français.',
     topTracks: [
-      { 
-        title: 'Jefe', 
-        plays: '145M', 
-        duration: '3:12',
-        previewUrl: 'https://cdns-preview-d.dzcdn.net/stream/c-d8f5b81a6243ddfa4c97b6a4b8c6d40b-4.mp3' 
-      },
-      { 
-        title: 'Lettre à une femme', 
-        plays: '120M', 
-        duration: '2:58',
-        previewUrl: 'https://cdns-preview-9.dzcdn.net/stream/c-922634e062f928e08d6c703d1544a031-4.mp3'
-      },
+      { title: 'Jefe', plays: '145M', duration: '3:12' },
+      { title: 'Lettre à une femme', plays: '120M', duration: '2:58' },
       { title: 'La vie qu\'on mène', plays: '155M', duration: '3:29' },
       { title: 'Goutte d\'eau', plays: '110M', duration: '3:02' },
       { title: 'Maman ne le sait pas', plays: '95M', duration: '3:22' },
@@ -64,7 +56,11 @@ export const mockArtists: Artist[] = [
       { title: 'Vrai de vrai', plays: '76M', duration: '3:05' },
       { title: 'Tout va bien', plays: '65M', duration: '3:15' }
     ],
-    upcomingDates: []
+    upcomingDates: [
+        { id: 'c1', venue: 'Stade de France', city: 'Paris', date: '2026-05-12', ticketsUrl: '/tickets', lat: 48.924459, lng: 2.360164 },
+        { id: 'c2', venue: 'Vélodrome', city: 'Marseille', date: '2026-05-18', ticketsUrl: '/tickets', lat: 43.269827, lng: 5.395887 },
+        { id: 'c3', venue: 'Groupama Stadium', city: 'Lyon', date: '2026-05-25', ticketsUrl: '/tickets', lat: 45.765275, lng: 4.981836 }
+    ]
   },
   {
     id: '2',
@@ -73,18 +69,8 @@ export const mockArtists: Artist[] = [
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/2/angele.jpg.webp',
     bio: 'La reine de la pop belge.',
     topTracks: [
-      { 
-        title: 'Bruxelles je t\'aime', 
-        plays: '95M', 
-        duration: '3:45', 
-        previewUrl: 'https://cdns-preview-b.dzcdn.net/stream/c-b93952701f6630f55e0031846c434226-6.mp3'
-      },
-      { 
-        title: 'Balance ton quoi', 
-        plays: '110M', 
-        duration: '3:10',
-        previewUrl: 'https://cdns-preview-8.dzcdn.net/stream/c-89260c07d353683f12b6946059632832-6.mp3'
-      },
+      { title: 'Bruxelles je t\'aime', plays: '95M', duration: '3:45' },
+      { title: 'Balance ton quoi', plays: '110M', duration: '3:10' },
       { title: 'Tout oublier', plays: '180M', duration: '3:22' },
       { title: 'Oui ou Non', plays: '85M', duration: '3:16' },
       { title: 'Ta Reine', plays: '110M', duration: '3:33' },
@@ -92,25 +78,10 @@ export const mockArtists: Artist[] = [
       { title: 'Libre', plays: '70M', duration: '2:44' },
       { title: 'Flou', plays: '60M', duration: '3:19' }
     ],
-    upcomingDates: []
-  },
-  {
-    id: '3',
-    name: 'Gojira',
-    genre: 'Metal',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
-    bio: 'La puissance du metal français.',
-    topTracks: [
-      { title: 'Stranded', plays: '80M', duration: '4:30' },
-      { title: 'Silvera', plays: '70M', duration: '3:50' },
-      { title: 'L\'enfant sauvage', plays: '60M', duration: '4:17' },
-      { title: 'Flying Whales', plays: '55M', duration: '7:44' },
-      { title: 'Amazonia', plays: '35M', duration: '5:00' },
-      { title: 'Another World', plays: '40M', duration: '4:25' },
-      { title: 'The Shooting Star', plays: '30M', duration: '5:42' },
-      { title: 'Born For One Thing', plays: '25M', duration: '4:20' }
-    ],
-    upcomingDates: []
+    upcomingDates: [
+        { id: 'c4', venue: 'Forest National', city: 'Bruxelles', date: '2026-06-10', ticketsUrl: '/tickets', lat: 50.811569, lng: 4.329868 },
+        { id: 'c5', venue: 'Zénith', city: 'Lille', date: '2026-06-12', ticketsUrl: '/tickets', lat: 50.630663, lng: 3.080772 }
+    ]
   },
   {
     id: '4',
@@ -127,6 +98,27 @@ export const mockArtists: Artist[] = [
       { title: 'La Terre est ronde', plays: '98M', duration: '3:39' },
       { title: 'Défaite de famille', plays: '72M', duration: '3:44' },
       { title: 'Notes pour trop tard', plays: '45M', duration: '7:31' }
+    ],
+    upcomingDates: [
+        { id: 'c6', venue: 'Accor Arena', city: 'Paris', date: '2026-11-15', ticketsUrl: '/tickets', lat: 48.838580, lng: 2.378435 },
+        { id: 'c7', venue: 'Zénith', city: 'Caen', date: '2026-11-20', ticketsUrl: '/tickets', lat: 49.165684, lng: -0.395156 }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Gojira',
+    genre: 'Metal',
+    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
+    bio: 'La puissance du metal français.',
+    topTracks: [
+      { title: 'Stranded', plays: '80M', duration: '4:30' },
+      { title: 'Silvera', plays: '70M', duration: '3:50' },
+      { title: 'L\'enfant sauvage', plays: '60M', duration: '4:17' },
+      { title: 'Flying Whales', plays: '55M', duration: '7:44' },
+      { title: 'Amazonia', plays: '35M', duration: '5:00' },
+      { title: 'Another World', plays: '40M', duration: '4:25' },
+      { title: 'The Shooting Star', plays: '30M', duration: '5:42' },
+      { title: 'Born For One Thing', plays: '25M', duration: '4:20' }
     ],
     upcomingDates: []
   },
@@ -253,112 +245,6 @@ export const mockArtists: Artist[] = [
       { title: 'Eté', plays: '2M', duration: '2:40' },
       { title: 'Love', plays: '1.5M', duration: '3:05' },
       { title: 'Solo', plays: '1M', duration: '2:50' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '3',
-    name: 'Gojira',
-    genre: 'Metal',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
-    bio: 'La puissance du metal français.',
-    topTracks: [
-      { title: 'Stranded', plays: '80M', duration: '4:30' },
-      { title: 'Silvera', plays: '70M', duration: '3:50' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '4',
-    name: 'Orelsan',
-    genre: 'Rap FR',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/4/orelsan.jpg',
-    bio: 'Civilisation. La plume la plus aiguisée de Caen.',
-    topTracks: [
-      { title: 'La Quête', plays: '90M', duration: '4:00' },
-      { title: 'Basique', plays: '150M', duration: '3:10' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '5',
-    name: 'Daft Punk',
-    genre: 'Electro',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/5/daftpunk.jpg',
-    bio: 'Les légendes. One More Time.',
-    topTracks: [
-        { title: 'One More Time', plays: '500M', duration: '5:20' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '6',
-    name: 'PNL',
-    genre: 'Rap Cloud',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/6/pnl.jpg',
-    bio: 'Deux frères. QLF.',
-    topTracks: [
-        { title: 'Au DD', plays: '300M', duration: '4:00' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '7',
-    name: 'Leto',
-    genre: 'Rap FR',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/7/leto.jpg',
-    bio: 'Le roi de la Trap parisienne. Capitaine Jackson.',
-    topTracks: [
-      { title: 'Macaroni', plays: '80M', duration: '3:20' },
-      { title: 'Tes parents', plays: '65M', duration: '3:45' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '8',
-    name: 'Nono La Grinta',
-    genre: 'Rap FR',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/8/nonolagrinta.jpg',
-    bio: 'La nouvelle pépite du 91. Flow agressif et technique.',
-    topTracks: [
-      { title: 'LA QUOI??', plays: '15M', duration: '2:50' },
-      { title: 'Paris', plays: '10M', duration: '3:00' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '9',
-    name: 'Keeqaid',
-    genre: 'Rap FR',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/9/keeqaid.jpg',
-    bio: 'Le futur de la scène. Un style unique qui mélange les genres.',
-    topTracks: [
-      { title: 'Tequila', plays: '5M', duration: '2:40' },
-      { title: 'Coachella', plays: '4M', duration: '3:10' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '10',
-    name: 'Timar',
-    genre: 'Rap FR',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/10/timar.jpg',
-    bio: 'Une voix qui marque et des textes qui percutent.',
-    topTracks: [
-      { title: 'Sierra Leone', plays: '3M', duration: '2:55' },
-      { title: '4h44', plays: '2M', duration: '3:05' }
-    ],
-    upcomingDates: []
-  },
-  {
-    id: '11',
-    name: 'Lamano',
-    genre: 'Rap FR',
-    image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/11/lamano.jpg',
-    bio: 'L\'étoile montante. À suivre de très près cette année.',
-    topTracks: [
-      { title: 'Im sorry', plays: '8M', duration: '2:30' },
-      { title: 'Canon', plays: '6M', duration: '2:45' }
     ],
     upcomingDates: []
   },
