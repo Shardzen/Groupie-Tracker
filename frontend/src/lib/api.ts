@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 interface FetchOptions extends RequestInit {
   token?: string
@@ -90,7 +90,8 @@ export const api = {
 export interface RegisterRequest {
   email: string
   password: string
-  name: string
+  first_name: string // ✅ Changé
+  last_name: string  // ✅ Changé
 }
 
 export interface LoginRequest {
@@ -103,8 +104,10 @@ export interface AuthResponse {
   user: {
     id: number
     email: string
-    name: string
+    first_name: string // ✅ Changé
+    last_name: string  // ✅ Changé
     role: string
+    email_verified: boolean // ✅ Ajouté pour ton vérificateur
   }
 }
 

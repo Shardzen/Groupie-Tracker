@@ -30,7 +30,19 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
     try {
-      const response = await api.post<{ token: string; user: any }>('/auth/login', { email, password });
+     
+      const response = await api.post<{ 
+        token: string; 
+        user: {
+          id: number;
+          first_name: string;
+          last_name: string;
+          email: string;
+          role: string;
+          email_verified: boolean;
+        } 
+      }>('/auth/login', { email, password });
+
       login(response.token, response.user);
       toast.success('Connexion réussie !');
       navigate('/');
@@ -41,17 +53,15 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
+  }; 
   const handleGoogleLogin = async () => {
     try {
       const response = await api.get<{ url: string }>('/auth/google');
       window.location.href = response.url;
     } catch (err) {
-      toast.error('Erreur Google Login');
+      toast.error('Erreur de redirection Google');
     }
   };
-
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
       <div className="absolute inset-0 z-0">
