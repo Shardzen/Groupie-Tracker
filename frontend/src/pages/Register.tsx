@@ -93,7 +93,7 @@ export default function RegisterPage() {
                     required
                     onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                     className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-white/30 outline-none text-sm transition-all"
-                    placeholder="Jean"
+                    placeholder="prénom"
                   />
                 </div>
               </div>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
                     required
                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                     className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-white/30 outline-none text-sm transition-all"
-                    placeholder="Dupont"
+                    placeholder="Nom"
                   />
                 </div>
               </div>

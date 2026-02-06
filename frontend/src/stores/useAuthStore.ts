@@ -3,10 +3,12 @@ import { persist } from 'zustand/middleware'
 import { jwtDecode } from 'jwt-decode'
 
 interface User {
-  id: number
-  email: string
-  name: string
-  role: string
+  id: number;
+  first_name: string; // Doit être identique au JSON du backend
+  last_name: string;
+  email: string;
+  role: string;
+  email_verified: boolean;
 }
 
 interface AuthState {
