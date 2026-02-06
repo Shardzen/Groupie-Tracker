@@ -12,7 +12,7 @@ import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import RegisterPage from './pages/Register';
-
+import EmailSentPage from './pages/EmailSentPage';
 // On crée ce composant pour pouvoir utiliser useLocation() à l'intérieur
 function AnimatedRoutes() {
   const location = useLocation();
@@ -28,7 +28,9 @@ function AnimatedRoutes() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/email-sent" element={<EmailSentPage />} />       
         </Route>
+      
 
         {/* Routes sans Layout pour le Login et Register */}
         <Route path="/login" element={<LoginPage />} />

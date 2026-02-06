@@ -40,9 +40,8 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Erreur lors de l’inscription');
       }
 
-      console.log("✅ Utilisateur créé !", data);
-      navigate('/login');
-
+     console.log("✅ Utilisateur créé !", data);
+navigate('/email-sent'); 
     } catch (error: any) {
       console.error("❌ Erreur API :", error.message);
       alert(error.message);
@@ -82,7 +81,6 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Prénom et Nom sur la même ligne ou empilés */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Prénom</label>
