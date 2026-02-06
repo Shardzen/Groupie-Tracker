@@ -3,14 +3,15 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-
+	"log"
 	"groupie-backend/middleware"
 	"groupie-backend/models"
 	"groupie-backend/services"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	var req models.RegisterRequest
+	log.Println("📩 Requête d'inscription reçue !") // <--- AJOUTE ÇA
+    var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)

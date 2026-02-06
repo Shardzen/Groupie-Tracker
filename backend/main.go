@@ -1,16 +1,15 @@
 package main
 
 import (
+
 	"log"
 	"net/http"
 	"os"
-	"strings"
-
+	"strings"	
 	"groupie-backend/database"
 	"groupie-backend/handlers"
 	"groupie-backend/middleware"
 	"groupie-backend/storage" 
-
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"

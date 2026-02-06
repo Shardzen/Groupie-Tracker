@@ -16,12 +16,13 @@ type Artist struct {
 }
 
 type User struct {
-	ID           int       `json:"id"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	Name         string    `json:"name"`
-	Role         string    `json:"role"`
-	CreatedAt    time.Time `json:"created_at"`
+    ID           int       `json:"id"`
+    Email        string    `json:"email"`
+    PasswordHash string    `json:"-"`
+    FirstName    string    `json:"first_name"` 
+    LastName     string    `json:"last_name"`  
+    Role         string    `json:"role"`
+    CreatedAt    time.Time `json:"created_at"`
 }
 
 type Concert struct {
@@ -62,9 +63,10 @@ type Reservation struct {
 }
 
 type RegisterRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
+    Email     string `json:"email"`
+    Password  string `json:"password"`
+    FirstName string `json:"first_name"` 
+    LastName  string `json:"last_name"`  
 }
 
 type LoginRequest struct {

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"strings"
 	"groupie-backend/database"
 	"groupie-backend/models"
 	"groupie-backend/services"
@@ -41,7 +41,6 @@ func generateStateToken() (string, error) {
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
 }
-
 func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	state, err := generateStateToken()
 	if err != nil {
@@ -56,15 +55,16 @@ func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 		Value:    state,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   true, // À mettre sur false si tu n'as pas de HTTPS en local, mais souvent OK
 		SameSite: http.SameSiteLaxMode,
 	})
 
 	url := googleOauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
+	
+	// On renvoie l'URL au frontend pour qu'il puisse rediriger l'utilisateur
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"url": url})
 }
-
 func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	stateCookie, err := r.Cookie("oauth_state")
 	if err != nil || stateCookie.Value != r.URL.Query().Get("state") {
@@ -93,10 +93,9 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	var googleUser struct {
-		Email         string `json:"email"`
-		Name          string `json:"name"`
-		Picture       string `json:"picture"`
-		VerifiedEmail bool   `json:"verified_email"`
+		Email   string `json:"email"`
+		Name    string `json:"name"`
+		Picture string `json:"picture"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&googleUser); err != nil {
@@ -104,19 +103,32 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// --- LOGIQUE DE SÉPARATION DU NOM GOOGLE ---
+	firstName := googleUser.Name
+	lastName := ""
+	if parts := strings.SplitN(googleUser.Name, " ", 2); len(parts) > 1 {
+		firstName = parts[0]
+		lastName = parts[1]
+	}
+
 	var user models.User
-	err = database.DB.QueryRow("SELECT id, name, email, role, created_at FROM users WHERE email=$1", googleUser.Email).
-		Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt)
+	// 1. SELECT : On utilise first_name et last_name au lieu de name
+	err = database.DB.QueryRow(
+		"SELECT id, first_name, last_name, email, role, created_at FROM users WHERE email=$1", 
+		googleUser.Email,
+	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.CreatedAt)
 
 	if err != nil {
+		// 2. INSERT : Si l'utilisateur n'existe pas, on le crée proprement
 		err = database.DB.QueryRow(`
-			INSERT INTO users (name, email, password_hash, role)
-			VALUES ($1, $2, $3, $4)
-			RETURNING id, name, email, role, created_at
-		`, googleUser.Name, googleUser.Email, "", "user").
-			Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt)
+			INSERT INTO users (first_name, last_name, email, password_hash, role)
+			VALUES ($1, $2, $3, $4, $5)
+			RETURNING id, first_name, last_name, email, role, created_at
+		`, firstName, lastName, googleUser.Email, "", "user").
+			Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.CreatedAt)
 
 		if err != nil {
+			fmt.Println("❌ Erreur SQL OAuth:", err)
 			http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"?error=failed_to_create_user", http.StatusTemporaryRedirect)
 			return
 		}

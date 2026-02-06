@@ -76,14 +76,17 @@ func InitDB() error {
 func createTables() error {
 	schema := `
 	CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
-		email VARCHAR(255) UNIQUE NOT NULL,
-		password_hash TEXT NOT NULL,
-		name VARCHAR(255),
-		role VARCHAR(50) DEFAULT 'user',
-		email_verified BOOLEAN DEFAULT FALSE,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	);
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT, -- Retiré le NOT NULL car Google n'envoie pas de password
+    name VARCHAR(255),
+    google_id VARCHAR(255) UNIQUE, -- Ajouté
+    github_id VARCHAR(255) UNIQUE, -- Ajouté
+    avatar_url TEXT,               -- Ajouté
+    role VARCHAR(50) DEFAULT 'user',
+    email_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 	CREATE TABLE IF NOT EXISTS concerts (
 		id SERIAL PRIMARY KEY,
