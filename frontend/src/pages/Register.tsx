@@ -68,10 +68,22 @@ navigate('/email-sent');
 
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
 
-      <Link to="/" className="absolute top-8 left-8 z-50 flex items-center gap-3">
-        <div className="bg-white p-2 rounded-xl"><Music className="w-6 h-6 text-black" /></div>
-        <span className="text-2xl font-ultra-heavy text-white">YNOT</span>
-      </Link>
+      <Link to="/" className="absolute top-8 left-8 z-50 group">
+  <div className="flex items-center gap-3">
+    <div className="relative">
+      <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl group-hover:bg-violet-500/40 transition-all" />
+      
+      <img 
+        src="/img/logo.png" 
+        alt="YNOT Logo" 
+        className="h-20 w-auto relative z-10 object-contain transition-transform group-hover:scale-105" 
+      />
+    </div>
+
+    <span className="text-2xl font-black text-white tracking-tighter hidden md:block">
+    </span>
+  </div>
+</Link>
 
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">

@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"golang.org/x/time/rate"
+	"groupie-backend/services"
 )
 
 // Rate limiter: 5 requests per second with burst of 10
@@ -35,7 +36,9 @@ func main() {
 		log.Fatalf("❌ Failed to initialize database: %v", err)
 	}
 	defer database.CloseDB()
-
+	
+	services.StartUnverifiedUserCleanup(database.DB)
+	
 	storage.InitMinIO()
 
 	r := mux.NewRouter()

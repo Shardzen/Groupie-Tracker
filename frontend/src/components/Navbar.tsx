@@ -53,16 +53,15 @@ export default function Navbar() {
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             
-            {/* LOGO */}
             <div className="flex items-center gap-8">
-              <Link to="/" className="flex items-center group relative z-10">
-                <span className="text-2xl md:text-3xl font-black tracking-tighter hover:scale-105 transition-transform duration-300">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-fuchsia-500 to-white">
-                    GROUPIE
-                  </span>
-                </span>
-                <div className="absolute -inset-4 bg-violet-600/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-              </Link>
+  <Link to="/" className="flex items-center group relative z-10">
+    <img 
+      src="/img/logo.png" 
+      alt="YNOT" 
+      className="h-8 md:h-20 w-auto object-contain hover:scale-105 transition-transform duration-300" 
+    />
+    <div className="absolute -inset-4 bg-violet-600/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+  </Link>
 
               {/* MENU */}
               <div className="hidden lg:flex items-center gap-8">

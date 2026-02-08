@@ -201,7 +201,6 @@ export default function Home() {
                      <Heart className="w-8 h-8 text-violet-500 fill-violet-500 group-hover:scale-110 transition-transform" />
                      <span className="text-2xl font-black tracking-tighter">
                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-fuchsia-500 to-white">
-                         GROUPIE
                        </span>
                      </span>
                   </Link>
