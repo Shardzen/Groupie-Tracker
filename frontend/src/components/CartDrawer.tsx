@@ -1,5 +1,6 @@
 import { X, Trash2, CreditCard, Ticket } from 'lucide-react';
 import { useCartStore } from '../stores/useCartStore';
+import { Link } from 'react-router-dom'; // AJOUT IMPORTANT
 
 export default function CartDrawer() {
   const { items, isOpen, toggleCart, removeItem, total } = useCartStore();
@@ -16,7 +17,6 @@ export default function CartDrawer() {
         
         <div className="flex flex-col h-full p-6">
             
-            {/* Header Blanc */}
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
                   Votre Panier
@@ -36,7 +36,6 @@ export default function CartDrawer() {
                     </div>
                 ) : (
                     items.map((item, index) => (
-                        // Carte item sobre (Zinc-900)
                         <div key={`${item.id}-${item.type}-${index}`} className="group flex gap-4 bg-zinc-900 p-4 rounded-2xl border border-white/5 transition-all animate-fade-in-up">
                             <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0">
                                 <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
@@ -77,12 +76,15 @@ export default function CartDrawer() {
                              <p className="text-xs text-zinc-500 mt-1">Taxes incluses</p>
                         </div>
                     </div>
-                    
-                    {/* Bouton Violet Uni (Marque) */}
-                    <button className="w-full py-4 bg-violet-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-violet-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-lg group">
+            
+                    <Link 
+                        to="/checkout"
+                        onClick={toggleCart}
+                        className="w-full py-4 bg-violet-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-violet-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-lg group"
+                    >
                         Payer maintenant 
                         <CreditCard size={20} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </Link>
                 </div>
             )}
         </div>
