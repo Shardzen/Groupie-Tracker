@@ -42,7 +42,7 @@ func main() {
 	storage.InitMinIO()
 
 	r := mux.NewRouter()
-
+	
 	r.HandleFunc("/api/health", handlers.HealthCheck).Methods("GET")
 
 	api := r.PathPrefix("/api").Subrouter()

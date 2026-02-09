@@ -65,3 +65,27 @@ func SendHTMLEmail(to, subject, htmlBody string) error {
 
 	return nil
 }
+func SendVerificationEmail(toEmail string, token string) error {
+    // 1. On construit le lien qui pointe vers ton API de vérification
+    // On utilise l'adresse de ton backend définie dans main.go (8080)
+    verificationLink := fmt.Sprintf("http://localhost:8080/api/auth/verify-email?token=%s", token)
+
+    subject := "🎸 Active ton compte YNOT !"
+    
+    // 2. On prépare un joli corps de mail en HTML
+    htmlBody := fmt.Sprintf(`
+        <div style="font-family: Arial, sans-serif; text-align: center;">
+            <h1 style="color: #ff4757;">YNOT</h1>
+            <p>Salut ! Merci de nous rejoindre. Clique sur le bouton ci-dessous pour valider ton inscription :</p>
+            <div style="margin: 30px;">
+                <a href="%s" style="background-color: #ff4757; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    ACTIVER MON COMPTE
+                </a>
+            </div>
+            <p style="color: #777; font-size: 12px;">Si le bouton ne fonctionne pas, copie ce lien : %s</p>
+        </div>
+    `, verificationLink, verificationLink)
+
+    // 3. On utilise ta fonction existante pour envoyer le tout
+    return SendHTMLEmail(toEmail, subject, htmlBody)
+}

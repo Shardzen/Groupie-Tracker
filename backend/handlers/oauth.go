@@ -13,7 +13,6 @@ import (
 	"groupie-backend/database"
 	"groupie-backend/models"
 	"groupie-backend/services"
-
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -321,45 +320,5 @@ func SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Verification email sent",
-	})
-}
-
-func VerifyEmail(w http.ResponseWriter, r *http.Request) {
-	token := r.URL.Query().Get("token")
-	if token == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Token required"})
-		return
-	}
-
-	var userID int
-	var expiresAt time.Time
-	err := database.DB.QueryRow(`
-		SELECT user_id, expires_at 
-		FROM email_verification_tokens 
-		WHERE token=$1
-	`, token).Scan(&userID, &expiresAt)
-
-	if err != nil || time.Now().After(expiresAt) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or expired token"})
-		return
-	}
-
-	_, err = database.DB.Exec("UPDATE users SET email_verified=true WHERE id=$1", userID)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to verify email"})
-		return
-	}
-
-	database.DB.Exec("DELETE FROM email_verification_tokens WHERE token=$1", token)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Email verified successfully",
 	})
 }

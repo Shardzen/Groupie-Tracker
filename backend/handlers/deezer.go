@@ -18,15 +18,15 @@ type DeezerResponse struct {
 	SearchURL string `json:"search_url"`
 	ID        int    `json:"id,omitempty"`
 	HasWidget bool   `json:"has_widget"`
-	Type      string `json:"type"` // "artist" ou "track"
+	Type      string `json:"type"` 
 }
 
-// Structure API Deezer
+
 type DeezerAPISearch struct {
 	Data []struct {
 		ID   int    `json:"id"`
-		Name string `json:"name,omitempty"` // Pour les artistes
-		Title string `json:"title,omitempty"` // Pour les tracks
+		Name string `json:"name,omitempty"` 
+		Title string `json:"title,omitempty"`
 	} `json:"data"`
 }
 
@@ -47,8 +47,6 @@ func (h *DeezerHandler) GetArtistDeezerWidget(w http.ResponseWriter, r *http.Req
 		SearchURL: fmt.Sprintf("https://www.deezer.com/search/%s", url.QueryEscape(artistName)),
 	}
 
-	// CAS 1 : On a un titre précis (ex: "Jefe")
-	// On ignore les titres génériques comme "Top titres de..."
 	if trackTitle != "" && len(trackTitle) < 50 && trackTitle != fmt.Sprintf("Top titres de %s", artistName) {
 		trackID, found := fetchDeezerTrackID(artistName, trackTitle)
 		if found {
