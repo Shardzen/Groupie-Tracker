@@ -136,12 +136,12 @@ export default function LoginPage() {
                 <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 checked:bg-white" />
                 <span className="text-xs text-slate-400 font-bold uppercase">Se souvenir</span>
               </label>
-             <Link 
-            to="/Forgot-Password" 
-            className="text-xs text-slate-400 hover:text-white font-bold uppercase transition-colors"
->
-            Oublié ?
-            </Link> 
+                <Link 
+                  to="/forgot-password" 
+                  className="text-xs text-slate-400 hover:text-white font-bold uppercase transition-colors"
+                >
+                  Oublié ?
+                </Link>
               </div>
 
             <button type="submit" disabled={isLoading} className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
