@@ -1,5 +1,5 @@
 {
-  "appId": "com.ynov.groupietracker",
+  "appId": "com.groupie.app",
   "appName": "Groupie Tracker",
   "webDir": "dist",
   "bundledWebRuntime": false,
