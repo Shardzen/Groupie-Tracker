@@ -6,7 +6,6 @@ import (
 	"os"
 )
 
-// SendEmail sends an email using SMTP
 func SendEmail(to, subject, body string) error {
 	from := os.Getenv("SMTP_FROM")
 	password := os.Getenv("SMTP_PASSWORD")
@@ -29,8 +28,24 @@ func SendEmail(to, subject, body string) error {
 
 	return nil
 }
+func SendPasswordResetEmail(toEmail string, token string) error {
+    resetLink := fmt.Sprintf("http://localhost:5173/reset-password?token=%s", token)
 
-// SendHTMLEmail sends an HTML formatted email
+    subject := "🔑 Réinitialisation de ton mot de passe YNOT"
+    htmlBody := fmt.Sprintf(`
+        <div style="font-family: Arial, sans-serif;">
+            <h2>Tu as oublié ton mot de passe ?</h2>
+            <p>Pas de panique ! Clique sur le bouton ci-dessous pour en créer un nouveau :</p>
+            <a href="%s" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                Changer mon mot de passe
+            </a>
+            <p>Ce lien expirera dans 1 heure.</p>
+        </div>
+    `, resetLink)
+
+    return SendHTMLEmail(toEmail, subject, htmlBody)
+}
+
 func SendHTMLEmail(to, subject, htmlBody string) error {
 	from := os.Getenv("SMTP_FROM")
 	password := os.Getenv("SMTP_PASSWORD")
@@ -66,13 +81,12 @@ func SendHTMLEmail(to, subject, htmlBody string) error {
 	return nil
 }
 func SendVerificationEmail(toEmail string, token string) error {
-    // 1. On construit le lien qui pointe vers ton API de vérification
-    // On utilise l'adresse de ton backend définie dans main.go (8080)
+
     verificationLink := fmt.Sprintf("http://localhost:8080/api/auth/verify-email?token=%s", token)
 
     subject := "🎸 Active ton compte YNOT !"
     
-    // 2. On prépare un joli corps de mail en HTML
+
     htmlBody := fmt.Sprintf(`
         <div style="font-family: Arial, sans-serif; text-align: center;">
             <h1 style="color: #ff4757;">YNOT</h1>
@@ -86,6 +100,6 @@ func SendVerificationEmail(toEmail string, token string) error {
         </div>
     `, verificationLink, verificationLink)
 
-    // 3. On utilise ta fonction existante pour envoyer le tout
+
     return SendHTMLEmail(toEmail, subject, htmlBody)
 }

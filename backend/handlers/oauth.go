@@ -40,6 +40,7 @@ func generateStateToken() (string, error) {
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
 }
+
 func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	state, err := generateStateToken()
 	if err != nil {
@@ -54,16 +55,15 @@ func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 		Value:    state,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		Secure:   true, // À mettre sur false si tu n'as pas de HTTPS en local, mais souvent OK
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 
 	url := googleOauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
-	
-	// On renvoie l'URL au frontend pour qu'il puisse rediriger l'utilisateur
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"url": url})
 }
+
 func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	stateCookie, err := r.Cookie("oauth_state")
 	if err != nil || stateCookie.Value != r.URL.Query().Get("state") {
@@ -102,7 +102,6 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- LOGIQUE DE SÉPARATION DU NOM GOOGLE ---
 	firstName := googleUser.Name
 	lastName := ""
 	if parts := strings.SplitN(googleUser.Name, " ", 2); len(parts) > 1 {
@@ -111,19 +110,17 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.User
-	// 1. SELECT : On utilise first_name et last_name au lieu de name
 	err = database.DB.QueryRow(
-		"SELECT id, first_name, last_name, email, role, created_at FROM users WHERE email=$1", 
+		"SELECT id, first_name, last_name, email, role, created_at FROM users WHERE email=$1",
 		googleUser.Email,
 	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.CreatedAt)
 
 	if err != nil {
-		// 2. INSERT : Si l'utilisateur n'existe pas, on le crée proprement
 		err = database.DB.QueryRow(`
-			INSERT INTO users (first_name, last_name, email, password_hash, role)
-			VALUES ($1, $2, $3, $4, $5)
-			RETURNING id, first_name, last_name, email, role, created_at
-		`, firstName, lastName, googleUser.Email, "", "user").
+            INSERT INTO users (first_name, last_name, email, password_hash, role)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, first_name, last_name, email, role, created_at
+        `, firstName, lastName, googleUser.Email, "", "user").
 			Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.CreatedAt)
 
 		if err != nil {
@@ -146,179 +143,4 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	redirectURL := fmt.Sprintf("%s/auth/callback?token=%s", frontendURL, jwtToken)
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-}
-
-func RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Email string `json:"email"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
-		return
-	}
-
-	var userID int
-	err := database.DB.QueryRow("SELECT id FROM users WHERE email=$1", req.Email).Scan(&userID)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "If the email exists, a reset link has been sent",
-		})
-		return
-	}
-
-	token := make([]byte, 32)
-	rand.Read(token)
-	resetToken := base64.URLEncoding.EncodeToString(token)
-
-	expiresAt := time.Now().Add(1 * time.Hour)
-	_, err = database.DB.Exec(`
-		INSERT INTO password_reset_tokens (user_id, token, expires_at)
-		VALUES ($1, $2, $3)
-		ON CONFLICT (user_id) DO UPDATE SET token=$2, expires_at=$3, used=false
-	`, userID, resetToken, expiresAt)
-
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create reset token"})
-		return
-	}
-
-	frontendURL := os.Getenv("FRONTEND_URL")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:5173"
-	}
-
-	resetURL := fmt.Sprintf("%s/reset-password?token=%s", frontendURL, resetToken)
-	err = services.SendEmail(req.Email, "Password Reset", fmt.Sprintf("Click here to reset your password: %s", resetURL))
-	if err != nil {
-		fmt.Printf("Failed to send email: %v\n", err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "If the email exists, a reset link has been sent",
-	})
-}
-
-func ResetPassword(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Token       string `json:"token"`
-		NewPassword string `json:"new_password"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
-		return
-	}
-
-	var userID int
-	var expiresAt time.Time
-	var used bool
-	err := database.DB.QueryRow(`
-		SELECT user_id, expires_at, used 
-		FROM password_reset_tokens 
-		WHERE token=$1
-	`, req.Token).Scan(&userID, &expiresAt, &used)
-
-	if err != nil || used || time.Now().After(expiresAt) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or expired token"})
-		return
-	}
-
-	hashedPassword, err := services.HashPassword(req.NewPassword)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to hash password"})
-		return
-	}
-
-	_, err = database.DB.Exec("UPDATE users SET password_hash=$1 WHERE id=$2", hashedPassword, userID)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to update password"})
-		return
-	}
-
-	database.DB.Exec("UPDATE password_reset_tokens SET used=true WHERE token=$1", req.Token)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Password reset successfully",
-	})
-}
-
-func SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Email string `json:"email"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
-		return
-	}
-
-	var userID int
-	var emailVerified bool
-	err := database.DB.QueryRow("SELECT id, email_verified FROM users WHERE email=$1", req.Email).
-		Scan(&userID, &emailVerified)
-
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})
-		return
-	}
-
-	if emailVerified {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"message": "Email already verified"})
-		return
-	}
-
-	token := make([]byte, 32)
-	rand.Read(token)
-	verificationToken := base64.URLEncoding.EncodeToString(token)
-
-	expiresAt := time.Now().Add(24 * time.Hour)
-	_, err = database.DB.Exec(`
-		INSERT INTO email_verification_tokens (user_id, token, expires_at)
-		VALUES ($1, $2, $3)
-		ON CONFLICT (user_id) DO UPDATE SET token=$2, expires_at=$3
-	`, userID, verificationToken, expiresAt)
-
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create verification token"})
-		return
-	}
-
-	frontendURL := os.Getenv("FRONTEND_URL")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:5173"
-	}
-
-	verifyURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
-	err = services.SendEmail(req.Email, "Verify Your Email", fmt.Sprintf("Click here to verify your email: %s", verifyURL))
-	if err != nil {
-		fmt.Printf("Failed to send verification email: %v\n", err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Verification email sent",
-	})
 }

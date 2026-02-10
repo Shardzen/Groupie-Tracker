@@ -1,17 +1,6 @@
 import { useState } from 'react';
+import { Mail, Lock, Eye, EyeOff, Sparkles, Music, Chrome, Github, ArrowRight, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Sparkles,
-  Music,
-  Chrome,
-  Github,
-  ArrowRight,
-  Shield,
-} from 'lucide-react';
 import { api, APIError } from '../lib/api';
 import { useAuthStore } from '../stores/useAuthStore';
 import { toast } from 'sonner';
@@ -30,19 +19,7 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
     try {
-     
-      const response = await api.post<{ 
-        token: string; 
-        user: {
-          id: number;
-          first_name: string;
-          last_name: string;
-          email: string;
-          role: string;
-          email_verified: boolean;
-        } 
-      }>('/auth/login', { email, password });
-
+      const response = await api.post<{ token: string; user: any }>('/auth/login', { email, password });
       login(response.token, response.user);
       toast.success('Connexion réussie !');
       navigate('/');
@@ -53,15 +30,32 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  }; 
+  };
+
+  const handleResetPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert("Le bouton a été cliqué !");
+    if (!email) {
+      toast.error("Veuillez entrer votre email d'abord");
+      return;
+    }
+    try {
+      await api.post('/auth/forgot-password', { email });
+      toast.success('Si cet email existe, un lien a été envoyé !');
+    } catch (err) {
+      toast.error("Erreur lors de l'envoi");
+    }
+  };
+
   const handleGoogleLogin = async () => {
     try {
       const response = await api.get<{ url: string }>('/auth/google');
       window.location.href = response.url;
     } catch (err) {
-      toast.error('Erreur de redirection Google');
+      toast.error('Erreur Google');
     }
   };
+
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
       <div className="absolute inset-0 z-0">
@@ -70,24 +64,14 @@ export default function LoginPage() {
       </div>
 
       <Link to="/" className="absolute top-8 left-8 z-50 group">
-  <div className="flex items-center gap-3">
-    
-    <div className="relative">
-      <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl group-hover:bg-violet-500/40 transition-all" />
-      
-      
-      <img 
-        src="./public/img/logo.png" 
-        alt="YNOT Logo" 
-        className="h-20 w-auto relative z-10 object-contain transition-transform group-hover:scale-105" 
-      />
-    </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl group-hover:bg-violet-500/40 transition-all" />
+            <img src="/img/logo.png" alt="Logo" className="h-20 w-auto relative z-10 object-contain transition-transform group-hover:scale-105" />
+          </div>
+        </div>
+      </Link>
 
-    <span className="text-2xl font-black text-white tracking-tighter hidden md:block">
-  
-    </span>
-  </div>
-</Link>
       <div className="w-full max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-6">
@@ -95,7 +79,7 @@ export default function LoginPage() {
               <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
               <span className="text-sm font-semibold text-slate-300">Plateforme Premium</span>
             </div>
-            <h1 className="text-6xl font-black font-display tracking-tighter">
+            <h1 className="text-6xl font-black tracking-tighter">
               <span className="block text-white mb-2">Bienvenue sur</span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-500">YNOT Music</span>
             </h1>
@@ -121,7 +105,7 @@ export default function LoginPage() {
 
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-black text-white mb-3 font-display uppercase">Connexion</h2>
+            <h2 className="text-4xl font-black text-white mb-3 uppercase">Connexion</h2>
             <p className="text-slate-400 text-sm">Entrez vos identifiants pour continuer</p>
           </div>
 
@@ -129,18 +113,18 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="block text-xs font-black text-slate-400 uppercase ml-1">Email</label>
+              <label className="block text-xs font-black text-slate-400 uppercase">Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-white/30 outline-none" placeholder="email@exemple.com" required />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white outline-none" placeholder="email@exemple.com" required />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-black text-slate-400 uppercase ml-1">Mot de passe</label>
+              <label className="block text-xs font-black text-slate-400 uppercase">Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white focus:border-white/30 outline-none" placeholder="••••••••" required />
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white outline-none" placeholder="••••••••" required />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -150,20 +134,25 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 checked:bg-white" />
-                <span className="text-xs text-slate-400 group-hover:text-white transition-colors uppercase font-bold">Se souvenir</span>
+                <span className="text-xs text-slate-400 font-bold uppercase">Se souvenir</span>
               </label>
-              <Link to="/forgot-password" size="sm" className="text-xs text-slate-400 hover:text-white font-bold uppercase transition-colors">Oublié ?</Link>
-            </div>
+             <Link 
+            to="/Forgot-Password" 
+            className="text-xs text-slate-400 hover:text-white font-bold uppercase transition-colors"
+>
+            Oublié ?
+            </Link> 
+              </div>
 
-            <button type="submit" disabled={isLoading} className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-xl shadow-white/5">
+            <button type="submit" disabled={isLoading} className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
               {isLoading ? "CHARGEMENT..." : "SE CONNECTER"}
-              {!isLoading && <ArrowRight className="w-5 h-5" />}
+              <ArrowRight className="w-5 h-5" />
             </button>
           </form>
 
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black text-slate-500"><span className="px-4 bg-[#0a0f1d]">Ou continuer avec</span></div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black text-slate-500"><span className="px-4 bg-slate-950">Ou continuer avec</span></div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -171,12 +160,13 @@ export default function LoginPage() {
               <Chrome size={18} />
               <span className="text-xs font-black uppercase">Google</span>
             </button>
-            <button disabled className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed opacity-50">
+            <button disabled className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-600 opacity-50 cursor-not-allowed">
               <Github size={18} />
               <span className="text-xs font-black uppercase">GitHub</span>
             </button>
           </div>
 
+          {/* --- RETOUR DU BOUTON S'INSCRIRE --- */}
           <p className="mt-8 text-center text-slate-500 text-xs font-bold uppercase">
             Nouveau ici ? <Link to="/register" className="text-white hover:underline ml-1">Créer un compte</Link>
           </p>

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-
 	"groupie-backend/services"
+	
 )
 
 type contextKey string
@@ -51,7 +51,7 @@ func JWTAuth(next http.Handler) http.Handler {
 	})
 }
 
-// AdminOnly middleware - vérifie que l'utilisateur est admin
+
 func AdminOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, ok := GetUserFromContext(r)
