@@ -17,7 +17,6 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Rate limiter: 5 requests per second with burst of 10
 var limiter = rate.NewLimiter(rate.Limit(5), 10)
 
 func main() {
@@ -52,8 +51,7 @@ func main() {
 	api.HandleFunc("/concerts", handlers.GetConcerts).Methods("GET")
 	api.HandleFunc("/concerts/search", handlers.SearchConcerts).Methods("GET")
 	
-	// Deezer integration (remplace Spotify)
-    deezerHandler := handlers.NewDeezerHandler()
+	deezerHandler := handlers.NewDeezerHandler()
 	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
 	auth := api.PathPrefix("/auth").Subrouter()
@@ -85,16 +83,23 @@ func main() {
 
 	admin.HandleFunc("/upload", handlers.AdminUploadImage).Methods("POST")
 
+	// Dashboard & Analytics
+	admin.HandleFunc("/dashboard", handlers.AdminGetDashboard).Methods("GET")
+	admin.HandleFunc("/activity-logs", handlers.AdminGetActivityLogs).Methods("GET")
+
+	// Artists CRUD
 	admin.HandleFunc("/artists", handlers.AdminGetArtists).Methods("GET")
 	admin.HandleFunc("/artists", handlers.AdminCreateArtist).Methods("POST")
 	admin.HandleFunc("/artists/{id}", handlers.AdminUpdateArtist).Methods("PUT")
 	admin.HandleFunc("/artists/{id}", handlers.AdminDeleteArtist).Methods("DELETE")
 
+	// Concerts CRUD
 	admin.HandleFunc("/concerts", handlers.AdminGetConcerts).Methods("GET")
 	admin.HandleFunc("/concerts", handlers.AdminCreateConcert).Methods("POST")
 	admin.HandleFunc("/concerts/{id}", handlers.AdminUpdateConcert).Methods("PUT")
 	admin.HandleFunc("/concerts/{id}", handlers.AdminDeleteConcert).Methods("DELETE")
 
+	// Users & Payments
 	admin.HandleFunc("/payments", handlers.AdminGetPayments).Methods("GET")
 	admin.HandleFunc("/users", handlers.AdminGetUsers).Methods("GET")
 
@@ -118,7 +123,7 @@ func main() {
 
 	printServerInfo(port)
 
-log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
 }
 
 func rateLimitMiddleware(next http.Handler) http.Handler {
@@ -135,8 +140,7 @@ func rateLimitMiddleware(next http.Handler) http.Handler {
 
 func securityHeadersMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Enhanced Content Security Policy
-        w.Header().Set("Content-Security-Policy", 
+		w.Header().Set("Content-Security-Policy", 
 			"default-src 'self'; "+
 			"img-src 'self' data: https: *.amazonaws.com *.cloudfront.net; "+
 			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; "+
@@ -145,7 +149,6 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 			"frame-src 'self' *.deezer.com *.stripe.com; "+
 			"connect-src 'self' *.stripe.com *.deezer.com")
 		
-		// Additional security headers
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
@@ -199,6 +202,8 @@ func printServerInfo(port string) {
 	log.Printf("   🤖 AI: /api/ai/*")
 	log.Println("")
 	log.Println("🛡️  Admin Endpoints:")
+	log.Printf("   📊 Dashboard: /api/admin/dashboard")
+	log.Printf("   📝 Activity Logs: /api/admin/activity-logs")
 	log.Printf("   🎤 Artists CRUD: /api/admin/artists")
 	log.Printf("   🎫 Concerts CRUD: /api/admin/concerts")
 	log.Printf("   💰 Payments: /api/admin/payments")

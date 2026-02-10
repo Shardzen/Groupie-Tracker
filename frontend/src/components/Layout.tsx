@@ -1,7 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import CartDrawer from './CartDrawer';
-import Footer from './Footer';
+import PWAInstallButton from './PWAInstallButton';
+import NetworkStatus from './NetworkStatus';
 
 export default function Layout() {
   return (
@@ -11,7 +12,13 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <Footer />
+
+      <Player />
+      <CartDrawer />
+      <PWAInstallButton />
+      <NetworkStatus />
+      
+      <Toaster position="top-center" theme="dark" richColors />
     </div>
   );
 }

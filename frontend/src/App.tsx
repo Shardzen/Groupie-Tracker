@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
-import ForgotPassword from './pages/ForgotPassword';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ArtistsPage from './pages/ArtistsPage';
@@ -13,10 +12,13 @@ import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import ConcertsPage from './pages/ConcertsPage';
 import RegisterPage from './pages/Register';
-import CheckoutPage from './pages/CheckoutPage';
+import ForgotPassword from './pages/ForgotPassword';
+import AdminPage from './pages/AdminPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 
 function AnimatedRoutes() {
   const location = useLocation();
+  const { user } = useAuthStore();
 
   return (
     <AnimatePresence mode="wait">
@@ -29,6 +31,14 @@ function AnimatedRoutes() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
+          
+          {user?.is_admin && (
+            <>
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            </>
+          )}
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
