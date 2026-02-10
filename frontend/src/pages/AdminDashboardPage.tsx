@@ -22,8 +22,7 @@ import {
   Legend,
   ArcElement
 } from 'chart.js';
-import api from '@/lib/api';
-
+import { api } from '@/lib/api';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -64,16 +63,19 @@ export default function AdminDashboardPage() {
     fetchDashboardStats();
   }, []);
 
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await api.get('/admin/dashboard');
-      setStats(response.data);
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+const fetchDashboardStats = async () => {
+  try {
+    const response = await api.get<DashboardStats>('/admin/dashboard');
+    
+    setStats(response);
+    
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (loading || !stats) {
     return (

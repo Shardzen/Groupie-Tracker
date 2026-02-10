@@ -35,14 +35,13 @@ useEffect(() => {
   if (!currentTrack) return null;
 
   return (
-    /* 1. Z-Index augmenté à 100 pour passer au-dessus de la Navbar */
     <div 
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-      onClick={close} // Ferme si on clique sur le fond noir
+      onClick={close} 
     >
       <div 
         className="bg-[#121212] rounded-2xl shadow-2xl max-w-2xl w-full border border-white/10 relative overflow-hidden"
-        onClick={(e) => e.stopPropagation()} // 2. Empêche le clic sur le lecteur de fermer la fenêtre
+        onClick={(e) => e.stopPropagation()} 
       >
         
         {/* Header */}

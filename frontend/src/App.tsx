@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
+
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ArtistsPage from './pages/ArtistsPage';
@@ -11,6 +12,7 @@ import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import ConcertsPage from './pages/ConcertsPage';
+import CheckoutPage from './pages/CheckoutPage';
 import RegisterPage from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminPage from './pages/AdminPage';
@@ -32,6 +34,7 @@ function AnimatedRoutes() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
           
+
           {user?.is_admin && (
             <>
               <Route path="/admin" element={<AdminPage />} />
@@ -41,6 +44,7 @@ function AnimatedRoutes() {
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
+        
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
