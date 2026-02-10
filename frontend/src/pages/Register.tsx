@@ -54,7 +54,6 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Username */}
             <div className="space-y-1">
               <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Nom D'utilisateur</label>
               <div className="relative">
@@ -82,8 +81,6 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
-
-            {/* Password */}
             <div className="space-y-1">
               <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Password</label>
               <div className="relative">

@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockArtists } from '../data/mockData';
-// CORRECTION 1 : Ajout de Calendar dans l'import
 import { Play, Heart, MapPin, Music, Share2, ArrowLeft, Clock, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -9,7 +8,6 @@ import { useState } from 'react';
 export default function ArtistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  // On sécurise l'appel au store (au cas où il ne soit pas initialisé)
   const playerStore = usePlayerStore();
   const open = playerStore?.open || (() => console.log("Player not ready"));
   
@@ -82,7 +80,6 @@ export default function ArtistDetailPage() {
         <span className="font-semibold">Retour</span>
       </button>
 
-      {/* Hero Section */}
       <div className="relative h-[85vh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <img 
@@ -96,8 +93,6 @@ export default function ArtistDetailPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/40 to-transparent"></div>
         </div>
-
-        {/* CORRECTION 2: Suppression de animate-fade-in qui peut cacher le texte */}
         <div className="absolute bottom-0 left-0 w-full p-8 pb-16 container mx-auto flex flex-col items-start z-10">
             
             <div className="flex items-center gap-2 mb-4">
@@ -157,14 +152,12 @@ export default function ArtistDetailPage() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-            {/* CORRECTION 3: Suppression de animate-fade-in */}
             <div className="lg:col-span-2">
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                    <Music className="text-purple-500" /> Titres Populaires
                 </h2>
                 
                 <div className="flex flex-col gap-2">
-                   {/* CORRECTION 4: Ajout de ?. pour éviter le crash si topTracks est undefined */}
                    {artist.topTracks && artist.topTracks.length > 0 ? (
                       artist.topTracks.map((track, index) => (
                       <div 
@@ -247,7 +240,6 @@ export default function ArtistDetailPage() {
         </div>
 
         <div>
-           {/* C'est ici que l'erreur Calendar se produisait avant */}
            <h2 className="text-3xl font-bold mb-8 uppercase tracking-tight flex items-center gap-3">
              <Calendar className="text-purple-500" />
              Prochaines Dates

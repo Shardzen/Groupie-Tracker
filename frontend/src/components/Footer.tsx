@@ -6,9 +6,7 @@ export default function Footer() {
     <footer className="bg-[#0a0a0a] text-white pt-16 pb-8 border-t border-white/5">
       <div className="container mx-auto px-6">
         
-        {/* Grille des liens (5 colonnes) */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16 text-left">
-          {/* Colonne 1 */}
           <div>
             <h3 className="font-bold uppercase tracking-wider mb-6 text-sm">Liens utiles</h3>
             <ul className="space-y-4">

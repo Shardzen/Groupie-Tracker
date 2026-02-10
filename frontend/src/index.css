@@ -23,7 +23,7 @@
 }
 
 .font-display {
-  font-family: 'Archivo Black', sans-serif; /* <--- AJOUTE CETTE LIGNE */
+  font-family: 'Archivo Black', sans-serif;
   font-weight: 900;
   letter-spacing: -0.05em;
   text-transform: uppercase;

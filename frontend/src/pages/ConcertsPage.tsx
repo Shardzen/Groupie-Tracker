@@ -4,20 +4,17 @@ import { mockArtists } from '../data/mockData';
 import { Calendar, MapPin, Ticket, Music, Globe, Navigation } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Style de la carte : on arrondit les coins pour faire "App"
 const containerStyle = {
   width: '100%',
   height: '100%',
   borderRadius: '16px',
 };
 
-// Centre par défaut (Europe)
 const defaultCenter = {
   lat: 48.8566,
   lng: 2.3522
 };
 
-// Style sombre Premium
 const mapOptions = {
   disableDefaultUI: false,
   zoomControl: true,
@@ -59,7 +56,6 @@ export default function ConcertsPage() {
   return (
     <div className="flex flex-col h-screen bg-[#050505] text-white pt-20 pb-4">
       
-      {/* En-tête simplifié */}
       <div className="container mx-auto px-6 mb-4 flex justify-between items-end">
         <div>
             <h1 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -73,10 +69,8 @@ export default function ConcertsPage() {
         </div>
       </div>
 
-      {/* Layout Principal */}
       <div className="flex-1 container mx-auto px-4 flex gap-6 overflow-hidden">
         
-        {/* LISTE FLOTTANTE (Sidebar) */}
         <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
           <div className="p-4 border-b border-white/5 bg-white/5">
              <h2 className="font-bold text-sm uppercase tracking-wider text-zinc-400">Liste des concerts</h2>
@@ -124,7 +118,6 @@ export default function ConcertsPage() {
           </div>
         </div>
 
-        {/* CARTE GOOGLE MAPS (Zone Principale) */}
         <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block">
           <LoadScript googleMapsApiKey=""> 
             <GoogleMap

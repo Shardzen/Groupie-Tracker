@@ -19,24 +19,18 @@ export function initSentry() {
       }),
     ],
     
-    // Performance Monitoring
-    tracesSampleRate: 1.0, // 100% in production, adjust as needed
+    tracesSampleRate: 1.0,
+  
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
     
-    // Session Replay
-    replaysSessionSampleRate: 0.1, // 10% of sessions
-    replaysOnErrorSampleRate: 1.0, // 100% of errors
-    
-    // Release tracking
     release: import.meta.env.VITE_APP_VERSION || "development",
     
-    // Error filtering
     beforeSend(event, hint) {
-      // Filter out errors from browser extensions
       if (event.exception?.values?.[0]?.value?.includes('extension://')) {
         return null;
       }
       
-      // Filter out network errors that are expected
       if (event.exception?.values?.[0]?.type === 'NetworkError') {
         return null;
       }
@@ -44,7 +38,6 @@ export function initSentry() {
       return event;
     },
     
-    // Set user context
     initialScope: {
       tags: {
         app: "groupie-tracker-frontend",
@@ -55,7 +48,6 @@ export function initSentry() {
   console.log("✅ Sentry initialized");
 }
 
-// Error boundary helper
 export function logError(error: Error, errorInfo?: { componentStack?: string }) {
   console.error("🔥 Error caught:", error);
   
@@ -72,7 +64,6 @@ export function logError(error: Error, errorInfo?: { componentStack?: string }) 
   });
 }
 
-// Set user context after login
 export function setSentryUser(user: { id: number; email: string; name: string }) {
   Sentry.setUser({
     id: user.id.toString(),
@@ -81,12 +72,10 @@ export function setSentryUser(user: { id: number; email: string; name: string })
   });
 }
 
-// Clear user context on logout
 export function clearSentryUser() {
   Sentry.setUser(null);
 }
 
-// Capture custom events
 export function captureEvent(message: string, level: 'info' | 'warning' | 'error' = 'info') {
   Sentry.captureMessage(message, level);
 }

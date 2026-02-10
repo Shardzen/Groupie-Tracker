@@ -4,7 +4,6 @@ export default function Hero() {
   return (
     <div className="relative h-[80vh] w-full overflow-hidden flex items-center justify-center">
       
-      {/* BACKGROUND VIDEO */}
       <div className="absolute inset-0 z-0">
          <video 
             autoPlay 
@@ -13,15 +12,12 @@ export default function Hero() {
             playsInline
             className="w-full h-full object-cover scale-105 opacity-60"
          >
-            {/* Vidéo libre de droits (Concert crowd) */}
             <source src="https://videos.pexels.com/video-files/2034810/2034810-hd_1920_1080_30fps.mp4" type="video/mp4" />
          </video>
-         {/* Overlay sombre pour que le texte ressorte */}
          <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/50 to-transparent"></div>
          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
       </div>
 
-      {/* CONTENT */}
       <div className="relative z-10 text-center px-4 animate-fade-in-up">
         <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
             <span className="text-xs font-bold tracking-[0.2em] text-violet-300 uppercase">Saison 2026</span>
