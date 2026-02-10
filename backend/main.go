@@ -9,11 +9,12 @@ import (
 	"groupie-backend/database"
 	"groupie-backend/handlers"
 	"groupie-backend/middleware"
-	"groupie-backend/storage" 
+	"groupie-backend/storage"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
+	"github.com/stripe/stripe-go/v76" // <--- AJOUT : Import Stripe
 	"golang.org/x/time/rate"
 )
 
@@ -28,6 +29,16 @@ func main() {
 	if os.Getenv("DATABASE_URL") == "" {
 		log.Fatal("❌ ERREUR CRITIQUE : La variable DATABASE_URL est vide ! Vérifie que ton fichier s'appelle bien '.env'.")
 	}
+
+	// --- AJOUT : Initialisation de Stripe ---
+	stripeKey := os.Getenv("STRIPE_SECRET_KEY")
+	if stripeKey == "" {
+		log.Println("⚠️  ATTENTION : STRIPE_SECRET_KEY est vide dans le .env. Les paiements ne fonctionneront pas.")
+	} else {
+		stripe.Key = stripeKey
+		log.Println("💳 Stripe configuré avec succès")
+	}
+	// ----------------------------------------
 
 	handlers.InitOAuth()
 
@@ -44,13 +55,13 @@ func main() {
 
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(rateLimitMiddleware)
-    api.Use(securityHeadersMiddleware)
+	api.Use(securityHeadersMiddleware)
 
 	api.HandleFunc("/artists", handlers.GetArtists).Methods("GET")
 	api.HandleFunc("/artists/{id}", handlers.GetArtist).Methods("GET")
 	api.HandleFunc("/concerts", handlers.GetConcerts).Methods("GET")
 	api.HandleFunc("/concerts/search", handlers.SearchConcerts).Methods("GET")
-	
+
 	deezerHandler := handlers.NewDeezerHandler()
 	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
@@ -69,6 +80,7 @@ func main() {
 	protected.HandleFunc("/profile", handlers.GetProfile).Methods("GET")
 	protected.HandleFunc("/bookings", handlers.CreateBooking).Methods("POST")
 
+	// Routes de paiement (Protégées par JWT, sauf le webhook qui est public)
 	payment := protected.PathPrefix("/payment").Subrouter()
 	payment.HandleFunc("/create-intent", handlers.CreatePaymentIntent).Methods("POST")
 	payment.HandleFunc("/confirm", handlers.ConfirmPayment).Methods("POST")
@@ -103,12 +115,13 @@ func main() {
 	admin.HandleFunc("/payments", handlers.AdminGetPayments).Methods("GET")
 	admin.HandleFunc("/users", handlers.AdminGetUsers).Methods("GET")
 
+	// Webhook Stripe (Doit rester PUBLIC, sans JWT)
 	api.HandleFunc("/stripe/webhook", handlers.StripeWebhook).Methods("POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   getAllowedOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Stripe-Signature"}, // <--- AJOUT: Stripe-Signature
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -126,6 +139,7 @@ func main() {
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
 }
 
+// ... Le reste de tes fonctions (middleware, etc.) reste inchangé ...
 func rateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
@@ -139,23 +153,24 @@ func rateLimitMiddleware(next http.Handler) http.Handler {
 }
 
 func securityHeadersMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", 
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Note : J'ai ajouté stripe.com dans connect-src et frame-src pour être sûr
+		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; "+
-			"img-src 'self' data: https: *.amazonaws.com *.cloudfront.net; "+
-			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; "+
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "+
-			"font-src 'self' https://fonts.gstatic.com; "+
-			"frame-src 'self' *.deezer.com *.stripe.com; "+
-			"connect-src 'self' *.stripe.com *.deezer.com")
-		
+				"img-src 'self' data: https: *.amazonaws.com *.cloudfront.net; "+
+				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; "+
+				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "+
+				"font-src 'self' https://fonts.gstatic.com; "+
+				"frame-src 'self' *.deezer.com *.stripe.com https://js.stripe.com; "+
+				"connect-src 'self' *.stripe.com *.deezer.com")
+
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
-		
-        next.ServeHTTP(w, r)
-    })
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func getAllowedOrigins() []string {

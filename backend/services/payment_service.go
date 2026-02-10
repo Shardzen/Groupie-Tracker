@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"os"
+	"strconv"
 
 	"groupie-backend/database"
 	"groupie-backend/models"
@@ -13,20 +13,19 @@ import (
 	"github.com/stripe/stripe-go/v76/paymentintent"
 )
 
-func init() {
-	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
-}
+// Pas de fonction init() ici car stripe.Key est défini dans main.go via os.Getenv
 
+// GetConcertByID : Récupère les infos du concert pour vérifier le prix et le stock
 func GetConcertByID(concertID int) (*models.Concert, error) {
 	var concert models.Concert
+	// Note: Assure-toi que les noms de colonnes correspondent à ta BDD
 	err := database.DB.QueryRow(
-		`SELECT id, name, artist_name, venue, city, date, image_url, standard_price, vip_price, available_standard, available_vip, created_at 
-		FROM concerts WHERE id = $1`,
+		`SELECT id, name, artist_name, location, date, image_url, price, available_tickets 
+		 FROM concerts WHERE id = $1`,
 		concertID,
 	).Scan(
-		&concert.ID, &concert.Name, &concert.ArtistName, &concert.Venue, &concert.City,
-		&concert.Date, &concert.ImageURL, &concert.StandardPrice, &concert.VIPPrice,
-		&concert.AvailableStandard, &concert.AvailableVIP, &concert.CreatedAt,
+		&concert.ID, &concert.Name, &concert.ArtistName, &concert.Location,
+		&concert.Date, &concert.ImageURL, &concert.Price, &concert.AvailableTickets,
 	)
 
 	if err != nil {
@@ -39,135 +38,143 @@ func GetConcertByID(concertID int) (*models.Concert, error) {
 	return &concert, nil
 }
 
+// CreatePaymentIntent : Crée la réservation en BDD PUIS l'intent Stripe
 func CreatePaymentIntent(userID int, req models.CreatePaymentIntentRequest) (string, float64, error) {
 	if req.Quantity <= 0 {
 		return "", 0, errors.New("quantity must be greater than 0")
 	}
 
+	// 1. Vérifier le concert et le stock
 	concert, err := GetConcertByID(req.ConcertID)
 	if err != nil {
 		return "", 0, err
 	}
 
-	var price float64
-	var availableTickets int
-
-	switch req.TicketType {
-	case "standard":
-		price = concert.StandardPrice
-		availableTickets = concert.AvailableStandard
-	case "vip":
-		price = concert.VIPPrice
-		availableTickets = concert.AvailableVIP
-	default:
-		return "", 0, errors.New("invalid ticket type. Must be 'standard' or 'vip'")
+	if req.Quantity > concert.AvailableTickets {
+		return "", 0, fmt.Errorf("not enough tickets available. Only %d left", concert.AvailableTickets)
 	}
 
-	if req.Quantity > availableTickets {
-		return "", 0, fmt.Errorf("not enough tickets available. Only %d left", availableTickets)
-	}
-
-	totalPrice := price * float64(req.Quantity)
+	// 2. Calculer le prix
+	totalPrice := concert.Price * float64(req.Quantity)
 	amountInCents := int64(totalPrice * 100)
 
+	// 3. Créer la réservation en base de données D'ABORD (Statut Pending)
+	// On le fait avant Stripe pour pouvoir envoyer l'ID de réservation à Stripe (Metadata)
+	var reservationID int
+	query := `
+		INSERT INTO reservations (user_id, concert_id, quantity, total_price, status, created_at) 
+		VALUES ($1, $2, $3, $4, 'pending', NOW()) 
+		RETURNING id`
+	
+	err = database.DB.QueryRow(query, userID, req.ConcertID, req.Quantity, totalPrice).Scan(&reservationID)
+	if err != nil {
+		return "", 0, fmt.Errorf("error creating database reservation: %w", err)
+	}
+
+	// 4. Créer l'Intent Stripe avec les Metadata
 	params := &stripe.PaymentIntentParams{
 		Amount:   stripe.Int64(amountInCents),
 		Currency: stripe.String("eur"),
 		Metadata: map[string]string{
-			"user_id":     fmt.Sprintf("%d", userID),
-			"concert_id":  fmt.Sprintf("%d", req.ConcertID),
-			"ticket_type": req.TicketType,
-			"quantity":    fmt.Sprintf("%d", req.Quantity),
+			"reservation_id": strconv.Itoa(reservationID), // CRUCIAL pour le webhook
+			"user_id":        strconv.Itoa(userID),
+			"concert_id":     strconv.Itoa(req.ConcertID),
+			"quantity":       strconv.Itoa(req.Quantity),
+		},
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled: stripe.Bool(true),
 		},
 	}
 
 	pi, err := paymentintent.New(params)
 	if err != nil {
-		return "", 0, fmt.Errorf("error creating payment intent: %w", err)
+		// Si Stripe échoue, on devrait annuler la réservation en BDD pour rester propre
+		// database.DB.Exec("DELETE FROM reservations WHERE id = $1", reservationID)
+		return "", 0, fmt.Errorf("error creating stripe payment intent: %w", err)
 	}
 
+	// 5. Mettre à jour la réservation avec l'ID Stripe
 	_, err = database.DB.Exec(
-		`INSERT INTO reservations (user_id, concert_id, ticket_type, quantity, total_price, status, stripe_payment_intent_id) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		userID, req.ConcertID, req.TicketType, req.Quantity, totalPrice, "pending", pi.ID,
+		`UPDATE reservations SET stripe_payment_intent_id = $1 WHERE id = $2`,
+		pi.ID, reservationID,
 	)
 	if err != nil {
-		return "", 0, fmt.Errorf("error creating reservation: %w", err)
+		return "", 0, fmt.Errorf("error updating reservation with stripe id: %w", err)
 	}
 
 	return pi.ClientSecret, totalPrice, nil
 }
 
-func ConfirmPayment(userID int, req models.ConfirmPaymentRequest) error {
-	var reservationID int
-	var currentStatus string
-
-	err := database.DB.QueryRow(
-		`SELECT id, status FROM reservations 
-		WHERE stripe_payment_intent_id = $1 AND user_id = $2`,
-		req.PaymentIntentID, userID,
-	).Scan(&reservationID, &currentStatus)
-
+// MarkReservationAsPaid : Appelée par le Webhook quand le paiement est validé
+func MarkReservationAsPaid(reservationIDStr string, stripePaymentID string) error {
+	reservationID, err := strconv.Atoi(reservationIDStr)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errors.New("reservation not found")
-		}
-		return fmt.Errorf("error finding reservation: %w", err)
+		return errors.New("invalid reservation ID format")
 	}
 
-	if currentStatus == "confirmed" {
-		return errors.New("payment already confirmed")
-	}
-
-	pi, err := paymentintent.Get(req.PaymentIntentID, nil)
-	if err != nil {
-		return fmt.Errorf("error retrieving payment intent from Stripe: %w", err)
-	}
-
-	if pi.Status != stripe.PaymentIntentStatusSucceeded {
-		return fmt.Errorf("payment not successful. Status: %s", pi.Status)
-	}
-
+	// On utilise une transaction pour assurer que tout se passe bien (Update status + Décrément stock)
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return fmt.Errorf("error starting transaction: %w", err)
+		return err
 	}
 	defer tx.Rollback()
 
+	// 1. Récupérer la quantité commandée et le concert ID
+	var quantity, concertID int
+	err = tx.QueryRow("SELECT quantity, concert_id FROM reservations WHERE id = $1", reservationID).Scan(&quantity, &concertID)
+	if err != nil {
+		return fmt.Errorf("reservation not found: %w", err)
+	}
+
+	// 2. Mettre à jour le statut de la réservation
 	_, err = tx.Exec(
 		`UPDATE reservations 
-		SET status = $1, stripe_payment_status = $2, updated_at = CURRENT_TIMESTAMP 
-		WHERE id = $3`,
-		"confirmed", string(pi.Status), reservationID,
+		 SET status = 'paid', stripe_payment_status = 'succeeded', updated_at = NOW() 
+		 WHERE id = $1`,
+		reservationID,
 	)
 	if err != nil {
-		return fmt.Errorf("error updating reservation: %w", err)
+		return fmt.Errorf("failed to update reservation status: %w", err)
 	}
 
-	var updateQuery string
-	if req.TicketType == "standard" {
-		updateQuery = `UPDATE concerts SET available_standard = available_standard - $1 WHERE id = $2`
-	} else {
-		updateQuery = `UPDATE concerts SET available_vip = available_vip - $1 WHERE id = $2`
-	}
-
-	_, err = tx.Exec(updateQuery, req.Quantity, req.ConcertID)
+	// 3. Décrémenter le stock de billets
+	_, err = tx.Exec(
+		`UPDATE concerts SET available_tickets = available_tickets - $1 WHERE id = $2`,
+		quantity, concertID,
+	)
 	if err != nil {
-		return fmt.Errorf("error updating concert availability: %w", err)
+		return fmt.Errorf("failed to update concert tickets: %w", err)
 	}
 
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("error committing transaction: %w", err)
-	}
-
-	return nil
+	return tx.Commit()
 }
 
+// ConfirmPayment : Validation manuelle (Optionnel si tu utilises le Webhook)
+func ConfirmPayment(userID int, req models.ConfirmPaymentRequest) error {
+	// Cette fonction vérifie juste l'état chez Stripe et met à jour si nécessaire
+	// Utile si le webhook a échoué ou si tu veux valider immédiatement côté client
+	
+	pi, err := paymentintent.Get(req.PaymentIntentID, nil)
+	if err != nil {
+		return fmt.Errorf("error getting intent: %w", err)
+	}
+
+	if pi.Status == stripe.PaymentIntentStatusSucceeded {
+		// On récupère l'ID de réservation depuis les metadata
+		if resID, ok := pi.Metadata["reservation_id"]; ok {
+			return MarkReservationAsPaid(resID, pi.ID)
+		}
+	}
+	
+	return errors.New("payment not succeeded yet")
+}
+
+// GetUserReservations : Historique des réservations
 func GetUserReservations(userID int) ([]models.Reservation, error) {
 	rows, err := database.DB.Query(
-		`SELECT id, user_id, concert_id, ticket_type, quantity, total_price, status, 
-		stripe_payment_intent_id, stripe_payment_status, created_at, updated_at 
-		FROM reservations WHERE user_id = $1 ORDER BY created_at DESC`,
+		`SELECT id, user_id, concert_id, quantity, total_price, status, 
+		 stripe_payment_intent_id, created_at
+		 FROM reservations WHERE user_id = $1 ORDER BY created_at DESC`,
 		userID,
 	)
 	if err != nil {
@@ -178,22 +185,24 @@ func GetUserReservations(userID int) ([]models.Reservation, error) {
 	var reservations []models.Reservation
 	for rows.Next() {
 		var r models.Reservation
-		var paymentIntentID, paymentStatus sql.NullString
+		var stripeID sql.NullString 
 
 		err := rows.Scan(
-			&r.ID, &r.UserID, &r.ConcertID, &r.TicketType, &r.Quantity,
-			&r.TotalPrice, &r.Status, &paymentIntentID, &paymentStatus,
-			&r.CreatedAt, &r.UpdatedAt,
+			&r.ID, &r.UserID, &r.ConcertID, &r.Quantity,
+			&r.TotalPrice, &r.Status, &stripeID, &r.CreatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning reservation: %w", err)
 		}
 
-		if paymentIntentID.Valid {
-			r.StripePaymentIntentID = paymentIntentID.String
+		if stripeID.Valid {
+			r.StripePaymentIntentID = stripeID.String
 		}
-		if paymentStatus.Valid {
-			r.StripePaymentStatus = paymentStatus.String
+
+
+		concert, _ := GetConcertByID(r.ConcertID)
+		if concert != nil {
+			r.ConcertName = concert.ArtistName + " - " + concert.Location
 		}
 
 		reservations = append(reservations, r)

@@ -116,6 +116,7 @@ func GetReservations(w http.ResponseWriter, r *http.Request) {
 
 func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
+	
 	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
