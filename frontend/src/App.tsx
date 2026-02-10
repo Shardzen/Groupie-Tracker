@@ -13,29 +13,28 @@ import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import RegisterPage from './pages/Register';
 import EmailSentPage from './pages/EmailSentPage';
-// On crée ce composant pour pouvoir utiliser useLocation() à l'intérieur
+import ResetPasswordPage from './pages/ResetPasswordPage';
 function AnimatedRoutes() {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* On enveloppe les pages dans le Layout */}
+        
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
           <Route path="/artist/:id" element={<ArtistDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/email-sent" element={<EmailSentPage />} />       
+          <Route path="/email-sent" element={<EmailSentPage />} />        
         </Route>
-      
 
-        {/* Routes sans Layout pour le Login et Register */}
-        <Route path="/login" element={<LoginPage />} />
+       <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} /> {/* <-- AJOUTÉ ICI */}
+      <Route path="*" element={<Navigate to="/" replace />} />     
       </Routes>
     </AnimatePresence>
   );

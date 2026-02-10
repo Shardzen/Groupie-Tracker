@@ -14,26 +14,34 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!token) return toast.error("Token manquant ou lien expiré");
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!token) return toast.error("Le lien est invalide");
 
-    setIsLoading(true);
-    try {
-      await api.post('/auth/reset-password', { token, new_password: newPassword });
-      toast.success("Mot de passe mis à jour !");
+  setIsLoading(true);
+  try {
+
+    await api.post('/auth/reset-password', { token, new_password: newPassword });
+    
+
+    toast.success("Mot de passe mis à jour ! Redirection...");
+
+    setTimeout(() => {
       navigate('/login');
-    } catch (err) {
-      toast.error("Le lien a expiré ou est invalide.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    }, 2000);
+
+  } catch (err) {
+    toast.error("Le lien a expiré ou est déjà utilisé.");
+    console.error(err);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
       
-      {/* --- LE FOND QUI ÉTAIT ABSENT --- */}
+
       <div className="absolute inset-0 z-0">
         <img 
           src="/img/background.png" 

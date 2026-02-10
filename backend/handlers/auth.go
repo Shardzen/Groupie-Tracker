@@ -71,62 +71,86 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func ForgotPassword(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Email string `json:"email"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Requête invalide", http.StatusBadRequest)
-		return
-	}
+    var req struct {
+        Email string `json:"email"`
+    }
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Requête invalide", http.StatusBadRequest)
+        return
+    }
 
-	var userID int
-	err := database.DB.QueryRow("SELECT id FROM users WHERE email = $1", req.Email).Scan(&userID)
-	if err != nil {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+    var userID int
+    err := database.DB.QueryRow("SELECT id FROM users WHERE email = $1", req.Email).Scan(&userID)
+    if err != nil {
+        w.WriteHeader(http.StatusOK)
+        return
+    }
 
-	token := fmt.Sprintf("%x", time.Now().UnixNano())
-	_, err = database.DB.Exec("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
-		userID, token, time.Now().Add(time.Hour))
+    database.DB.Exec("DELETE FROM password_reset_tokens WHERE user_id = $1", userID)
 
-	if err != nil {
-		http.Error(w, "Erreur serveur", http.StatusInternalServerError)
-		return
-	}
+    token := fmt.Sprintf("%x", time.Now().UnixNano())
+    _, err = database.DB.Exec("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
+        userID, token, time.Now().Add(time.Hour))
 
-	services.SendPasswordResetEmail(req.Email, token)
-	w.WriteHeader(http.StatusOK)
+    if err != nil {
+        log.Printf("Erreur insertion token: %v", err)
+        http.Error(w, "Erreur serveur", http.StatusInternalServerError)
+        return
+    }
+
+    services.SendPasswordResetEmail(req.Email, token)
+    w.WriteHeader(http.StatusOK)
 }
 
 func ResetPassword(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Token       string `json:"token"`
-		NewPassword string `json:"new_password"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Requête invalide", http.StatusBadRequest)
-		return
-	}
+    w.Header().Set("Content-Type", "application/json")
+    
+    var req struct {
+        Token       string `json:"token"`
+        NewPassword string `json:"new_password"`
+    }
+    
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        log.Printf("❌ Erreur décodage JSON: %v", err)
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Données invalides"})
+        return
+    }
 
-	var userID int
-	err := database.DB.QueryRow(
-		"SELECT user_id FROM password_reset_tokens WHERE token = $1 AND expires_at > $2",
-		req.Token, time.Now(),
-	).Scan(&userID)
-	if err != nil {
-		http.Error(w, "Lien invalide ou expiré", http.StatusUnauthorized)
-		return
-	}
+    log.Printf("🔍 Tentative de reset avec le token: %s", req.Token)
 
-	hashedPassword, _ := services.HashPassword(req.NewPassword)
+    var userID int
+    err := database.DB.QueryRow(
+        "SELECT user_id FROM password_reset_tokens WHERE token = $1 AND expires_at > $2",
+        req.Token, time.Now(),
+    ).Scan(&userID)
 
-	tx, _ := database.DB.Begin()
-	tx.Exec("UPDATE users SET password_hash = $1 WHERE id = $2", hashedPassword, userID)
-	tx.Exec("DELETE FROM password_reset_tokens WHERE token = $1", req.Token)
-	tx.Commit()
+    if err != nil {
+        log.Printf("❌ Token invalide ou expiré dans la DB: %v", err)
+        w.WriteHeader(http.StatusUnauthorized)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Lien invalide ou expiré"})
+        return
+    }
 
-	w.WriteHeader(http.StatusOK)
+    hashedPassword, _ := services.HashPassword(req.NewPassword)
+
+    tx, _ := database.DB.Begin()
+    
+    _, err = tx.Exec("UPDATE users SET password_hash = $1 WHERE id = $2", hashedPassword, userID)
+    if err != nil {
+        tx.Rollback()
+        log.Printf("❌ Erreur SQL lors de l'UPDATE: %v", err)
+        w.WriteHeader(http.StatusInternalServerError)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Erreur lors de la mise à jour"})
+        return
+    }
+
+    tx.Exec("DELETE FROM password_reset_tokens WHERE token = $1", req.Token)
+    tx.Commit()
+
+    log.Println("✅ Mot de passe mis à jour avec succès pour l'ID:", userID)
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(map[string]string{"message": "Mot de passe mis à jour !"})
 }
 
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
