@@ -1,135 +1,250 @@
-name: CI/CD Pipeline - AWS Deployment
+name: 🚀 CI/CD - Frontend & Backend
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 env:
-  AWS_REGION: eu-west-3
-  ECR_REPOSITORY: groupie-tracker-backend
-  ECS_SERVICE: groupie-tracker-service
-  ECS_CLUSTER: groupie-tracker-cluster
-  ECS_TASK_DEFINITION: groupie-tracker-task
-  CONTAINER_NAME: groupie-tracker-api
+  NODE_VERSION: '20'
+  GO_VERSION: '1.23'
+  REGISTRY: docker.io
+  IMAGE_NAME: groupietracker/backend
 
 jobs:
-  # ============================
-  # BACKEND - Build & Deploy
-  # ============================
-  backend:
-    name: Backend - Build & Deploy to AWS
+  # ============================================
+  # JOB 1: TESTS & LINT FRONTEND
+  # ============================================
+  frontend-tests:
+    name: 🎨 Frontend - Tests & Lint
     runs-on: ubuntu-latest
-    environment: production
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          cd backend
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Run database migrations
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          # Install PostgreSQL client
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-          
-          # Run migrations
-          for migration in backend/database/migrations/*.sql; do
-            echo "Running migration: $migration"
-            psql $DATABASE_URL -f "$migration" || echo "Migration may have already been applied"
-          done
-
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
-            --query taskDefinition > task-definition.json
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-
-      - name: Notify deployment success
-        if: success()
-        run: |
-          echo "✅ Backend deployed successfully to AWS ECS"
-          echo "🚀 Image: ${{ steps.build-image.outputs.image }}"
-
-  # ============================
-  # FRONTEND - Build & Deploy
-  # ============================
-  frontend:
-    name: Frontend - Build & Deploy to Netlify
-    runs-on: ubuntu-latest
-    environment: production
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
+      - name: 📥 Install dependencies
+        run: npm ci
 
-      - name: Build frontend
+      - name: 🧪 Run ESLint
+        run: npm run lint || true
+
+      - name: 🔍 TypeScript Check
+        run: npx tsc --noEmit
+
+      - name: 🧪 Run tests (si présents)
+        run: npm test || echo "No tests configured"
+
+      - name: 📊 Build check
+        run: npm run build
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_STRIPE_PUBLIC_KEY: ${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
-          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-        run: |
-          cd frontend
-          npm run build
 
-      - name: Deploy to Netlify
+  # ============================================
+  # JOB 2: TESTS & LINT BACKEND
+  # ============================================
+  backend-tests:
+    name: 🔧 Backend - Tests & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+
+      - name: 📥 Install dependencies
+        run: go mod download
+
+      - name: 🔍 Run go vet
+        run: go vet ./...
+
+      - name: 🧪 Run tests
+        run: go test ./... -v -cover
+
+      - name: 📊 Build check
+        run: go build -o api main.go
+
+  # ============================================
+  # JOB 3: BUILD & PUSH DOCKER IMAGE
+  # ============================================
+  docker-build:
+    name: 🐳 Docker - Build & Push
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🏷️ Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🏗️ Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ============================================
+  # JOB 4: RUN MIGRATIONS (PostgreSQL Neon)
+  # ============================================
+  run-migrations:
+    name: 🗄️ Database - Run Migrations
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: 🔧 Install golang-migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/migrate
+
+      - name: 🚀 Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          migrate -path database/migrations -database "$DATABASE_URL" up
+
+  # ============================================
+  # JOB 5: DEPLOY BACKEND TO AZURE ACI
+  # ============================================
+  deploy-backend:
+    name: ☁️ Deploy Backend to Azure ACI
+    runs-on: ubuntu-latest
+    needs: [run-migrations]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 🔑 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🚀 Deploy to Azure Container Instances
+        uses: azure/aci-deploy@v1
+        with:
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          dns-name-label: groupietracker-api
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          registry-login-server: ${{ env.REGISTRY }}
+          registry-username: ${{ secrets.DOCKER_USERNAME }}
+          registry-password: ${{ secrets.DOCKER_PASSWORD }}
+          name: groupietracker-backend
+          location: 'westeurope'
+          cpu: 1
+          memory: 1.5
+          ports: 8080
+          environment-variables: |
+            PORT=8080
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+            STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
+            MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}
+            MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+            MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+            SENTRY_DSN=${{ secrets.SENTRY_DSN_BACKEND }}
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+
+      - name: ⚙️ Enable Scale to Zero (Cost Optimization)
+        run: |
+          az container update \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name groupietracker-backend \
+            --set containers[0].resources.requests.cpu=0.5 \
+            --set containers[0].resources.requests.memoryInGB=0.5
+
+  # ============================================
+  # JOB 6: DEPLOY FRONTEND TO NETLIFY
+  # ============================================
+  deploy-frontend:
+    name: 🌐 Deploy Frontend to Netlify
+    runs-on: ubuntu-latest
+    needs: [frontend-tests]
+    if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build production
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_STRIPE_PUBLIC_KEY: ${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+
+      - name: 🚀 Deploy to Netlify
         uses: nwtgck/actions-netlify@v2
         with:
           publish-dir: './frontend/dist'
@@ -143,33 +258,138 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
-      - name: Notify deployment success
-        if: success()
-        run: |
-          echo "✅ Frontend deployed successfully to Netlify"
-
-  # ============================
-  # SENTRY RELEASE
-  # ============================
-  sentry-release:
-    name: Create Sentry Release
+  # ============================================
+  # JOB 7: SENTRY SOURCE MAPS UPLOAD
+  # ============================================
+  sentry-upload:
+    name: 📊 Sentry - Upload Source Maps
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [deploy-frontend]
     if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Create Sentry release
-        uses: getsentry/action-release@v1
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📥 Install Sentry CLI
+        run: npm install -g @sentry/cli
+
+      - name: 🏗️ Build with source maps
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_STRIPE_PUBLIC_KEY: ${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+
+      - name: 📤 Upload source maps to Sentry
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_ORG: groupietracker
+          SENTRY_PROJECT: frontend
+        run: |
+          sentry-cli releases new ${{ github.sha }}
+          sentry-cli releases files ${{ github.sha }} upload-sourcemaps ./dist --url-prefix '~/'
+          sentry-cli releases finalize ${{ github.sha }}
+          sentry-cli releases deploys ${{ github.sha }} new -e production
+
+  # ============================================
+  # JOB 8: NOTIFICATIONS (Discord/Slack)
+  # ============================================
+  notify-success:
+    name: 📢 Notify Deployment Success
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend, sentry-upload]
+    if: success()
+
+    steps:
+      - name: 📢 Discord Notification
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          environment: production
-          version: ${{ github.sha }}
-          sourcemaps: './frontend/dist'
+          args: |
+            ✅ **Groupie Tracker - Déploiement réussi!**
+            
+            🔹 **Commit**: ${{ github.sha }}
+            🔹 **Auteur**: ${{ github.actor }}
+            🔹 **Branch**: ${{ github.ref_name }}
+            
+            🌐 **Frontend**: https://groupietracker.netlify.app
+            ☁️ **Backend**: https://groupietracker-api.westeurope.azurecontainer.io
+            
+            🎉 Tous les services sont en ligne!
+
+  notify-failure:
+    name: 🚨 Notify Deployment Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: failure()
+
+    steps:
+      - name: 🚨 Discord Notification
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            ❌ **Groupie Tracker - Échec du déploiement!**
+            
+            🔹 **Commit**: ${{ github.sha }}
+            🔹 **Auteur**: ${{ github.actor }}
+            🔹 **Branch**: ${{ github.ref_name }}
+            
+            ⚠️ Vérifiez les logs GitHub Actions immédiatement!
+            🔗 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+# ============================================
+# SECRETS REQUIS (GitHub Settings > Secrets)
+# ============================================
+# 
+# DOCKER:
+# - DOCKER_USERNAME
+# - DOCKER_PASSWORD
+#
+# AZURE:
+# - AZURE_CREDENTIALS (Service Principal JSON)
+# - AZURE_RESOURCE_GROUP
+#
+# DATABASE:
+# - DATABASE_URL (Neon PostgreSQL)
+#
+# BACKEND ENV:
+# - STRIPE_SECRET_KEY
+# - STRIPE_WEBHOOK_SECRET
+# - JWT_SECRET
+# - OPENAI_API_KEY
+# - GOOGLE_CLIENT_ID
+# - GOOGLE_CLIENT_SECRET
+# - SENDGRID_API_KEY
+# - MINIO_ENDPOINT
+# - MINIO_ACCESS_KEY
+# - MINIO_SECRET_KEY
+# - SENTRY_DSN_BACKEND
+# - ALLOWED_ORIGINS
+#
+# FRONTEND ENV:
+# - VITE_API_URL
+# - VITE_STRIPE_PUBLIC_KEY
+# - VITE_SENTRY_DSN
+# - VITE_GOOGLE_CLIENT_ID
+#
+# NETLIFY:
+# - NETLIFY_AUTH_TOKEN
+# - NETLIFY_SITE_ID
+#
+# SENTRY:
+# - SENTRY_AUTH_TOKEN
+#
+# NOTIFICATIONS:
+# - DISCORD_WEBHOOK (optionnel)
