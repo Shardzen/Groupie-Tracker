@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'; // <--- IMPORT AJOUTÉ
 import { mockArtists } from '../data/mockData';
 import { useCartStore } from '../stores/useCartStore';
 import { MapPin, Calendar, Ticket as TicketIcon, Search, Music, SlidersHorizontal } from 'lucide-react';
+import { AISearch } from '../components/AISearch';
 
 const getGenre = (name: string) => {
   if (['Ninho', 'Damso', 'Booba'].includes(name)) return 'Rap';
@@ -142,6 +143,7 @@ export default function TicketsPage() {
   
   const [genreFilter, setGenreFilter] = useState('Tous');
   const [cityFilter, setCityFilter] = useState('Toutes');
+  const [searchMode, setSearchMode] = useState<'simple' | 'ai'>('simple'); // State for search mode
 
   // Si l'URL change (clic sur un autre concert), on met à jour la recherche
   useEffect(() => {
@@ -200,7 +202,31 @@ export default function TicketsPage() {
              Trouvez votre prochain concert parmi notre sélection exclusive.
            </p>
 
-           <div className="max-w-4xl mx-auto bg-[#18181b] border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 shadow-2xl">
+           {/* --- Search Mode Toggle --- */}
+           <div className="flex justify-center mb-4">
+             <div className="bg-[#18181b] border border-white/10 rounded-lg p-1 flex space-x-1">
+               <button
+                 onClick={() => setSearchMode('simple')}
+                 className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${
+                   searchMode === 'simple' ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:bg-zinc-700'
+                 }`}
+               >
+                 Simple Search
+               </button>
+               <button
+                 onClick={() => setSearchMode('ai')}
+                 className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${
+                   searchMode === 'ai' ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:bg-zinc-700'
+                 }`}
+               >
+                 ✨ AI Search
+               </button>
+             </div>
+           </div>
+
+           {/* --- BARRE DE RECHERCHE & FILTRES (Simple Search) --- */}
+           {searchMode === 'simple' && (
+             <div className="max-w-4xl mx-auto bg-[#18181b] border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 shadow-2xl">
               
               <div className="flex-1 relative">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
@@ -238,32 +264,44 @@ export default function TicketsPage() {
                     <SlidersHorizontal className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" size={14} />
                  </div>
               </div>
-           </div>
-        </div>
+            </div>
+           )}
 
-        <div className="pb-32 max-w-5xl mx-auto">
-           {filteredTickets.length > 0 ? (
-              filteredTickets.map((ticket, idx) => (
-                  <div key={ticket.id} style={{ animationDelay: `${idx * 100}ms` }}>
-                      <TicketCard {...ticket} />
-                  </div>
-              ))
-           ) : (
-              <div className="text-center py-20 animate-fade-in-up">
-                  <div className="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
-                      <Search size={40} className="text-zinc-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Aucun ticket trouvé</h3>
-                  <p className="text-zinc-500">Essayez de modifier vos filtres ou votre recherche.</p>
-                  <button 
-                    onClick={() => { setSearch(''); setGenreFilter('Tous'); setCityFilter('Toutes'); }}
-                    className="mt-6 text-violet-400 hover:text-violet-300 font-bold underline underline-offset-4"
-                  >
-                    Réinitialiser les filtres
-                  </button>
-              </div>
+           {/* --- AI SEARCH --- */}
+           {searchMode === 'ai' && (
+             <div className="max-w-4xl mx-auto">
+               <AISearch />
+             </div>
            )}
         </div>
+
+        {/* LISTE DES TICKETS (Only for simple search) */}
+        {searchMode === 'simple' && (
+          <div className="pb-32 max-w-5xl mx-auto">
+             {filteredTickets.length > 0 ? (
+                filteredTickets.map((ticket, idx) => (
+                    <div key={ticket.id} style={{ animationDelay: `${idx * 100}ms` }}>
+                        <TicketCard {...ticket} />
+                    </div>
+                ))
+             ) : (
+                // --- ETAT VIDE (Aucun résultat) ---
+                <div className="text-center py-20 animate-fade-in-up">
+                    <div className="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
+                        <Search size={40} className="text-zinc-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Aucun ticket trouvé</h3>
+                    <p className="text-zinc-500">Essayez de modifier vos filtres ou votre recherche.</p>
+                    <button 
+                      onClick={() => { setSearch(''); setGenreFilter('Tous'); setCityFilter('Toutes'); }}
+                      className="mt-6 text-violet-400 hover:text-violet-300 font-bold underline underline-offset-4"
+                    >
+                      Réinitialiser les filtres
+                    </button>
+                </div>
+             )}
+          </div>
+        )}
 
       </div>
     </div>

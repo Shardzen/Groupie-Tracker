@@ -3,7 +3,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,14 +15,9 @@
 if (!self.define) {
   let registry = {};
 
-  // Used for `eval` and `importScripts` where we can't get script URL by other means.
-  // In both cases, it's safe to use a global var because those functions are synchronous.
-  let nextDefineUri;
-
   const singleRequire = (uri, parentUri) => {
     uri = new URL(uri + ".js", parentUri).href;
     return registry[uri] || (
-      
         new Promise(resolve => {
           if ("document" in self) {
             const script = document.createElement("script");
@@ -35,7 +30,6 @@ if (!self.define) {
             resolve();
           }
         })
-      
       .then(() => {
         let promise = registry[uri];
         if (!promise) {
@@ -46,12 +40,10 @@ if (!self.define) {
     );
   };
 
+  let nextDefineUri;
   self.define = (depsNames, factory) => {
     const uri = nextDefineUri || ("document" in self ? document.currentScript.src : "") || location.href;
-    if (registry[uri]) {
-      // Module is already loading or loaded.
-      return;
-    }
+    if (registry[uri]) return;
     let exports = {};
     const require = depUri => singleRequire(depUri, uri);
     const specialDeps = {
@@ -67,48 +59,79 @@ if (!self.define) {
     });
   };
 }
+
 define(['./workbox-237f2c1f'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
 
   /**
-   * The precacheAndRoute() method efficiently caches and responds to
-   * requests for URLs in the manifest.
-   * See https://goo.gl/S9QRab
+   * Correction effectuée ici : Suppression du doublon de révision
+   * et nettoyage de la structure de l'objet.
    */
-  workbox.precacheAndRoute([{
-    "url": "index.html",
-    "revision": "0.jf35j616chc"
-  }], {});
+  workbox.precacheAndRoute([
+    {
+      "url": "index.html",
+      "revision": "0.1ok7hh1nsk8"
+    }
+  ], {});
+
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
-  }));
-  workbox.registerRoute(/^https:\/\/api\.*/i, new workbox.NetworkFirst({
-    "cacheName": "api-cache",
-    "networkTimeoutSeconds": 10,
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 100,
-      maxAgeSeconds: 86400
-    }), new workbox.CacheableResponsePlugin({
-      statuses: [0, 200]
-    })]
-  }), 'GET');
-  workbox.registerRoute(/\.(?:png|jpg|jpeg|svg|gif|webp)$/i, new workbox.CacheFirst({
-    "cacheName": "images-cache",
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 200,
-      maxAgeSeconds: 2592000
-    })]
-  }), 'GET');
-  workbox.registerRoute(/\.(?:js|css)$/i, new workbox.StaleWhileRevalidate({
-    "cacheName": "static-resources",
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 100,
-      maxAgeSeconds: 604800
-    })]
-  }), 'GET');
+
+  workbox.registerRoute(
+    new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
+      allowlist: [/^\/$/]
+    })
+  );
+
+  // Stratégie pour l'API : Réseau en priorité, Cache en secours
+  workbox.registerRoute(
+    /^https:\/\/api\.*/i, 
+    new workbox.NetworkFirst({
+      "cacheName": "api-cache",
+      "networkTimeoutSeconds": 10,
+      plugins: [
+        new workbox.ExpirationPlugin({
+          maxEntries: 100,
+          maxAgeSeconds: 86400 // 24 heures
+        }), 
+        new workbox.CacheableResponsePlugin({
+          statuses: [0, 200]
+        })
+      ]
+    }), 
+    'GET'
+  );
+
+  // Stratégie pour les images : Cache en priorité
+  workbox.registerRoute(
+    /\.(?:png|jpg|jpeg|svg|gif|webp)$/i, 
+    new workbox.CacheFirst({
+      "cacheName": "images-cache",
+      plugins: [
+        new workbox.ExpirationPlugin({
+          maxEntries: 200,
+          maxAgeSeconds: 2592000 // 30 jours
+        })
+      ]
+    }), 
+    'GET'
+  );
+
+  // Stratégie pour les scripts et styles
+  workbox.registerRoute(
+    /\.(?:js|css)$/i, 
+    new workbox.StaleWhileRevalidate({
+      "cacheName": "static-resources",
+      plugins: [
+        new workbox.ExpirationPlugin({
+          maxEntries: 100,
+          maxAgeSeconds: 604800 // 7 jours
+        })
+      ]
+    }), 
+    'GET'
+  );
 
 }));
 //# sourceMappingURL=sw.js.map

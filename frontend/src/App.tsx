@@ -4,8 +4,13 @@ import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
 
-// Imports des Pages
+// --- CAPACITOR ---
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core'; // Pour vérifier si on est sur mobile
+
+// Pages
 import EmailSentPage from './pages/EmailSentPage';
+import VerifyEmail from './pages/VerifyEmail'; // <--- AJOUTÉ
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -16,12 +21,12 @@ import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import ConcertsPage from './pages/ConcertsPage';
 import CheckoutPage from './pages/CheckoutPage';
-import RegisterPage from './pages/Register'; // Ton fichier s'appelle Register.tsx
+import RegisterPage from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
-// Imports des Composants
+// Composants
 import Player from './components/Player';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
@@ -33,8 +38,6 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        
-        {/* TOUTES CES PAGES ONT LA NAVBAR ET LE FOOTER (VIA LAYOUT) */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
@@ -44,13 +47,12 @@ function AnimatedRoutes() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
 
-          {/* PAGES D'AUTHENTIFICATION */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/email-sent" element={<EmailSentPage />} />
+          <Route path="/verify-email" element={<VerifyEmail />} /> {/* <--- AJOUTÉ */}
 
-          {/* ADMINISTRATION */}
           {user?.is_admin && (
             <>
               <Route path="/admin" element={<AdminPage />} />
@@ -59,10 +61,7 @@ function AnimatedRoutes() {
           )}
         </Route>
 
-        {/* PAGES HORS LAYOUT */}
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-
-        {/* REDIRECTION PAR DÉFAUT */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
@@ -75,6 +74,26 @@ function App() {
   useEffect(() => {
     initSentry();
     checkAuth();
+
+    // Gestion du Bouton Retour Android (Sécurisé pour le Web)
+    if (Capacitor.isNativePlatform()) {
+      const setupBackButton = async () => {
+        await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+          if (window.location.pathname === '/' || window.location.pathname === '/login') {
+            CapacitorApp.exitApp();
+          } else if (canGoBack) {
+            window.history.back();
+          }
+        });
+      };
+      setupBackButton();
+    }
+
+    return () => {
+      if (Capacitor.isNativePlatform()) {
+        CapacitorApp.removeAllListeners();
+      }
+    };
   }, [checkAuth]);
 
   return (
@@ -82,10 +101,10 @@ function App() {
       <AnimatedRoutes />
       <Player />
       <CartDrawer />
+      {/* Supprime le Footer ici s'il est déjà dans Layout.tsx */}
       <Footer /> 
     </BrowserRouter>
   );
 }
-
 
 export default App;

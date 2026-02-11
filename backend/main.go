@@ -5,12 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"	
+	"strings"
+	"time" // Added for sentry.Flush
+
 	"groupie-backend/database"
 	"groupie-backend/handlers"
 	"groupie-backend/middleware"
 	"groupie-backend/storage"
 
+	"github.com/getsentry/sentry-go"       // Sentry SDK
+	sentryhttp "github.com/getsentry/sentry-go/http" // Sentry HTTP middleware
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -31,6 +35,25 @@ func main() {
 		log.Fatal("❌ ERREUR CRITIQUE : La variable DATABASE_URL est vide ! Vérifie que ton fichier s'appelle bien '.env'.")
 	}
 
+	// --- Initialisation de Sentry ---
+	sentryDSN := os.Getenv("SENTRY_DSN")
+	if sentryDSN != "" {
+		err = sentry.Init(sentry.ClientOptions{
+			Dsn:              sentryDSN,
+			EnableTracing:    true, // Enable tracing for performance monitoring
+			TracesSampleRate: 1.0,  // Capture 100% of transactions for now
+			// Debug:            true, // Uncomment to enable Sentry debug logs
+			Environment: os.Getenv("APP_ENV"), // 'production', 'development' etc.
+		})
+		if err != nil {
+			log.Fatalf("❌ Sentry initialization failed: %v", err)
+		}
+		defer sentry.Flush(2 * time.Second) // Flush buffered events before exiting
+		log.Println("✅ Sentry initialized")
+	} else {
+		log.Println("⚠️  SENTRY_DSN est vide. Sentry ne sera pas initialisé.")
+	}
+
 	// --- Initialisation de Stripe ---
 	stripeKey := os.Getenv("STRIPE_SECRET_KEY")
 	if stripeKey == "" {
@@ -39,6 +62,8 @@ func main() {
 		stripe.Key = stripeKey
 		log.Println("💳 Stripe configuré avec succès")
 	}
+
+	auth.InitJWT() // Initialize JWT secret
 
 	handlers.InitOAuth()
 
@@ -136,6 +161,13 @@ func main() {
 	})
 
 	handler := c.Handler(r)
+
+	// Wrap the handler with Sentry HTTP middleware IF Sentry is initialized
+	if sentryDSN != "" { // Use the same condition as initialization
+		sentryHandler := sentryhttp.New(sentryhttp.Options{}).Handle(handler)
+		log.Println("✅ Sentry HTTP middleware enabled")
+		handler = sentryHandler
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {

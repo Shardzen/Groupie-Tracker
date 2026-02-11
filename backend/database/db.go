@@ -88,6 +88,15 @@ func createTables() error {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+	CREATE TABLE IF NOT EXISTS activity_logs (
+		id SERIAL PRIMARY KEY,
+		user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+		action TEXT NOT NULL,
+		details TEXT,
+		ip_address VARCHAR(45),
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+
 	CREATE TABLE IF NOT EXISTS concerts (
 		id SERIAL PRIMARY KEY,
 		name VARCHAR(255) NOT NULL,
@@ -111,6 +120,7 @@ func createTables() error {
 		quantity INTEGER DEFAULT 1,
 		total_price DECIMAL(10,2) NOT NULL,
 		status VARCHAR(50) DEFAULT 'pending',
+		expires_at TIMESTAMP NOT NULL,
 		stripe_payment_intent_id TEXT,
 		stripe_payment_status VARCHAR(50),
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
