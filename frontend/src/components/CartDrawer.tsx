@@ -1,6 +1,6 @@
 import { X, Trash2, CreditCard, Ticket } from 'lucide-react';
 import { useCartStore } from '../stores/useCartStore';
-import { Link } from 'react-router-dom'; // AJOUT IMPORTANT
+import { Link } from 'react-router-dom';
 
 export default function CartDrawer() {
   const { items, isOpen, toggleCart, removeItem, total } = useCartStore();

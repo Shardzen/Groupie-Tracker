@@ -1,0 +1,682 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Groupie Tracker Advanced API",
+    "description": "API REST pour la réservation de places de concerts avec paiement Stripe, recherche IA et OAuth",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Groupie Tracker Team",
+      "email": "contact@groupietracker.fr"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/api",
+  "schemes": ["http", "https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT token format: Bearer {token}"
+    }
+  },
+  "tags": [
+    {"name": "Public", "description": "Points d'accès publics"},
+    {"name": "Auth", "description": "Authentification et inscription"},
+    {"name": "User", "description": "Profil utilisateur (protégé)"},
+    {"name": "Payment", "description": "Paiements Stripe (protégé)"},
+    {"name": "AI", "description": "Intelligence Artificielle (protégé)"},
+    {"name": "Admin", "description": "Administration (protégé, admin seulement)"}
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Health check",
+        "description": "Vérifie que l'API est opérationnelle",
+        "responses": {
+          "200": {
+            "description": "API fonctionnelle",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {"type": "string", "example": "ok"},
+                "timestamp": {"type": "string", "example": "2025-02-11T14:30:00Z"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/artists": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Liste tous les artistes",
+        "responses": {
+          "200": {
+            "description": "Liste des artistes",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Artist"}
+            }
+          }
+        }
+      }
+    },
+    "/artists/{id}": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Détails d'un artiste",
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "type": "integer"}
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails de l'artiste",
+            "schema": {"$ref": "#/definitions/Artist"}
+          },
+          "404": {"description": "Artiste non trouvé"}
+        }
+      }
+    },
+    "/concerts": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Liste tous les concerts",
+        "responses": {
+          "200": {
+            "description": "Liste des concerts",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Concert"}
+            }
+          }
+        }
+      }
+    },
+    "/concerts/search": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Recherche de concerts",
+        "parameters": [
+          {"name": "q", "in": "query", "type": "string", "description": "Terme de recherche"}
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultats de recherche",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Concert"}
+            }
+          }
+        }
+      }
+    },
+    "/deezer/widget": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Widget Deezer pour un artiste",
+        "parameters": [
+          {"name": "artist", "in": "query", "required": true, "type": "string"}
+        ],
+        "responses": {
+          "200": {
+            "description": "Données du widget Deezer",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "widget_url": {"type": "string"},
+                "artist_id": {"type": "integer"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Inscription utilisateur",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {"$ref": "#/definitions/RegisterRequest"}
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé",
+            "schema": {"$ref": "#/definitions/User"}
+          },
+          "400": {"description": "Données invalides"},
+          "409": {"description": "Email déjà utilisé"}
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Connexion utilisateur",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {"$ref": "#/definitions/LoginRequest"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connexion réussie",
+            "schema": {"$ref": "#/definitions/LoginResponse"}
+          },
+          "401": {"description": "Identifiants incorrects"}
+        }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Redirection OAuth Google",
+        "responses": {
+          "302": {"description": "Redirection vers Google"}
+        }
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Callback OAuth Google",
+        "parameters": [
+          {"name": "code", "in": "query", "type": "string"}
+        ],
+        "responses": {
+          "302": {"description": "Redirection avec JWT"}
+        }
+      }
+    },
+    "/auth/request-password-reset": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Demande de réinitialisation de mot de passe",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {"type": "string", "format": "email"}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Email envoyé"}
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Réinitialisation du mot de passe",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {"type": "string"},
+                "password": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Mot de passe modifié"}
+        }
+      }
+    },
+    "/auth/send-verification": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Envoi email de vérification",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Email envoyé"}
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Vérification d'email",
+        "parameters": [
+          {"name": "token", "in": "query", "required": true, "type": "string"}
+        ],
+        "responses": {
+          "200": {"description": "Email vérifié"}
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Récupérer le profil utilisateur",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {
+            "description": "Profil utilisateur",
+            "schema": {"$ref": "#/definitions/User"}
+          },
+          "401": {"description": "Non authentifié"}
+        }
+      }
+    },
+    "/payment/create-intent": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Créer une intention de paiement Stripe",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {"$ref": "#/definitions/CreatePaymentIntentRequest"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Intention créée",
+            "schema": {"$ref": "#/definitions/CreatePaymentIntentResponse"}
+          }
+        }
+      }
+    },
+    "/payment/confirm": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Confirmer un paiement",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {"$ref": "#/definitions/ConfirmPaymentRequest"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Paiement confirmé"}
+        }
+      }
+    },
+    "/payment/reservations": {
+      "get": {
+        "tags": ["Payment"],
+        "summary": "Liste des réservations de l'utilisateur",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {
+            "description": "Liste des réservations",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Reservation"}
+            }
+          }
+        }
+      }
+    },
+    "/stripe/webhook": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Webhook Stripe (public)",
+        "parameters": [
+          {
+            "name": "Stripe-Signature",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Event traité"}
+        }
+      }
+    },
+    "/ai/recommend": {
+      "post": {
+        "tags": ["AI"],
+        "summary": "Recommandations IA",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "preferences": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Recommandations générées"}
+        }
+      }
+    },
+    "/ai/search": {
+      "post": {
+        "tags": ["AI"],
+        "summary": "Recherche IA avancée",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "query": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Résultats de recherche IA"}
+        }
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Tableau de bord admin",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {"description": "Statistiques du dashboard"}
+        }
+      }
+    },
+    "/admin/artists": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste artistes (admin)",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Artist"}
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer un artiste",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {"$ref": "#/definitions/Artist"}
+          }
+        ],
+        "responses": {
+          "201": {"description": "Artiste créé"}
+        }
+      }
+    },
+    "/admin/artists/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Modifier un artiste",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "type": "integer"},
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {"$ref": "#/definitions/Artist"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Artiste modifié"}
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un artiste",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "type": "integer"}
+        ],
+        "responses": {
+          "200": {"description": "Artiste supprimé"}
+        }
+      }
+    },
+    "/admin/concerts": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste concerts (admin)",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Concert"}
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer un concert",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {"$ref": "#/definitions/Concert"}
+          }
+        ],
+        "responses": {
+          "201": {"description": "Concert créé"}
+        }
+      }
+    },
+    "/admin/concerts/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Modifier un concert",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "type": "integer"},
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {"$ref": "#/definitions/Concert"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Concert modifié"}
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un concert",
+        "security": [{"Bearer": []}],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "type": "integer"}
+        ],
+        "responses": {
+          "200": {"description": "Concert supprimé"}
+        }
+      }
+    },
+    "/admin/payments": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des paiements",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {
+            "description": "Liste des paiements",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Reservation"}
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des utilisateurs",
+        "security": [{"Bearer": []}],
+        "responses": {
+          "200": {
+            "description": "Liste des utilisateurs",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/User"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Artist": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "name": {"type": "string"},
+        "image": {"type": "string"},
+        "bio": {"type": "string"},
+        "members": {"type": "array", "items": {"type": "string"}},
+        "creationDate": {"type": "integer"},
+        "firstAlbum": {"type": "string"},
+        "locations": {"type": "array", "items": {"type": "string"}},
+        "concertDates": {"type": "array", "items": {"type": "string"}},
+        "relations": {"type": "object"}
+      }
+    },
+    "Concert": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "artist_id": {"type": "integer"},
+        "artist_name": {"type": "string"},
+        "artist_image": {"type": "string"},
+        "location": {"type": "string"},
+        "city": {"type": "string"},
+        "venue": {"type": "string"},
+        "date": {"type": "string", "format": "date-time"},
+        "price": {"type": "number"},
+        "standard_price": {"type": "number"},
+        "vip_price": {"type": "number"},
+        "available_tickets": {"type": "integer"},
+        "available_standard": {"type": "integer"},
+        "available_vip": {"type": "integer"}
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "email": {"type": "string"},
+        "name": {"type": "string"},
+        "role": {"type": "string", "enum": ["user", "admin"]},
+        "created_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "Reservation": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "user_id": {"type": "integer"},
+        "concert_id": {"type": "integer"},
+        "ticket_type": {"type": "string", "enum": ["standard", "vip"]},
+        "quantity": {"type": "integer"},
+        "total_price": {"type": "number"},
+        "status": {"type": "string"},
+        "payment_status": {"type": "string"},
+        "created_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "RegisterRequest": {
+      "type": "object",
+      "required": ["email", "password", "name"],
+      "properties": {
+        "email": {"type": "string", "format": "email"},
+        "password": {"type": "string", "minLength": 8},
+        "name": {"type": "string"}
+      }
+    },
+    "LoginRequest": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {"type": "string"},
+        "password": {"type": "string"}
+      }
+    },
+    "LoginResponse": {
+      "type": "object",
+      "properties": {
+        "token": {"type": "string"},
+        "user": {"$ref": "#/definitions/User"}
+      }
+    },
+    "CreatePaymentIntentRequest": {
+      "type": "object",
+      "required": ["concert_id", "ticket_type", "quantity"],
+      "properties": {
+        "concert_id": {"type": "integer"},
+        "ticket_type": {"type": "string", "enum": ["standard", "vip"]},
+        "quantity": {"type": "integer", "minimum": 1}
+      }
+    },
+    "CreatePaymentIntentResponse": {
+      "type": "object",
+      "properties": {
+        "client_secret": {"type": "string"},
+        "amount": {"type": "number"}
+      }
+    },
+    "ConfirmPaymentRequest": {
+      "type": "object",
+      "required": ["payment_intent_id", "concert_id", "ticket_type", "quantity"],
+      "properties": {
+        "payment_intent_id": {"type": "string"},
+        "concert_id": {"type": "integer"},
+        "ticket_type": {"type": "string"},
+        "quantity": {"type": "integer"}
+      }
+    }
+  }
+}

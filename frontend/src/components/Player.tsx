@@ -13,11 +13,9 @@ useEffect(() => {
     if (currentTrack) {
       setLoading(true);
       
-      // On encode l'artiste et le titre pour l'URL
       const artistParam = encodeURIComponent(currentTrack.artist);
       const trackParam = encodeURIComponent(currentTrack.title);
 
-      // On envoie artist ET track au backend
       fetch(`${API_BASE_URL}/api/deezer/widget?artist=${artistParam}&track=${trackParam}`)
         .then(res => res.json())
         .then(data => {
@@ -44,7 +42,6 @@ useEffect(() => {
         onClick={(e) => e.stopPropagation()} 
       >
         
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#181818]">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-lg overflow-hidden shadow-lg border border-white/10 shrink-0">
@@ -70,7 +67,6 @@ useEffect(() => {
           </button>
         </div>
 
-        {/* Contenu */}
         <div className="p-6 min-h-[300px] flex flex-col justify-center bg-[#121212]">
           {loading ? (
             <div className="flex justify-center">
@@ -79,7 +75,6 @@ useEffect(() => {
           ) : hasWidget ? (
             <div className="space-y-4">
                <div className="rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#191922]">
-                {/* 3. Iframe sécurisée */}
                 <iframe
                     title="Deezer Widget"
                     src={widgetUrl}

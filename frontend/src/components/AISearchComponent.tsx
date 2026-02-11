@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import api from '@/lib/api';
+import { api } from '@/lib/api';
 import { debounce } from '@/lib/utils';
 
 interface Artist {
@@ -41,11 +41,13 @@ export default function AISearchComponent() {
       setLoading(true);
       try {
         const endpoint = aiMode ? '/ai/search' : '/artists';
-        const response = await api.post(endpoint, { query: searchQuery });
-        setResults({
-          ...response.data,
-          ai_powered: aiMode,
-        });
+
+          const response: any = await api.post(endpoint, { query: searchQuery });
+
+          setResults({
+              ...response.data,
+              ai_powered: aiMode,
+          });
       } catch (error) {
         console.error('Search error:', error);
         setResults({ results: [], count: 0, query: searchQuery });

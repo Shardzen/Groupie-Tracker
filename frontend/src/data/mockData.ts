@@ -1,5 +1,3 @@
-// Fichier FINAL : Playlist complètes (8-10 sons) + Dates Internationales avec GPS
-
 export interface Track {
   title: string;
   plays: string;

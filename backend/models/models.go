@@ -3,16 +3,16 @@ package models
 import "time"
 
 type Artist struct {
-	ID           int                       `json:"id"`
-	Name         string                    `json:"name"`
-	Image        string                    `json:"image"`
-	Bio          string                    `json:"bio,omitempty"`
-	Members      []string                  `json:"members"`
-	CreationDate int                       `json:"creationDate"`
-	FirstAlbum   string                    `json:"firstAlbum"`
-	Locations    []string                  `json:"locations"`
-	ConcertDates []string                  `json:"concertDates"`
-	Relations    map[string][]string       `json:"relations"`
+	ID           int                 `json:"id"`
+	Name         string              `json:"name"`
+	Image        string              `json:"image"`
+	Bio          string              `json:"bio,omitempty"`
+	Members      []string            `json:"members"`
+	CreationDate int                 `json:"creationDate"`
+	FirstAlbum   string              `json:"firstAlbum"`
+	Locations    []string            `json:"locations"`
+	ConcertDates []string            `json:"concertDates"`
+	Relations    map[string][]string `json:"relations"`
 }
 
 type User struct {
@@ -49,6 +49,11 @@ type Reservation struct {
 	ID                    int       `json:"id"`
 	UserID                int       `json:"user_id"`
 	ConcertID             int       `json:"concert_id"`
+	
+	// --- AJOUT POUR CORRIGER L'ERREUR ---
+	ConcertName           string    `json:"concert_name,omitempty"`
+	// ------------------------------------
+
 	TicketType            string    `json:"ticket_type"`
 	Quantity              int       `json:"quantity"`
 	Tickets               int       `json:"tickets,omitempty"`

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api, APIError } from '../lib/api';
 import { useAuthStore } from '../stores/useAuthStore';
 import { toast } from 'sonner';
+import Navbar from '../components/Navbar';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -48,11 +49,6 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
       </div>
 
-
-      <Link to="/" className="absolute top-8 left-8 z-50 group">
-        <img src="/img/logo.png" alt="Logo" className="h-20 w-auto relative z-10 transition-transform group-hover:scale-105" />
-      </Link>
-
       <div className="w-full max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         <div className="hidden lg:block space-y-8">
           <h1 className="text-6xl font-black tracking-tighter text-white">
@@ -92,13 +88,7 @@ export default function LoginPage() {
                 <input type="checkbox" className="w-4 h-4 rounded bg-white/10 border-white/20" />
                 <span className="text-xs text-slate-400 font-bold uppercase">Se souvenir</span>
               </label>
-              
-              <Link 
-                to="/forgot-password" 
-                className="text-xs text-violet-400 hover:text-white font-black uppercase transition-all hover:scale-105"
-              >
-                Mot de passe oublié ?
-              </Link>
+              <Link to="/forgot-password" size="sm" className="text-xs text-slate-400 hover:text-white font-bold uppercase transition-colors">Oublié ?</Link>
             </div>
 
             <button type="submit" disabled={isLoading} className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-violet-500 hover:text-white transition-all">

@@ -1,6 +1,6 @@
 import { Play } from 'lucide-react';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { Link } from 'react-router-dom'; // 1. Importe le Link
+import { Link } from 'react-router-dom';
 
 interface ArtistCardProps {
   id: string;
@@ -10,7 +10,6 @@ interface ArtistCardProps {
 }
 
 export default function ArtistCard({ id, name, image, category }: ArtistCardProps) {
-  // 2. On force le type en 'any' temporairement pour ignorer l'erreur TS
   const store = usePlayerStore() as any; 
   const play = store.play;
 
@@ -30,7 +29,6 @@ export default function ArtistCard({ id, name, image, category }: ArtistCardProp
   };
 
   return (
-    /* 3. On entoure tout par un Link pour que la navigation fonctionne ! */
     <Link to={`/artist/${id}`} className="group relative flex flex-col gap-3 cursor-pointer p-4 rounded-3xl hover:bg-white/5 transition-colors duration-300">
       <div className="relative aspect-square overflow-hidden rounded-full shadow-lg group-hover:shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-500">
         <img 

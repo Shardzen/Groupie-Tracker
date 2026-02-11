@@ -1,11 +1,9 @@
-import { useState, useMemo } from 'react';
-import Navbar from '../components/Navbar'; // Assure-toi que le chemin est bon
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom'; // <--- IMPORT AJOUTÉ
 import { mockArtists } from '../data/mockData';
 import { useCartStore } from '../stores/useCartStore';
 import { MapPin, Calendar, Ticket as TicketIcon, Search, Music, SlidersHorizontal } from 'lucide-react';
 
-// --- CONFIGURATION DES LIEUX & GENRES ---
-// On simule des genres pour tes artistes car mockArtists n'en a peut-être pas
 const getGenre = (name: string) => {
   if (['Ninho', 'Damso', 'Booba'].includes(name)) return 'Rap';
   if (['Angèle', 'Stromae'].includes(name)) return 'Pop';
@@ -24,13 +22,12 @@ const venues = [
   { city: "Londres", place: "O2 Arena" },
 ];
 
-// On génère la donnée complète des tickets
 const ticketsData = mockArtists.map((artist, index) => {
   const venue = venues[index % venues.length];
   return {
     id: artist.id,
     artist: artist,
-    genre: getGenre(artist.name), // On ajoute le genre
+    genre: getGenre(artist.name),
     date: `${10 + index} JUIN 2026`,
     price: 45 + (index * 5),
     place: venue.place,
@@ -38,7 +35,6 @@ const ticketsData = mockArtists.map((artist, index) => {
   };
 });
 
-// --- COMPOSANT TICKET (Le même design Pro que tu as validé) ---
 function TicketCard({ artist, date, price, place, city, id }: any) {
   const [isReserved, setIsReserved] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
@@ -60,7 +56,6 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
 
   return (
     <div className="relative w-full max-w-4xl mx-auto h-52 md:h-64 group mb-8 perspective-1000 animate-fade-in-up">
-      {/* TAMPON */}
       {isReserved && (
         <div className="absolute z-50 pointer-events-none animate-stamp-precision" style={{ top: '35%', left: '55%' }}>
              <div className="relative w-12 h-24 mx-auto -mt-24">
@@ -75,7 +70,6 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
         </div>
       )}
 
-      {/* CORPS GAUCHE */}
       <div className="relative h-full w-full md:w-[72%] bg-[#121212] rounded-3xl md:rounded-r-none md:rounded-l-3xl flex overflow-hidden z-10 clip-ticket-left shadow-lg border border-white/5">
             <div className="absolute inset-0">
                 <img src={artist.image} alt="bg" className="w-full h-full object-cover opacity-20 grayscale mix-blend-overlay" />
@@ -106,7 +100,7 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
                 <div className={`absolute right-12 bottom-10 z-30 transform -rotate-[10deg] transition-all duration-200 ${isReserved ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`} style={{ transitionDelay: '0.4s' }}>
                     <div className="border-[3px] border-violet-600 px-6 py-1 rounded-sm bg-violet-900/10 backdrop-blur-[1px]">
                         <span className="font-black text-2xl md:text-3xl uppercase tracking-widest text-violet-500">
-                          RÉSERVÉ
+                          DANS LE PANIER
                         </span>
                     </div>
                 </div>
@@ -114,7 +108,6 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
             <div className="absolute right-0 top-4 bottom-4 w-[1px] border-r-2 border-dashed border-zinc-800 hidden md:block"></div>
       </div>
 
-      {/* SOUCHE DROITE */}
       <div 
         className={`absolute right-0 top-0 bottom-0 w-[28%] bg-zinc-800 rounded-r-3xl hidden md:flex flex-col items-center justify-center z-20 clip-ticket-right shadow-lg transition-all duration-1000 ease-out origin-left delay-300 border-l border-black/20
         ${isReserved ? 'translate-x-[150%] rotate-[25deg] opacity-0 pointer-events-none' : 'hover:bg-zinc-750 cursor-pointer'}`}
@@ -132,7 +125,6 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
                 </button>
             </div>
       </div>
-      {/* Mobile */}
       <div className="md:hidden mt-4">
         <button onClick={handleReserve} disabled={isReserved} className="w-full bg-white text-black px-4 py-4 rounded-xl font-bold text-lg uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50">
             {isReserved ? 'Validé' : `Réserver pour ${price}€`} <TicketIcon size={18} />
@@ -142,30 +134,34 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
   );
 }
 
-// --- PAGE PRINCIPALE ---
 export default function TicketsPage() {
-  // STATES POUR LA RECHERCHE
-  const [search, setSearch] = useState('');
+  // --- MODIFICATION ICI : On récupère les paramètres de l'URL ---
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  // -------------------------------------------------------------
+  
   const [genreFilter, setGenreFilter] = useState('Tous');
   const [cityFilter, setCityFilter] = useState('Toutes');
 
-  // Listes uniques pour les filtres
+  // Si l'URL change (clic sur un autre concert), on met à jour la recherche
+  useEffect(() => {
+    const query = searchParams.get('search');
+    if (query) {
+        setSearch(query);
+    }
+  }, [searchParams]);
+
   const uniqueGenres = ['Tous', ...new Set(ticketsData.map(t => t.genre))];
   const uniqueCities = ['Toutes', ...new Set(ticketsData.map(t => t.city))];
 
-  // FILTRAGE
   const filteredTickets = useMemo(() => {
     return ticketsData.filter(ticket => {
-      // Recherche Texte (Artiste, Lieu, Ville)
       const matchesSearch = 
         ticket.artist.name.toLowerCase().includes(search.toLowerCase()) ||
         ticket.place.toLowerCase().includes(search.toLowerCase()) ||
         ticket.city.toLowerCase().includes(search.toLowerCase());
 
-      // Filtre Genre
       const matchesGenre = genreFilter === 'Tous' || ticket.genre === genreFilter;
-
-      // Filtre Ville
       const matchesCity = cityFilter === 'Toutes' || ticket.city === cityFilter;
 
       return matchesSearch && matchesGenre && matchesCity;
@@ -192,7 +188,6 @@ export default function TicketsPage() {
 
       <div className="container mx-auto px-6">
         
-        {/* HEADER */}
         <div className="text-center mb-16 animate-fade-in-up">
            <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-white/10 bg-white/5 mb-6">
               <TicketIcon size={14} className="text-zinc-400" />
@@ -205,10 +200,8 @@ export default function TicketsPage() {
              Trouvez votre prochain concert parmi notre sélection exclusive.
            </p>
 
-           {/* --- BARRE DE RECHERCHE & FILTRES --- */}
            <div className="max-w-4xl mx-auto bg-[#18181b] border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 shadow-2xl">
               
-              {/* Input Recherche */}
               <div className="flex-1 relative">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
                  <input 
@@ -220,7 +213,6 @@ export default function TicketsPage() {
                  />
               </div>
 
-              {/* Filtres Dropdowns */}
               <div className="flex gap-4">
                  <div className="relative group min-w-[140px]">
                     <Music className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
@@ -249,7 +241,6 @@ export default function TicketsPage() {
            </div>
         </div>
 
-        {/* LISTE DES TICKETS */}
         <div className="pb-32 max-w-5xl mx-auto">
            {filteredTickets.length > 0 ? (
               filteredTickets.map((ticket, idx) => (
@@ -258,7 +249,6 @@ export default function TicketsPage() {
                   </div>
               ))
            ) : (
-              // --- ETAT VIDE (Aucun résultat) ---
               <div className="text-center py-20 animate-fade-in-up">
                   <div className="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
                       <Search size={40} className="text-zinc-600" />

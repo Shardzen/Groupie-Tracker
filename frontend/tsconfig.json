@@ -5,13 +5,18 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Ajoute ces deux lignes ici */
+    /* --- LIGNES À AJOUTER POUR RÉPARER LE ORANGE --- */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
+    /* ---------------------------------------------- */
 
-    /* Le reste de tes options existantes... */
+    "types": [
+      "vite/client",
+      "vite-plugin-pwa/client"
+    ],
+
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,

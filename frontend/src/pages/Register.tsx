@@ -72,13 +72,7 @@ navigate('/email-sent');
   <div className="flex items-center gap-3">
     <div className="relative">
       <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl group-hover:bg-violet-500/40 transition-all" />
-      
-      <img 
-        src="/img/logo.png" 
-        alt="YNOT Logo" 
-        className="h-20 w-auto relative z-10 object-contain transition-transform group-hover:scale-105" 
-      />
-    </div>
+      </div>
 
     <span className="text-2xl font-black text-white tracking-tighter hidden md:block">
     </span>
@@ -136,6 +130,7 @@ navigate('/email-sent');
               </div>
             </div>
 
+            {/* Password */}
             <div className="space-y-1">
               <label className="text-[10px] font-ultra-heavy text-slate-400 uppercase ml-1">Mot de passe</label>
               <div className="relative">

@@ -4,6 +4,9 @@ import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
 
+// Imports des Pages
+import EmailSentPage from './pages/EmailSentPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ArtistsPage from './pages/ArtistsPage';
@@ -13,12 +16,15 @@ import LoginPage from './pages/LoginPage';
 import TicketsPage from './pages/TicketsPage';
 import ConcertsPage from './pages/ConcertsPage';
 import CheckoutPage from './pages/CheckoutPage';
-import RegisterPage from './pages/Register';
-import EmailSentPage from './pages/EmailSentPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
+import RegisterPage from './pages/Register'; // Ton fichier s'appelle Register.tsx
 import ForgotPassword from './pages/ForgotPassword';
+import AdminPage from './pages/AdminPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 
-
+// Imports des Composants
+import Player from './components/Player';
+import CartDrawer from './components/CartDrawer';
+import Footer from './components/Footer';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -27,6 +33,8 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        
+        {/* TOUTES CES PAGES ONT LA NAVBAR ET LE FOOTER (VIA LAYOUT) */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
@@ -35,14 +43,26 @@ function AnimatedRoutes() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
+
+          {/* PAGES D'AUTHENTIFICATION */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/email-sent" element={<EmailSentPage />} />
+
+          {/* ADMINISTRATION */}
+          {user?.is_admin && (
+            <>
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            </>
+          )}
         </Route>
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* PAGES HORS LAYOUT */}
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+        {/* REDIRECTION PAR DÉFAUT */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
@@ -60,8 +80,12 @@ function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      <Player />
+      <CartDrawer />
+      <Footer /> 
     </BrowserRouter>
   );
 }
+
 
 export default App;
