@@ -67,7 +67,7 @@ func main() {
 	auth.InitJWT() // Initialize JWT secret
 
 	handlers.InitOAuth()
-
+	
 	if err := database.InitDB(); err != nil {
 		log.Fatalf("❌ Failed to initialize database: %v", err)
 	}
