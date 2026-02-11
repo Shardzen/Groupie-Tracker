@@ -110,11 +110,12 @@ export default function AdminPage() {
       // NOTE: On assume ici que l'API renvoie directement le tableau (sans .data wrapper)
       // Si votre API renvoie { data: [...] }, rajoutez .data après le await.
       switch (activeTab) {
-        case 'artists':
+        case 'artists': {
           const artistsRes = await authApi.get<Artist[]>('/admin/artists');
           setArtists(artistsRes || []);
           break;
-        case 'concerts':
+        }
+        case 'concerts': {
           const concertsRes = await authApi.get<Concert[]>('/admin/concerts');
           // On charge aussi les artistes pour le select du formulaire concert
           if (artists.length === 0) {
@@ -123,14 +124,17 @@ export default function AdminPage() {
           }
           setConcerts(concertsRes || []);
           break;
-        case 'users':
+        }
+        case 'users': {
           const usersRes = await authApi.get<User[]>('/admin/users');
           setUsers(usersRes || []);
           break;
-        case 'payments':
+        }
+        case 'payments': {
           const paymentsRes = await authApi.get<Payment[]>('/admin/payments');
           setPayments(paymentsRes || []);
           break;
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);

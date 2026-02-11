@@ -3,17 +3,13 @@ package services
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"os"
 	"regexp"
-	"time"
 	"unicode"
 
 	"groupie-backend/database"
 	"groupie-backend/internal/auth" // Import the JWT logic from internal/auth
 	"groupie-backend/models"
 
-	"github.com/golang-jwt/jwt/v5" // This import might be removed if only using internal/auth.jwt.Claims
 	"golang.org/x/crypto/bcrypt"
 )
 

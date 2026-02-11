@@ -4,6 +4,19 @@ import { Calendar, Ticket, Globe as GlobeIcon, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ConcertGlobe from '../components/ConcertGlobe'; // <--- IMPORT DU NOUVEAU GLOBE
 
+// Define this interface
+interface ConcertData {
+  id: number; 
+  lat: number; // Assuming lat/lng are part of `date` object in mockArtists
+  lng: number;
+  city: string;
+  venue: string; // Assuming venue exists
+  artistName: string;
+  artistImage: string;
+  genre: string;
+  date: string;
+}
+
 export default function ConcertsPage() {
   const navigate = useNavigate();
 
@@ -16,7 +29,7 @@ export default function ConcertsPage() {
     }))
   );
 
-  const [selectedConcert, setSelectedConcert] = useState<any>(null);
+  const [selectedConcert, setSelectedConcert] = useState<ConcertData | null>(null);
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-24 pb-4">

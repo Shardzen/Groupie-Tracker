@@ -9,10 +9,11 @@ import (
 
 	"groupie-backend/database"
 	"groupie-backend/handlers"
+	"groupie-backend/internal/auth" // Import the JWT auth package
 	"groupie-backend/middleware"
 	"groupie-backend/storage"
 
-	"github.com/getsentry/sentry-go"       // Sentry SDK
+	"github.com/getsentry/sentry-go"                 // Sentry SDK
 	sentryhttp "github.com/getsentry/sentry-go/http" // Sentry HTTP middleware
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -92,15 +93,15 @@ func main() {
 	deezerHandler := handlers.NewDeezerHandler()
 	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
-	auth := api.PathPrefix("/auth").Subrouter()
-	auth.HandleFunc("/register", handlers.Register).Methods("POST")
-	auth.HandleFunc("/login", handlers.Login).Methods("POST")
-	auth.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
-	auth.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
-	auth.HandleFunc("/request-password-reset", handlers.RequestPasswordReset).Methods("POST")
-	auth.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
-	auth.HandleFunc("/send-verification", handlers.SendVerificationEmail).Methods("POST")
-	auth.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
+	authRouter := api.PathPrefix("/auth").Subrouter()
+	authRouter.HandleFunc("/register", handlers.Register).Methods("POST")
+	authRouter.HandleFunc("/login", handlers.Login).Methods("POST")
+	authRouter.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
+	authRouter.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
+	authRouter.HandleFunc("/request-password-reset", handlers.RequestPasswordReset).Methods("POST")
+	authRouter.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
+	authRouter.HandleFunc("/send-verification", handlers.SendVerificationEmail).Methods("POST")
+	authRouter.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
 
 	protected := api.PathPrefix("").Subrouter()
 	protected.Use(middleware.JWTAuth)

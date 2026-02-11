@@ -77,7 +77,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := services.GetUserByID(claims.UserID)
+	user, err := services.GetUserByID(int(claims.UserID))
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)

@@ -18,7 +18,7 @@ import (
 // ========= CONSTANTES =========
 const (
 	ReservationExpiryMinutes = 15
-	VIPPriceMultiplier      = 1.5 // VIP = +50% du prix standard
+	VIPPriceMultiplier       = 1.5 // VIP = +50% du prix standard
 )
 
 // ========= GESTION DES CONCERTS =========
@@ -26,14 +26,14 @@ const (
 // GetConcertByID récupère un concert avec toutes ses informations
 func GetConcertByID(concertID int) (*models.Concert, error) {
 	var concert models.Concert
-	
+
 	query := `
 		SELECT id, name, artist_name, location, date, image_url, 
 		       price, available_tickets
 		FROM concerts 
 		WHERE id = $1
 	`
-	
+
 	err := database.DB.QueryRow(query, concertID).Scan(
 		&concert.ID,
 		&concert.Name,
@@ -85,7 +85,7 @@ func CreatePaymentIntent(userID int, req models.CreatePaymentIntentRequest) (str
 	} else {
 		pricePerTicket = concert.Price
 	}
-	
+
 	totalPrice := pricePerTicket * float64(req.Quantity)
 	amountInCents := int64(totalPrice * 100) // Stripe utilise les centimes
 
@@ -100,7 +100,7 @@ func CreatePaymentIntent(userID int, req models.CreatePaymentIntentRequest) (str
 	// 6. Créer la réservation en base (statut 'pending')
 	var reservationID int
 	expiresAt := time.Now().Add(ReservationExpiryMinutes * time.Minute)
-	
+
 	query := `
 		INSERT INTO reservations 
 			(user_id, concert_id, ticket_type, quantity, total_price, status, expires_at, created_at) 
@@ -108,7 +108,7 @@ func CreatePaymentIntent(userID int, req models.CreatePaymentIntentRequest) (str
 			($1, $2, $3, $4, $5, 'pending', $6, NOW()) 
 		RETURNING id
 	`
-	
+
 	err = database.DB.QueryRow(
 		query,
 		userID,
@@ -118,7 +118,7 @@ func CreatePaymentIntent(userID int, req models.CreatePaymentIntentRequest) (str
 		totalPrice,
 		expiresAt,
 	).Scan(&reservationID)
-	
+
 	if err != nil {
 		return "", 0, fmt.Errorf("error creating reservation: %w", err)
 	}
@@ -154,13 +154,13 @@ func CreatePaymentIntent(userID int, req models.CreatePaymentIntentRequest) (str
 		pi.ID,
 		reservationID,
 	)
-	
+
 	if err != nil {
 		log.Printf("⚠️  Warning: Failed to update reservation with Stripe ID: %v", err)
 	}
 
 	log.Printf("✅ Payment Intent créé : %s pour %.2f€ (Reservation #%d)", pi.ID, totalPrice, reservationID)
-	
+
 	return pi.ClientSecret, totalPrice, nil
 }
 
@@ -183,13 +183,13 @@ func MarkReservationAsPaid(reservationIDStr string, stripePaymentID string) erro
 	// 1. Récupérer les infos de la réservation
 	var quantity, concertID int
 	var currentStatus string
-	
+
 	err = tx.QueryRow(`
 		SELECT quantity, concert_id, status 
 		FROM reservations 
 		WHERE id = $1
 	`, reservationID).Scan(&quantity, &concertID, &currentStatus)
-	
+
 	if err != nil {
 		return fmt.Errorf("reservation not found: %w", err)
 	}
@@ -209,7 +209,7 @@ func MarkReservationAsPaid(reservationIDStr string, stripePaymentID string) erro
 		    updated_at = NOW() 
 		WHERE id = $1
 	`, reservationID)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to update reservation: %w", err)
 	}
@@ -221,7 +221,7 @@ func MarkReservationAsPaid(reservationIDStr string, stripePaymentID string) erro
 		WHERE id = $2 
 		AND available_tickets >= $1
 	`, quantity, concertID)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to update concert tickets: %w", err)
 	}
@@ -237,9 +237,9 @@ func MarkReservationAsPaid(reservationIDStr string, stripePaymentID string) erro
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	log.Printf("✅ Reservation #%d marked as PAID - %d tickets decremented for Concert #%d", 
+	log.Printf("✅ Reservation #%d marked as PAID - %d tickets decremented for Concert #%d",
 		reservationID, quantity, concertID)
-	
+
 	return nil
 }
 
@@ -327,7 +327,7 @@ func GetUserReservations(userID int) ([]models.Reservation, error) {
 	defer rows.Close()
 
 	var reservations []models.Reservation
-	
+
 	for rows.Next() {
 		var r models.Reservation
 		var stripeID, concertName, concertImage sql.NullString
@@ -350,7 +350,7 @@ func GetUserReservations(userID int) ([]models.Reservation, error) {
 			&concertImage,
 			&concertDate,
 		)
-		
+
 		if err != nil {
 			log.Printf("⚠️  Error scanning reservation: %v", err)
 			continue
@@ -363,7 +363,7 @@ func GetUserReservations(userID int) ([]models.Reservation, error) {
 		if concertName.Valid {
 			r.ConcertName = concertName.String
 		}
-		
+
 		reservations = append(reservations, r)
 	}
 
@@ -381,17 +381,17 @@ func CleanupExpiredReservations() (int, error) {
 		WHERE status = 'pending' 
 		AND expires_at < NOW()
 	`)
-	
+
 	if err != nil {
 		return 0, fmt.Errorf("failed to cleanup expired reservations: %w", err)
 	}
 
 	rowsAffected, _ := result.RowsAffected()
-	
+
 	if rowsAffected > 0 {
 		log.Printf("🧹 Cleaned up %d expired reservations", rowsAffected)
 	}
-	
+
 	return int(rowsAffected), nil
 }
 

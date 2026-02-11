@@ -66,7 +66,7 @@ export function showNotification(title: string, body: string, options?: Notifica
 }
 
 // Install Prompt
-let deferredPrompt: any = null;
+let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -102,7 +102,7 @@ export async function registerBackgroundSync(tag: string) {
   if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await (registration as any).sync.register(tag);
+      await registration.sync.register(tag);
       console.log('✅ Background sync enregistré:', tag);
     } catch (error) {
       console.error('❌ Erreur background sync:', error);
@@ -175,7 +175,7 @@ export async function shareContent(data: ShareData): Promise<boolean> {
 export async function setAppBadge(count: number) {
   if ('setAppBadge' in navigator) {
     try {
-      await (navigator as any).setAppBadge(count);
+      await navigator.setAppBadge(count);
     } catch (error) {
       console.error('Erreur badge:', error);
     }
@@ -185,7 +185,7 @@ export async function setAppBadge(count: number) {
 export async function clearAppBadge() {
   if ('clearAppBadge' in navigator) {
     try {
-      await (navigator as any).clearAppBadge();
+      await navigator.clearAppBadge();
     } catch (error) {
       console.error('Erreur clear badge:', error);
     }

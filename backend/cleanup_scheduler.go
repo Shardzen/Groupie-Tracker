@@ -10,15 +10,15 @@ import (
 
 func StartCleanupScheduler() {
 	ticker := time.NewTicker(5 * time.Minute)
-	
+
 	go func() {
 		cleanupReservations()
-		
+
 		for range ticker.C {
 			cleanupReservations()
 		}
 	}()
-	
+
 	log.Println("🧹 Cleanup scheduler started (runs every 5 minutes)")
 }
 
@@ -28,7 +28,7 @@ func cleanupReservations() {
 		log.Printf("❌ Error cleaning up reservations: %v", err)
 		return
 	}
-	
+
 	if count > 0 {
 		log.Printf("🧹 Cleaned up %d expired reservation(s)", count)
 	}
@@ -36,13 +36,13 @@ func cleanupReservations() {
 
 func StartStatsLogger() {
 	ticker := time.NewTicker(1 * time.Hour)
-	
+
 	go func() {
 		for range ticker.C {
 			logStats()
 		}
 	}()
-	
+
 	log.Println("📊 Stats logger started (runs every hour)")
 }
 
@@ -50,7 +50,7 @@ func logStats() {
 	var totalReservations int
 	var paidReservations int
 	var revenue float64
-	
+
 	err := database.DB.QueryRow(`
 		SELECT 
 			COUNT(*) as total,
@@ -59,12 +59,12 @@ func logStats() {
 		FROM reservations
 		WHERE created_at >= NOW() - INTERVAL '24 hours'
 	`).Scan(&totalReservations, &paidReservations, &revenue)
-	
+
 	if err != nil {
 		log.Printf("❌ Error fetching stats: %v", err)
 		return
 	}
-	
-	log.Printf("📊 Last 24h Stats: %d reservations (%d paid) - Revenue: %.2f€", 
+
+	log.Printf("📊 Last 24h Stats: %d reservations (%d paid) - Revenue: %.2f€",
 		totalReservations, paidReservations, revenue)
 }

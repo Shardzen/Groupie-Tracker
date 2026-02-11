@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -60,23 +60,22 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const authApi = useAuthApi(); // Initialize the authenticated API client
 
+  const fetchDashboardStats = useCallback(async () => {
+    try {
+      const response = await authApi.get<DashboardStats>('/admin/dashboard');
+      
+      setStats(response);
+      
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [authApi]);
+
   useEffect(() => {
     fetchDashboardStats();
-  }, []);
-
-
-const fetchDashboardStats = async () => {
-  try {
-    const response = await authApi.get<DashboardStats>('/admin/dashboard');
-    
-    setStats(response);
-    
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-  } finally {
-    setLoading(false);
-  }
-};
+  }, [fetchDashboardStats]);
 
   if (loading || !stats) {
     return (

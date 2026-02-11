@@ -42,15 +42,15 @@ func (s *ArtistService) SearchConcerts(query string) []models.Concert {
 
 	var results []models.Concert
 	lowerQuery := strings.ToLower(query)
-	
+
 	for _, concert := range s.concerts {
 		if strings.Contains(strings.ToLower(concert.Venue), lowerQuery) ||
-		   strings.Contains(strings.ToLower(concert.City), lowerQuery) ||
-		   strings.Contains(strings.ToLower(concert.ArtistName), lowerQuery) {
+			strings.Contains(strings.ToLower(concert.City), lowerQuery) ||
+			strings.Contains(strings.ToLower(concert.ArtistName), lowerQuery) {
 			results = append(results, concert)
 		}
 	}
-	
+
 	return results
 }
 

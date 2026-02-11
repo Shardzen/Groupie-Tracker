@@ -33,39 +33,39 @@ func (s *DeezerService) GetDeezerEmbedURL(artistID string) string {
 
 // Mapping manuel des artistes populaires vers leurs IDs Deezer
 var deezerArtistIDs = map[string]string{
-	"daft punk":          "27",
-	"stromae":            "408",
-	"david guetta":       "159",
-	"orelsan":            "548",
-	"pnl":                "6195234",
-	"angele":             "8635498",
-	"ninho":              "9635624",
-	"metallica":          "412",
-	"system of a down":   "114",
-	"gojira":             "6247",
-	"rammstein":          "165",
-	"the weeknd":         "4050205",
-	"dua lipa":           "12246167",
-	"dj snake":           "7706720",
-	"kavinsky":           "227693",
-	"laylow":             "13716822",
-	"nekfeu":             "5560188",
-	"jul":                "5149294",
-	"aya nakamura":       "9635624",
-	"soprano":            "412678",
-	"booba":              "529",
-	"naps":               "8940302",
-	"soolking":           "7706716",
-	"niska":              "6984045",
-	"leto":               "7954344",
-	"hamza":              "7954344",
+	"daft punk":        "27",
+	"stromae":          "408",
+	"david guetta":     "159",
+	"orelsan":          "548",
+	"pnl":              "6195234",
+	"angele":           "8635498",
+	"ninho":            "9635624",
+	"metallica":        "412",
+	"system of a down": "114",
+	"gojira":           "6247",
+	"rammstein":        "165",
+	"the weeknd":       "4050205",
+	"dua lipa":         "12246167",
+	"dj snake":         "7706720",
+	"kavinsky":         "227693",
+	"laylow":           "13716822",
+	"nekfeu":           "5560188",
+	"jul":              "5149294",
+	"aya nakamura":     "9635624",
+	"soprano":          "412678",
+	"booba":            "529",
+	"naps":             "8940302",
+	"soolking":         "7706716",
+	"niska":            "6984045",
+	"leto":             "7954344",
+	"hamza":            "7954344",
 }
 
 // GetArtistDeezerID retourne l'ID Deezer d'un artiste s'il est connu
 func (s *DeezerService) GetArtistDeezerID(artistName string) (string, bool) {
 	artistKey := strings.ToLower(strings.TrimSpace(artistName))
 	id, exists := deezerArtistIDs[artistKey]
-	return id, exists 
+	return id, exists
 }
 
 // GetArtistEmbedWidget retourne l'URL du widget embed pour un artiste

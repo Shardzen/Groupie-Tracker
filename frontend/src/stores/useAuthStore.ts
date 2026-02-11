@@ -10,6 +10,13 @@ interface User {
   is_admin?: boolean 
 }
 
+// Define for jwtDecode result
+interface DecodedToken {
+  user_id: number;
+  role: string;
+  exp: number; 
+}
+
 interface AuthState {
   user: User | null
   token: string | null
@@ -42,7 +49,7 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const decoded: any = jwtDecode(token)
+          const decoded: DecodedToken = jwtDecode(token)
           const currentTime = Date.now() / 1000
 
           if (decoded.exp < currentTime) {

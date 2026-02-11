@@ -16,7 +16,7 @@ export interface ConcertDate {
 }
 
 export interface Artist {
-  id: string;
+  id: number;
   name: string;
   genre: string;
   image: string;
@@ -39,7 +39,7 @@ export interface Event {
 
 export const mockArtists: Artist[] = [
   {
-    id: '1',
+    id: 1,
     name: 'Ninho',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/1/ninho.jpg.jpg',
@@ -61,7 +61,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '2',
+    id: 2,
     name: 'Angèle',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/2/angele.jpg.webp',
@@ -83,7 +83,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '3',
+    id: 3,
     name: 'Gojira',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/3/gojira.jpg',
@@ -105,7 +105,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '4',
+    id: 4,
     name: 'Orelsan',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/4/orelsan.jpg',
@@ -127,7 +127,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '12',
+    id: 12,
     name: 'The Weeknd',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/12/theweeknd.jpg',
@@ -149,7 +149,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '13',
+    id: 13,
     name: 'Dua Lipa',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/13/dualipa.jpg',
@@ -170,7 +170,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '6',
+    id: 6,
     name: 'PNL',
     genre: 'Rap Cloud',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/6/pnl.jpg',
@@ -190,7 +190,7 @@ export const mockArtists: Artist[] = [
     ]
   },
   {
-    id: '5',
+    id: 5,
     name: 'Daft Punk',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/5/daftpunk.jpg',
@@ -208,7 +208,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '7',
+    id: 7,
     name: 'Leto',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/7/leto.jpg',
@@ -226,7 +226,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '8',
+    id: 8,
     name: 'Nono La Grinta',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/8/nonolagrinta.jpg',
@@ -244,7 +244,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '9',
+    id: 9,
     name: 'Keeqaid',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/9/keeqaid.jpg',
@@ -262,7 +262,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '10',
+    id: 10,
     name: 'Timar',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/10/timar.jpg',
@@ -280,7 +280,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '11',
+    id: 11,
     name: 'Lamano',
     genre: 'Rap FR',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/11/lamano.jpg',
@@ -298,7 +298,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '14',
+    id: 14,
     name: 'Stromae',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/14/stromae.jpg',
@@ -316,7 +316,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '15',
+    id: 15,
     name: 'Aya Nakamura',
     genre: 'Pop',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/15/nakamura.jpg',
@@ -334,7 +334,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '16',
+    id: 16,
     name: 'Metallica',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/16/metallica.jpg',
@@ -352,7 +352,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '17',
+    id: 17,
     name: 'Rammstein',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/17/rammstein.jpg',
@@ -370,7 +370,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '18',
+    id: 18,
     name: 'System of a Down',
     genre: 'Metal',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/18/systemofadown.jpg',
@@ -388,7 +388,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '19',
+    id: 19,
     name: 'DJ Snake',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/19/djsnake.jpg',
@@ -406,7 +406,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '20',
+    id: 20,
     name: 'David Guetta',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/20/davidguetta.jpg',
@@ -424,7 +424,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '21',
+    id: 21,
     name: 'Kavinsky',
     genre: 'Electro',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/21/kavinsky.jpg',
@@ -442,7 +442,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '22',
+    id: 22,
     name: 'Hamza',
     genre: 'Rap Cloud',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/22/hamza.jpg',
@@ -460,7 +460,7 @@ export const mockArtists: Artist[] = [
     upcomingDates: []
   },
   {
-    id: '23',
+    id: 23,
     name: 'Laylow',
     genre: 'Rap Cloud',
     image: 'https://groupie-tracker-assets.s3.eu-north-1.amazonaws.com/artists/23/laylow.jpg',

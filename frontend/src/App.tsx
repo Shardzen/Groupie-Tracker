@@ -74,7 +74,7 @@ function App() {
 
     // 2. Gestion du Bouton Retour Android (NOUVEAU)
     const setupBackButton = async () => {
-      await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      await CapacitorApp.addListener('backButton', () => {
         // Si on est sur la home ou login, on quitte l'app
         if (window.location.pathname === '/' || window.location.pathname === '/login') {
           CapacitorApp.exitApp();

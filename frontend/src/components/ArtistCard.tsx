@@ -10,8 +10,7 @@ interface ArtistCardProps {
 }
 
 export default function ArtistCard({ id, name, image, category }: ArtistCardProps) {
-  const store = usePlayerStore() as any; 
-  const play = store.play;
+  const play = usePlayerStore((state) => state.play); // Get the play function directly
 
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();
