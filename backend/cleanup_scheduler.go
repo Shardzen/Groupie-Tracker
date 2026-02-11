@@ -8,16 +8,12 @@ import (
 	"groupie-backend/services"
 )
 
-// CleanupScheduler lance le nettoyage périodique des réservations expirées
 func StartCleanupScheduler() {
-	// Lancer le nettoyage toutes les 5 minutes
 	ticker := time.NewTicker(5 * time.Minute)
 	
 	go func() {
-		// Premier nettoyage immédiat au démarrage
 		cleanupReservations()
 		
-		// Puis périodique
 		for range ticker.C {
 			cleanupReservations()
 		}
@@ -38,7 +34,6 @@ func cleanupReservations() {
 	}
 }
 
-// ReservationStatsLogger affiche les stats périodiquement
 func StartStatsLogger() {
 	ticker := time.NewTicker(1 * time.Hour)
 	
