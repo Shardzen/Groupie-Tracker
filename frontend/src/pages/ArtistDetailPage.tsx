@@ -20,7 +20,7 @@ export default function ArtistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const playerStore = usePlayerStore();
-  const open = playerStore?.open || (() => console.log("Player not ready"));
+  const play = playerStore.play;
   
   const [artist, setArtist] = useState<Artist | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,7 +98,7 @@ export default function ArtistDetailPage() {
   }
 
   const handleOpenDeezer = () => {
-    open({
+    play({
       title: `Top titres de ${artist.name}`,
       artist: artist.name,
       image: artist.image,
