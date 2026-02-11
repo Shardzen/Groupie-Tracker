@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useCartStore } from '../stores/useCartStore';
-import { useAuthStore } from '../stores/useAuthStore'; // Import useAuthStore
-import { Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { useAuthStore } from '../stores/useAuthStore';
+import { Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { api } from '@/lib/api';
 
-// 1. Initialiser Stripe avec ta clé publique
-console.log('Stripe Key:', import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// ✅ Charger Stripe UNE SEULE FOIS (pas à chaque render)
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+
+if (!stripeKey) {
+  console.error('❌ ERREUR: VITE_STRIPE_PUBLIC_KEY manquante dans .env');
+}
+
+console.log('🔑 Stripe Key configured:', stripeKey ? '✅ OK' : '❌ MANQUANTE');
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 // --- COMPOSANT INTERNE : LE FORMULAIRE ---
 const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, totalAmount: number }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { clearCart } = useCartStore();
+  const navigate = useNavigate();
   
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -25,31 +32,45 @@ const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, tot
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!stripe || !elements) return;
-
-    setIsLoading(true);
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/profile`,
-        receipt_email: email,
-        payment_method_data: {
-          billing_details: {
-            name: name,
-            email: email,
-          },
-        },
-      },
-    });
-
-    if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message || "Une erreur est survenue.");
-    } else {
-      setMessage("Une erreur inattendue est survenue.");
+    if (!stripe || !elements) {
+      setMessage('Stripe n\'est pas encore chargé. Veuillez patienter.');
+      return;
     }
 
-    setIsLoading(false);
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/tickets`,
+          receipt_email: email,
+          payment_method_data: {
+            billing_details: {
+              name: name,
+              email: email,
+            },
+          },
+        },
+      });
+
+      if (error) {
+        if (error.type === "card_error" || error.type === "validation_error") {
+          setMessage(error.message || "Une erreur est survenue avec votre carte.");
+        } else {
+          setMessage("Une erreur inattendue est survenue. Réessayez.");
+        }
+      } else {
+        // Paiement réussi - Stripe redirige automatiquement
+        clearCart();
+      }
+    } catch (err) {
+      console.error('Erreur paiement:', err);
+      setMessage('Erreur réseau. Vérifiez votre connexion.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -86,8 +107,8 @@ const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, tot
         <h3 className="text-lg font-bold mb-4 text-zinc-300 flex justify-between items-center">
           <span>Paiement Sécurisé</span>
           <div className="flex gap-2">
-            <div className="w-8 h-5 bg-white/10 rounded"></div>
-            <div className="w-8 h-5 bg-white/10 rounded"></div>
+            <div className="w-8 h-5 bg-white/10 rounded flex items-center justify-center text-[8px] font-bold">VISA</div>
+            <div className="w-8 h-5 bg-white/10 rounded flex items-center justify-center text-[8px] font-bold">MC</div>
           </div>
         </h3>
         
@@ -109,9 +130,12 @@ const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, tot
         className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 py-4 rounded-xl font-black uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
       >
         {isLoading ? (
-          <span className="animate-pulse">Traitement sécurisé...</span>
+          <>
+            <Loader2 className="animate-spin" size={20} />
+            <span>Traitement sécurisé...</span>
+          </>
         ) : (
-          <>Payer {totalAmount} € <ArrowRight size={20}/></>
+          <>Payer {totalAmount.toFixed(2)} € <ArrowRight size={20}/></>
         )}
       </button>
       
@@ -124,47 +148,61 @@ const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, tot
 
 // --- COMPOSANT PRINCIPAL ---
 export default function CheckoutPage() {
-    const { items, total } = useCartStore();
-    const { token, isAuthenticated } = useAuthStore(); // Get token as well
-    const [clientSecret, setClientSecret] = useState("");
-    const [error, setError] = useState(false);
-  
-    useEffect(() => {
-      if (items.length === 0 || !token) { // Use token instead of isAuthenticated for this check
-        if (!token && !isAuthenticated) { // Check if no token and not authenticated
-          console.log("DEBUG STRIPE KEY:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-          console.log("User not authenticated or token not found, cannot create payment intent.");
-          // Optionally: navigate('/login') or display a message
-        }
-        return;
-      }
+  const { items, total } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+  const [clientSecret, setClientSecret] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Redirection si non authentifié
+    if (!isAuthenticated) {
+      console.log("❌ Utilisateur non authentifié, redirection vers /login");
+      navigate('/login?redirect=/checkout');
+      return;
+    }
+
+    // Redirection si panier vide
+    if (items.length === 0) {
+      console.log("❌ Panier vide, redirection vers /concerts");
+      navigate('/concerts');
+      return;
+    }
+
     const createIntent = async () => {
       try {
+        setIsLoading(true);
+        setError(null);
         const mainItem = items[0]; 
 
-        // Interface pour typer la réponse
+        console.log('📤 Création Payment Intent pour concert:', mainItem.id);
+
         interface PaymentResponse {
           client_secret: string;
           amount: number;
         }
 
-        const response = await api.post("/payment/create-intent", {
+        const response = await api.post<PaymentResponse>("/payment/create-intent", {
           concert_id: mainItem.id, 
           ticket_type: "standard",
           quantity: mainItem.quantity,
-        }) as PaymentResponse; 
+        });
         
+        console.log('✅ Payment Intent créé:', response.client_secret.substring(0, 20) + '...');
         setClientSecret(response.client_secret);
-      } catch (err) {
-        console.error("Erreur backend:", err);
-        setError(true);
+      } catch (err: any) {
+        console.error("❌ Erreur backend:", err);
+        setError(err.message || 'Impossible de créer le paiement. Vérifiez que votre backend fonctionne.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     createIntent();
-  }, [items, isAuthenticated]); // Add isAuthenticated to dependency array
+  }, [items, isAuthenticated, navigate]);
 
-  // Si Panier Vide
+  // Si Panier Vide (normalement on redirige, mais au cas où)
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#0e0e0e] text-white pt-32 flex flex-col items-center justify-center">
@@ -172,6 +210,20 @@ export default function CheckoutPage() {
         <Link to="/concerts" className="bg-violet-600 px-6 py-2 rounded-lg font-bold hover:bg-violet-700 transition">
           Retour aux concerts
         </Link>
+      </div>
+    );
+  }
+
+  // Si Stripe n'est pas configuré
+  if (!stripePromise) {
+    return (
+      <div className="min-h-screen bg-[#0e0e0e] text-white pt-32 flex flex-col items-center justify-center px-4">
+        <AlertCircle className="text-red-500 mb-4" size={48} />
+        <h2 className="text-2xl font-bold mb-2">Configuration Stripe manquante</h2>
+        <p className="text-zinc-400 text-center max-w-md">
+          La clé publique Stripe (VITE_STRIPE_PUBLIC_KEY) n'est pas configurée. 
+          Contactez l'administrateur.
+        </p>
       </div>
     );
   }
@@ -189,6 +241,7 @@ export default function CheckoutPage() {
       borderRadius: '8px',
     },
   };
+
   const options = {
     clientSecret,
     appearance,
@@ -204,19 +257,31 @@ export default function CheckoutPage() {
             <Lock className="text-violet-500" size={24} /> Paiement Sécurisé
           </h2>
           
-          {clientSecret ? (
+          {isLoading ? (
+            <div className="bg-[#1a1a1a] h-[500px] rounded-xl border border-white/10 flex flex-col items-center justify-center text-zinc-500">
+              <Loader2 className="animate-spin mb-4" size={48} />
+              <p>Initialisation du paiement sécurisé...</p>
+              <p className="text-xs mt-2">Cela peut prendre quelques secondes</p>
+            </div>
+          ) : error ? (
+            <div className="bg-red-500/10 p-6 rounded-xl text-red-500 border border-red-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle size={20} />
+                <span className="font-bold">Erreur</span>
+              </div>
+              <p className="text-sm">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition"
+              >
+                Réessayer
+              </button>
+            </div>
+          ) : clientSecret ? (
             <Elements options={options} stripe={stripePromise}>
               <CheckoutForm clientSecret={clientSecret} totalAmount={total()} />
             </Elements>
-          ) : error ? (
-            <div className="bg-red-500/10 p-4 rounded text-red-500 border border-red-500/20">
-              Impossible d'initialiser le paiement. Vérifiez que votre backend tourne.
-            </div>
-          ) : (
-            <div className="animate-pulse bg-[#1a1a1a] h-[400px] rounded-xl border border-white/10 flex items-center justify-center text-zinc-500">
-              Chargement sécurisé Stripe...
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* COLONNE DROITE : RÉSUMÉ */}
@@ -232,7 +297,7 @@ export default function CheckoutPage() {
                                 <p className="text-xs text-zinc-400">Standard Ticket</p>
                             </div>
                             <div className="text-right">
-                                <p className="font-bold">{item.price * item.quantity} €</p>
+                                <p className="font-bold">{(item.price * item.quantity).toFixed(2)} €</p>
                                 <p className="text-xs text-zinc-500">x{item.quantity}</p>
                             </div>
                         </div>
@@ -242,7 +307,7 @@ export default function CheckoutPage() {
                 <div className="border-t border-white/10 pt-4 space-y-2 text-sm text-zinc-400">
                     <div className="flex justify-between">
                         <span>Sous-total</span>
-                        <span>{total()} €</span>
+                        <span>{total().toFixed(2)} €</span>
                     </div>
                     <div className="flex justify-between">
                         <span>Taxes (incluses)</span>
@@ -253,7 +318,7 @@ export default function CheckoutPage() {
                 <div className="border-t border-white/10 pt-4 mt-4 flex justify-between items-center">
                     <span className="font-black text-xl">TOTAL</span>
                     <span className="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
-                        {total()} €
+                        {total().toFixed(2)} €
                     </span>
                 </div>
             </div>
