@@ -1,26 +1,47 @@
-import { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, Sparkles, Music, Chrome, Github, ArrowRight, Shield } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Mail, Lock, Eye, EyeOff, Chrome, Github, ArrowRight } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, APIError } from '../lib/api';
 import { useAuthStore } from '../stores/useAuthStore';
 import { toast } from 'sonner';
-import Navbar from '../components/Navbar';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
+
+  // States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // ✅ LOGIQUE DE CAPTURE DU TOKEN GOOGLE
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const userJson = searchParams.get('user');
+
+    if (token && userJson) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userJson));
+        login(token, userData);
+        toast.success('Ravi de vous revoir via Google !');
+        navigate('/');
+      } catch (err) {
+        console.error("Erreur parsing Google User:", err);
+        toast.error("Erreur lors de la connexion Google");
+      }
+    }
+  }, [searchParams, login, navigate]);
+
+  // Connexion Classique (Email/Password)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     try {
-      const response = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
+      const response = await api.post<{ token: string; user: any }>('/auth/login', { email, password });
       login(response.token, response.user);
       toast.success('Ravi de vous revoir !');
       navigate('/'); 
@@ -33,17 +54,15 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const response = await api.get<{ url: string }>('/auth/google');
-      window.location.href = response.url;
-    } catch (err) {
-      toast.error('Erreur Google');
-    }
+  // ✅ LOGIQUE DU BOUTON GOOGLE
+  const handleGoogleLogin = () => {
+    // Redirection directe vers le backend qui va déclencher le flux Google
+    window.location.href = 'http://localhost:8080/api/auth/google';
   };
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
+      {/* Background */}
       <div className="absolute inset-0 z-0">
         <img src="/img/background.png" alt="Background" className="w-full h-full object-cover opacity-100" />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
@@ -60,15 +79,25 @@ export default function LoginPage() {
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
           <h2 className="text-4xl font-black text-white mb-8 uppercase text-center">Connexion</h2>
 
-          {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold">{error}</div>}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-
             <div className="space-y-2">
               <label className="block text-xs font-black text-slate-400 uppercase">Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white outline-none focus:border-violet-500 transition-colors" placeholder="email@exemple.com" required />
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white outline-none focus:border-violet-500 transition-colors" 
+                  placeholder="email@exemple.com" 
+                  required 
+                />
               </div>
             </div>
 
@@ -76,7 +105,14 @@ export default function LoginPage() {
               <label className="block text-xs font-black text-slate-400 uppercase">Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white outline-none focus:border-violet-500 transition-colors" placeholder="••••••••" required />
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white outline-none focus:border-violet-500 transition-colors" 
+                  placeholder="••••••••" 
+                  required 
+                />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -102,7 +138,11 @@ export default function LoginPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <button onClick={handleGoogleLogin} className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
+            <button 
+              type="button"
+              onClick={handleGoogleLogin} 
+              className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all"
+            >
               <Chrome size={18} />
               <span className="text-xs font-black uppercase">Google</span>
             </button>

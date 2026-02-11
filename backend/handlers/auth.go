@@ -203,3 +203,28 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
+// ResendVerification permet de renvoyer l'email de confirmation
+func ResendVerification(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Email string `json:"email"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var userID int
+	err := database.DB.QueryRow("SELECT id FROM users WHERE email = $1 AND email_verified = false", req.Email).Scan(&userID)
+	if err != nil {
+		// On renvoie OK même si l'user n'existe pas (sécurité)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	token := fmt.Sprintf("%x", time.Now().UnixNano())
+	database.DB.Exec("INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
+		userID, token, time.Now().Add(24*time.Hour))
+
+	services.SendVerificationEmail(req.Email, token)
+	w.WriteHeader(http.StatusOK)
+}
