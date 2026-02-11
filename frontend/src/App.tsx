@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
 
+// Layout & Pages
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ArtistsPage from './pages/ArtistsPage';
@@ -18,6 +19,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
+// --- AJOUTS : Composants Globaux ---
 import Player from './components/Player';
 import CartDrawer from './components/CartDrawer';
 
@@ -29,6 +31,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         
+        {/* Routes avec Layout (Navbar + Footer) */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
@@ -38,6 +41,7 @@ function AnimatedRoutes() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
 
+          {/* Routes Admin protégées */}
           {user?.is_admin && (
             <>
               <Route path="/admin" element={<AdminPage />} />
@@ -45,9 +49,11 @@ function AnimatedRoutes() {
             </>
           )}
           
+          {/* Redirection par défaut */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
         
+        {/* Routes sans Layout (Plein écran) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -68,6 +74,7 @@ function App() {
     <BrowserRouter>
       <AnimatedRoutes />
       
+      {/* --- AJOUTS : Ces composants doivent être accessibles partout --- */}
       <Player />
       <CartDrawer />
       
