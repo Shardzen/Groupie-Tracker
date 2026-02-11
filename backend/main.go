@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
-	"github.com/stripe/stripe-go/v76" // <--- AJOUT : Import Stripe
+	"github.com/stripe/stripe-go/v76"
 	"golang.org/x/time/rate"
 )
 
@@ -30,7 +30,7 @@ func main() {
 		log.Fatal("❌ ERREUR CRITIQUE : La variable DATABASE_URL est vide ! Vérifie que ton fichier s'appelle bien '.env'.")
 	}
 
-	// --- AJOUT : Initialisation de Stripe ---
+	// --- Initialisation de Stripe ---
 	stripeKey := os.Getenv("STRIPE_SECRET_KEY")
 	if stripeKey == "" {
 		log.Println("⚠️  ATTENTION : STRIPE_SECRET_KEY est vide dans le .env. Les paiements ne fonctionneront pas.")
@@ -38,7 +38,6 @@ func main() {
 		stripe.Key = stripeKey
 		log.Println("💳 Stripe configuré avec succès")
 	}
-	// ----------------------------------------
 
 	handlers.InitOAuth()
 
@@ -48,6 +47,10 @@ func main() {
 	defer database.CloseDB()
 
 	storage.InitMinIO()
+
+	// --- Démarrer les tâches planifiées ---
+	StartCleanupScheduler()
+	StartStatsLogger()
 
 	r := mux.NewRouter()
 
@@ -121,7 +124,7 @@ func main() {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   getAllowedOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Stripe-Signature"}, // <--- AJOUT: Stripe-Signature
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Stripe-Signature"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -139,7 +142,6 @@ func main() {
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
 }
 
-// ... Le reste de tes fonctions (middleware, etc.) reste inchangé ...
 func rateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
@@ -154,7 +156,6 @@ func rateLimitMiddleware(next http.Handler) http.Handler {
 
 func securityHeadersMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Note : J'ai ajouté stripe.com dans connect-src et frame-src pour être sûr
 		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; "+
 				"img-src 'self' data: https: *.amazonaws.com *.cloudfront.net; "+
@@ -194,7 +195,7 @@ func getAllowedOrigins() []string {
 
 func printServerInfo(port string) {
 	log.Println("🎵 ========================================")
-	log.Println("🎸 YNOV - Groupie Tracker API v2.0")
+	log.Println("🎸 YNOV - Groupie Tracker API v2.0 + STRIPE")
 	log.Println("🎵 ========================================")
 	log.Printf("🚀 Server running on: http://localhost:%s", port)
 	log.Printf("🏥 Health check: http://localhost:%s/api/health", port)
@@ -216,6 +217,12 @@ func printServerInfo(port string) {
 	log.Printf("   💳 Payment: /api/payment/*")
 	log.Printf("   🤖 AI: /api/ai/*")
 	log.Println("")
+	log.Println("💳 Stripe Endpoints:")
+	log.Printf("   💰 Create Intent: POST /api/payment/create-intent")
+	log.Printf("   ✅ Confirm Payment: POST /api/payment/confirm")
+	log.Printf("   📋 Reservations: GET /api/payment/reservations")
+	log.Printf("   🪝 Webhook: POST /api/stripe/webhook")
+	log.Println("")
 	log.Println("🛡️  Admin Endpoints:")
 	log.Printf("   📊 Dashboard: /api/admin/dashboard")
 	log.Printf("   📝 Activity Logs: /api/admin/activity-logs")
@@ -229,5 +236,9 @@ func printServerInfo(port string) {
 	log.Printf("   ⚡ Rate Limit: 5 req/s (burst 10)")
 	log.Printf("   🛡️  Security Headers: Enhanced")
 	log.Printf("   🌐 CORS: %v", getAllowedOrigins())
+	log.Println("")
+	log.Println("🧹 Background Tasks:")
+	log.Printf("   ♻️  Cleanup expired reservations: Every 5 minutes")
+	log.Printf("   📊 Stats logging: Every hour")
 	log.Println("🎵 ========================================")
 }
