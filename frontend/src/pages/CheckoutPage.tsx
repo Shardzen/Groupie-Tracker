@@ -132,8 +132,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (items.length === 0 || !isAuthenticated) { // Add isAuthenticated check
       if (!isAuthenticated) {
-        console.log("User not authenticated, cannot create payment intent.");
-        // Optionally: navigate('/login') or display a message
+      console.log("DEBUG STRIPE KEY:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
       }
       return;
     }
