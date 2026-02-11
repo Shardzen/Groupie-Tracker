@@ -12,7 +12,7 @@ interface Artist {
   image: string;
   bio: string;
   genre: string;
-  topTracks: { title: string; plays: string; duration: string }[];
+  topTracks: { title: string; plays: string; duration:string }[];
   upcomingDates: { date: string; venue: string; city: string }[];
 }
 
