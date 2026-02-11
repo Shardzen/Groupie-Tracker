@@ -238,7 +238,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-slate-900 border border-slate-700 grid grid-cols-5 w-full max-w-2xl">
+          <TabsList className="bg-slate-900 border border-slate-700 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 w-full max-w-2xl">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-purple-500">
               <LayoutDashboard className="w-4 h-4 mr-2" /> Dashboard
             </TabsTrigger>
@@ -280,43 +280,45 @@ export default function AdminPage() {
 
             <Card className="bg-slate-900 border-slate-700">
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-slate-700">
-                      <TableHead className="text-slate-300">Image</TableHead>
-                      <TableHead className="text-slate-300">Nom</TableHead>
-                      <TableHead className="text-slate-300">Membres</TableHead>
-                      <TableHead className="text-slate-300">Création</TableHead>
-                      <TableHead className="text-slate-300">1er Album</TableHead>
-                      <TableHead className="text-slate-300">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {artists.map((artist) => (
-                      <TableRow key={artist.id} className="border-slate-700">
-                        <TableCell>
-                          <img src={artist.image} alt={artist.name} className="w-12 h-12 rounded-lg object-cover" />
-                        </TableCell>
-                        <TableCell className="font-semibold text-white">{artist.name}</TableCell>
-                        <TableCell className="text-slate-400">
-                          {Array.isArray(artist.members) ? artist.members.length : 0} membre(s)
-                        </TableCell>
-                        <TableCell className="text-slate-400">{artist.creation_date}</TableCell>
-                        <TableCell className="text-slate-400">{artist.first_album}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => { setEditingArtist(artist); setShowArtistDialog(true); }}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteArtist(artist.id)}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-700">
+                        <TableHead className="text-slate-300">Image</TableHead>
+                        <TableHead className="text-slate-300">Nom</TableHead>
+                        <TableHead className="text-slate-300">Membres</TableHead>
+                        <TableHead className="text-slate-300">Création</TableHead>
+                        <TableHead className="text-slate-300">1er Album</TableHead>
+                        <TableHead className="text-slate-300">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {artists.map((artist) => (
+                        <TableRow key={artist.id} className="border-slate-700">
+                          <TableCell>
+                            <img src={artist.image} alt={artist.name} className="w-12 h-12 rounded-lg object-cover" />
+                          </TableCell>
+                          <TableCell className="font-semibold text-white">{artist.name}</TableCell>
+                          <TableCell className="text-slate-400">
+                            {Array.isArray(artist.members) ? artist.members.length : 0} membre(s)
+                          </TableCell>
+                          <TableCell className="text-slate-400">{artist.creation_date}</TableCell>
+                          <TableCell className="text-slate-400">{artist.first_album}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => { setEditingArtist(artist); setShowArtistDialog(true); }}>
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDeleteArtist(artist.id)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -335,44 +337,46 @@ export default function AdminPage() {
 
             <Card className="bg-slate-900 border-slate-700">
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-slate-700">
-                      <TableHead className="text-slate-300">Artiste</TableHead>
-                      <TableHead className="text-slate-300">Lieu</TableHead>
-                      <TableHead className="text-slate-300">Date</TableHead>
-                      <TableHead className="text-slate-300">Tickets</TableHead>
-                      <TableHead className="text-slate-300">Prix</TableHead>
-                      <TableHead className="text-slate-300">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {concerts.map((concert) => (
-                      <TableRow key={concert.id} className="border-slate-700">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <img src={concert.artist_image} alt={concert.artist_name} className="w-10 h-10 rounded-lg object-cover" />
-                            <span className="font-semibold text-white">{concert.artist_name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-slate-400">{concert.location}</TableCell>
-                        <TableCell className="text-slate-400">{new Date(concert.date).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell className="text-slate-400">{concert.available_tickets}</TableCell>
-                        <TableCell className="text-green-400 font-semibold">{concert.price}€</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => { setEditingConcert(concert); setShowConcertDialog(true); }}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteConcert(concert.id)}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-700">
+                        <TableHead className="text-slate-300">Artiste</TableHead>
+                        <TableHead className="text-slate-300">Lieu</TableHead>
+                        <TableHead className="text-slate-300">Date</TableHead>
+                        <TableHead className="text-slate-300">Tickets</TableHead>
+                        <TableHead className="text-slate-300">Prix</TableHead>
+                        <TableHead className="text-slate-300">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {concerts.map((concert) => (
+                        <TableRow key={concert.id} className="border-slate-700">
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <img src={concert.artist_image} alt={concert.artist_name} className="w-10 h-10 rounded-lg object-cover" />
+                              <span className="font-semibold text-white">{concert.artist_name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-slate-400">{concert.location}</TableCell>
+                          <TableCell className="text-slate-400">{new Date(concert.date).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="text-slate-400">{concert.available_tickets}</TableCell>
+                          <TableCell className="text-green-400 font-semibold">{concert.price}€</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => { setEditingConcert(concert); setShowConcertDialog(true); }}>
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDeleteConcert(concert.id)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card> {/* <--- C'EST CETTE LIGNE QUI MANQUAIT ! */}
           </TabsContent>
@@ -382,36 +386,38 @@ export default function AdminPage() {
             <h2 className="text-2xl font-bold text-white">Utilisateurs ({users.length})</h2>
             <Card className="bg-slate-900 border-slate-700">
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-slate-700">
-                      <TableHead className="text-slate-300">Nom</TableHead>
-                      <TableHead className="text-slate-300">Email</TableHead>
-                      <TableHead className="text-slate-300">Statut</TableHead>
-                      <TableHead className="text-slate-300">Réservations</TableHead>
-                      <TableHead className="text-slate-300">Inscrit le</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id} className="border-slate-700">
-                        <TableCell className="font-semibold text-white">{user.name}</TableCell>
-                        <TableCell className="text-slate-400">{user.email}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            {user.is_admin && <Badge variant="destructive">Admin</Badge>}
-                            {user.email_verified ? 
-                              <Badge className="bg-green-500">Vérifié</Badge> : 
-                              <Badge variant="secondary">Non vérifié</Badge>
-                            }
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-slate-400">{user.total_bookings}</TableCell>
-                        <TableCell className="text-slate-400">{new Date(user.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-700">
+                        <TableHead className="text-slate-300">Nom</TableHead>
+                        <TableHead className="text-slate-300">Email</TableHead>
+                        <TableHead className="text-slate-300">Statut</TableHead>
+                        <TableHead className="text-slate-300">Réservations</TableHead>
+                        <TableHead className="text-slate-300">Inscrit le</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map((user) => (
+                        <TableRow key={user.id} className="border-slate-700">
+                          <TableCell className="font-semibold text-white">{user.name}</TableCell>
+                          <TableCell className="text-slate-400">{user.email}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              {user.is_admin && <Badge variant="destructive">Admin</Badge>}
+                              {user.email_verified ? 
+                                <Badge className="bg-green-500">Vérifié</Badge> : 
+                                <Badge variant="secondary">Non vérifié</Badge>
+                              }
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-slate-400">{user.total_bookings}</TableCell>
+                          <TableCell className="text-slate-400">{new Date(user.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -421,43 +427,45 @@ export default function AdminPage() {
             <h2 className="text-2xl font-bold text-white">Paiements ({payments.length})</h2>
             <Card className="bg-slate-900 border-slate-700">
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-slate-700">
-                      <TableHead className="text-slate-300">Utilisateur</TableHead>
-                      <TableHead className="text-slate-300">Concert</TableHead>
-                      <TableHead className="text-slate-300">Tickets</TableHead>
-                      <TableHead className="text-slate-300">Montant</TableHead>
-                      <TableHead className="text-slate-300">Statut</TableHead>
-                      <TableHead className="text-slate-300">Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {payments.map((payment) => (
-                      <TableRow key={payment.id} className="border-slate-700">
-                        <TableCell>
-                          <div className="text-white font-semibold">{payment.user_name}</div>
-                          <div className="text-sm text-slate-400">{payment.user_email}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-white">{payment.artist_name}</div>
-                          <div className="text-sm text-slate-400">{payment.concert_location}</div>
-                        </TableCell>
-                        <TableCell className="text-slate-400">{payment.tickets}</TableCell>
-                        <TableCell className="text-green-400 font-semibold">{payment.total_price}€</TableCell>
-                        <TableCell>
-                          <Badge className={
-                            payment.payment_status === 'succeeded' ? 'bg-green-500' :
-                            payment.payment_status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                          }>
-                            {payment.payment_status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-slate-400">{new Date(payment.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-700">
+                        <TableHead className="text-slate-300">Utilisateur</TableHead>
+                        <TableHead className="text-slate-300">Concert</TableHead>
+                        <TableHead className="text-slate-300">Tickets</TableHead>
+                        <TableHead className="text-slate-300">Montant</TableHead>
+                        <TableHead className="text-slate-300">Statut</TableHead>
+                        <TableHead className="text-slate-300">Date</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {payments.map((payment) => (
+                        <TableRow key={payment.id} className="border-slate-700">
+                          <TableCell>
+                            <div className="text-white font-semibold">{payment.user_name}</div>
+                            <div className="text-sm text-slate-400">{payment.user_email}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-white">{payment.artist_name}</div>
+                            <div className="text-sm text-slate-400">{payment.concert_location}</div>
+                          </TableCell>
+                          <TableCell className="text-slate-400">{payment.tickets}</TableCell>
+                          <TableCell className="text-green-400 font-semibold">{payment.total_price}€</TableCell>
+                          <TableCell>
+                            <Badge className={
+                              payment.payment_status === 'succeeded' ? 'bg-green-500' :
+                              payment.payment_status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                            }>
+                              {payment.payment_status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-slate-400">{new Date(payment.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -494,7 +502,7 @@ export default function AdminPage() {
                 className="bg-slate-800 border-slate-600" 
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="creation_date">Année de création</Label>
                 <Input id="creation_date" name="creation_date" type="number" defaultValue={editingArtist?.creation_date} required className="bg-slate-800 border-slate-600" />
@@ -550,7 +558,7 @@ export default function AdminPage() {
                 className="bg-slate-800 border-slate-600 text-white" 
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="available_tickets">Tickets Disponibles</Label>
                 <Input id="available_tickets" name="available_tickets" type="number" defaultValue={editingConcert?.available_tickets} required className="bg-slate-800 border-slate-600" />

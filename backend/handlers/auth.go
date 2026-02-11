@@ -20,22 +20,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := services.RegisterUser(req)
+	user, token, err := services.RegisterUser(req) // Updated to get token
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": err.Error(),
-		})
-		return
-	}
-
-	token, err := services.GenerateToken(*user)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Error generating token",
 		})
 		return
 	}
