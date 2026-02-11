@@ -538,7 +538,7 @@ Strict-Transport-Security: max-age=31536000
 - ✅ **Durée de rétention** : 3 ans max (comptes inactifs)
 - ✅ **Consentement** : Cookie banner conforme
 - ✅ **DPO** : dpo@groupietracker.fr
-- ✅ **Transferts hors UE** : CCT avec Stripe, OpenAI
+- ✅ **Transferts hors UE** : CCT avec Stripe, OpenAI.
 
 ---
 
