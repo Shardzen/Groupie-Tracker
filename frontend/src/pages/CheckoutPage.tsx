@@ -124,19 +124,20 @@ const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, tot
 
 // --- COMPOSANT PRINCIPAL ---
 export default function CheckoutPage() {
-  const { items, total } = useCartStore();
-  const { isAuthenticated } = useAuthStore(); // Get isAuthenticated status
-  const [clientSecret, setClientSecret] = useState("");
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (items.length === 0 || !isAuthenticated) { // Add isAuthenticated check
-      if (!isAuthenticated) {
-      console.log("DEBUG STRIPE KEY:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+    const { items, total } = useCartStore();
+    const { token, isAuthenticated } = useAuthStore(); // Get token as well
+    const [clientSecret, setClientSecret] = useState("");
+    const [error, setError] = useState(false);
+  
+    useEffect(() => {
+      if (items.length === 0 || !token) { // Use token instead of isAuthenticated for this check
+        if (!token && !isAuthenticated) { // Check if no token and not authenticated
+          console.log("DEBUG STRIPE KEY:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+          console.log("User not authenticated or token not found, cannot create payment intent.");
+          // Optionally: navigate('/login') or display a message
+        }
+        return;
       }
-      return;
-    }
-
     const createIntent = async () => {
       try {
         const mainItem = items[0]; 
