@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Calendar, MapPin, Ticket } from 'lucide-react';
-// Assure-toi que ce fichier existe bien ici :
+
+// --- VÉRIFIE QUE CES CHEMINS SONT BONS CHEZ TOI ---
 import { mockArtists } from '../data/mockData'; 
-// Assure-toi que ce fichier existe bien ici :
 import { useCartStore } from '../stores/useCartStore';
 
 export default function TicketsPage() {
@@ -13,7 +13,7 @@ export default function TicketsPage() {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedGenre, setSelectedGenre] = useState('Tous');
   
-  // ICI : On dit à TypeScript "T'inquiète, je gère" avec le type <any>
+  // Utilisation de 'as any' pour éviter les blocages TypeScript temporairement
   const { addItem, toggleCart } = useCartStore() as any; 
 
   useEffect(() => {
@@ -25,14 +25,13 @@ export default function TicketsPage() {
 
   const genres = ['Tous', 'Rap FR', 'Pop', 'Rock', 'Electro'];
 
-  // Logique de filtrage avec "any" pour éviter les lignes rouges
+  // On force le type en 'any' pour que TypeScript arrête de râler sur les données
   const filteredConcerts = (mockArtists as any[]).flatMap(artist => 
     artist.upcomingDates.map((date: any) => ({
       ...date,
       artistName: artist.name,
       artistImage: artist.image,
       genre: artist.genre,
-      // Si le prix n'existe pas dans tes données, on met 45 par défaut
       price: artist.price || 45 
     }))
   ).filter((concert: any) => {
@@ -46,7 +45,7 @@ export default function TicketsPage() {
 
   const handleAddToCart = (concert: any) => {
     addItem({
-        id: concert.id || Math.random(), // Id de secours
+        id: concert.id || Math.random(),
         title: concert.artistName,
         price: concert.price,
         image: concert.artistImage,
