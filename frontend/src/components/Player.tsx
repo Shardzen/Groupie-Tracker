@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { X, ExternalLink } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 export default function Player() {
   const { currentTrack, close } = usePlayerStore();
   const [widgetUrl, setWidgetUrl] = useState<string>('');

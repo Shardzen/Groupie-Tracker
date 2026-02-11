@@ -3,14 +3,14 @@ import { usePlayerStore } from '../stores/usePlayerStore';
 import { Link } from 'react-router-dom';
 
 interface ArtistCardProps {
-  id: string;
+  id: number; // ✅ CHANGÉ : number au lieu de string
   name: string;
   image: string;
   category: string;
 }
 
 export default function ArtistCard({ id, name, image, category }: ArtistCardProps) {
-  const play = usePlayerStore((state) => state.play); // Get the play function directly
+  const play = usePlayerStore((state) => state.play);
 
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();

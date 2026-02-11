@@ -1,9 +1,20 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockArtists } from '../data/mockData';
 import { Play, Heart, MapPin, Music, Share2, ArrowLeft, Clock, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Import useEffect
+import { api } from '@/lib/api'; // Import API
+
+// Define a basic Artist interface for now. This should match the backend response.
+interface Artist {
+  id: string; // Assuming ID is a string based on useParams
+  name: string;
+  image: string;
+  bio: string;
+  genre: string;
+  topTracks: { title: string; plays: string; duration: string }[];
+  upcomingDates: { date: string; venue: string; city: string }[];
+}
 
 export default function ArtistDetailPage() {
   const { id } = useParams();
@@ -11,11 +22,65 @@ export default function ArtistDetailPage() {
   const playerStore = usePlayerStore();
   const open = playerStore?.open || (() => console.log("Player not ready"));
   
+  const [artist, setArtist] = useState<Artist | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  
-  const artist = mockArtists.find(a => a.id === id);
 
-  if (!artist) {
+  useEffect(() => {
+    if (!id) {
+      setIsLoading(false);
+      setIsError(true); // Treat missing ID as an error
+      return;
+    }
+
+    const fetchArtist = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      try {
+        const data = await api.get<Artist>(`/artists/${id}`);
+        setArtist(data);
+      } catch (err) {
+        console.error("Failed to fetch artist:", err);
+        setIsError(true);
+        setArtist(null); // Ensure artist is null on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchArtist();
+  }, [id]); // Re-fetch when ID changes
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold mb-4">Chargement de l'artiste...</h2>
+          <p className="text-zinc-400 mb-8">Veuillez patienter</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold mb-4">Erreur de chargement</h2>
+          <p className="text-zinc-400 mb-8">Impossible de charger les détails de l'artiste.</p>
+          <button 
+            onClick={() => navigate('/artists')}
+            className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-full font-bold transition-colors"
+          >
+            Retour aux artistes
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!artist) { // This check remains if the backend returns 404 or no data
     return (
       <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
         <div className="text-center">
@@ -271,37 +336,7 @@ export default function ArtistDetailPage() {
            </div>
         </div>
 
-        <div className="pb-32">
-           <h2 className="text-2xl font-bold mb-8">Artistes similaires</h2>
-           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-              {/* Correction: Sécurisation du filtre */}
-              {mockArtists
-                .filter(a => a.id !== artist.id && a.genre === artist.genre)
-                .slice(0, 8)
-                .map((similaire) => (
-                 <div 
-                   key={similaire.id} 
-                   onClick={() => navigate(`/artist/${similaire.id}`)}
-                   className="group flex flex-col items-center gap-3 cursor-pointer"
-                 >
-                    <div className="w-full aspect-square rounded-full overflow-hidden border-2 border-transparent group-hover:border-purple-500 transition-all duration-300 shadow-lg">
-                       <img 
-                         src={similaire.image} 
-                         alt={similaire.name} 
-                         className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                         onError={(e) => {
-                           const target = e.target as HTMLImageElement;
-                           target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(similaire.name)}&size=200&background=random`;
-                         }}
-                       />
-                    </div>
-                    <span className="text-xs font-bold text-zinc-400 group-hover:text-white transition text-center truncate w-full px-1">
-                      {similaire.name}
-                    </span>
-                 </div>
-              ))}
-           </div>
-        </div>
+
 
       </div>
     </div>

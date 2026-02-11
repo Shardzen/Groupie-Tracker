@@ -84,6 +84,15 @@ func main() {
 	deezerHandler := handlers.NewDeezerHandler()
 	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
+	auth := api.PathPrefix("/auth").Subrouter()
+	auth.HandleFunc("/register", handlers.Register).Methods("POST")
+	auth.HandleFunc("/login", handlers.Login).Methods("POST")
+	auth.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
+	auth.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
+	auth.HandleFunc("/request-password-reset", handlers.ForgotPassword).Methods("POST")
+	auth.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
+
+	auth.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
 	// --- BLOC AUTHENTIFICATION 
 	authRouter := api.PathPrefix("/auth").Subrouter()
 	
