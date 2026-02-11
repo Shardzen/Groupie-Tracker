@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { mockArtists } from '../data/mockData';
-import { Calendar, MapPin, Ticket, Music, Globe, Navigation } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Calendar, Ticket, Globe, Navigation } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const containerStyle = {
   width: '100%',
@@ -42,6 +42,8 @@ const mapOptions = {
 };
 
 export default function ConcertsPage() {
+  const navigate = useNavigate();
+
   const allConcerts = mockArtists.flatMap(artist => 
     artist.upcomingDates.map(date => ({
       ...date,
@@ -54,7 +56,7 @@ export default function ConcertsPage() {
   const [selectedConcert, setSelectedConcert] = useState<any>(null);
 
   return (
-    <div className="flex flex-col h-screen bg-[#050505] text-white pt-20 pb-4">
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-8 pb-4">
       
       <div className="container mx-auto px-6 mb-4 flex justify-between items-end">
         <div>
@@ -71,6 +73,7 @@ export default function ConcertsPage() {
 
       <div className="flex-1 container mx-auto px-4 flex gap-6 overflow-hidden">
         
+        {/* LISTE GAUCHE */}
         <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
           <div className="p-4 border-b border-white/5 bg-white/5">
              <h2 className="font-bold text-sm uppercase tracking-wider text-zinc-400">Liste des concerts</h2>
@@ -113,11 +116,25 @@ export default function ConcertsPage() {
                       {concert.city}
                     </span>
                  </div>
+
+                 {/* BOUTON RÉSERVER */}
+                 <button 
+                    onClick={(e) => {
+                        e.stopPropagation(); 
+                        // Modification ICI : On envoie le nom de l'artiste dans l'URL
+                        navigate(`/tickets?search=${encodeURIComponent(concert.artistName)}`);
+                    }}
+                    className="w-full mt-3 py-2 bg-violet-600/10 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
+                 >
+                    <Ticket size={12} /> Réserver
+                 </button>
+
                </div>
              ))}
           </div>
         </div>
 
+        {/* CARTE DROITE */}
         <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block">
           <LoadScript googleMapsApiKey=""> 
             <GoogleMap
@@ -142,11 +159,11 @@ export default function ConcertsPage() {
                 >
                   <div className="text-black p-2 min-w-[200px]">
                     <div className="flex items-center gap-3 mb-2">
-                         <img src={selectedConcert.artistImage} className="w-10 h-10 rounded-md object-cover" />
-                         <div>
-                            <span className="font-bold text-sm block">{selectedConcert.artistName}</span>
-                            <span className="text-[10px] text-gray-500 uppercase">{selectedConcert.genre}</span>
-                         </div>
+                          <img src={selectedConcert.artistImage} className="w-10 h-10 rounded-md object-cover" />
+                          <div>
+                             <span className="font-bold text-sm block">{selectedConcert.artistName}</span>
+                             <span className="text-[10px] text-gray-500 uppercase">{selectedConcert.genre}</span>
+                          </div>
                     </div>
                     
                     <div className="bg-gray-100 rounded p-2 mb-2 text-xs space-y-1">
@@ -156,7 +173,8 @@ export default function ConcertsPage() {
                     </div>
 
                     <Link 
-                        to="/tickets" 
+                        // Modification ICI aussi pour la bulle info
+                        to={`/tickets?search=${encodeURIComponent(selectedConcert.artistName)}`}
                         className="block w-full bg-black text-white text-center py-2 rounded text-[10px] font-bold uppercase hover:bg-violet-600 transition-colors"
                     >
                         Réserver
