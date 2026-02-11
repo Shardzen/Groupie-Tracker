@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { mockArtists } from '../data/mockData';
+<<<<<<< HEAD
 import { Calendar, MapPin, Ticket, Music, Globe, Navigation } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom'; // 1. Ajout de useNavigate
+=======
+import { Calendar, Ticket, Globe, Navigation } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+>>>>>>> ConcertPage
 
 const containerStyle = {
   width: '100%',
@@ -42,7 +47,11 @@ const mapOptions = {
 };
 
 export default function ConcertsPage() {
+<<<<<<< HEAD
   const navigate = useNavigate(); // 2. Initialisation du hook
+=======
+  const navigate = useNavigate();
+>>>>>>> ConcertPage
 
   const allConcerts = mockArtists.flatMap(artist => 
     artist.upcomingDates.map(date => ({
@@ -56,7 +65,7 @@ export default function ConcertsPage() {
   const [selectedConcert, setSelectedConcert] = useState<any>(null);
 
   return (
-    <div className="flex flex-col h-screen bg-[#050505] text-white pt-20 pb-4">
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-8 pb-4">
       
       <div className="container mx-auto px-6 mb-4 flex justify-between items-end">
         <div>
@@ -117,17 +126,29 @@ export default function ConcertsPage() {
                     </span>
                  </div>
 
+<<<<<<< HEAD
                  {/* --- 3. LE NOUVEAU BOUTON RÉSERVER --- */}
                  <button 
                     onClick={(e) => {
                         e.stopPropagation(); // Empêche de déclencher la map
                         navigate('/tickets');
+=======
+                 {/* BOUTON RÉSERVER */}
+                 <button 
+                    onClick={(e) => {
+                        e.stopPropagation(); 
+                        // Modification ICI : On envoie le nom de l'artiste dans l'URL
+                        navigate(`/tickets?search=${encodeURIComponent(concert.artistName)}`);
+>>>>>>> ConcertPage
                     }}
                     className="w-full mt-3 py-2 bg-violet-600/10 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
                  >
                     <Ticket size={12} /> Réserver
                  </button>
+<<<<<<< HEAD
                  {/* ------------------------------------- */}
+=======
+>>>>>>> ConcertPage
 
                </div>
              ))}
@@ -173,7 +194,8 @@ export default function ConcertsPage() {
                     </div>
 
                     <Link 
-                        to="/tickets" 
+                        // Modification ICI aussi pour la bulle info
+                        to={`/tickets?search=${encodeURIComponent(selectedConcert.artistName)}`}
                         className="block w-full bg-black text-white text-center py-2 rounded text-[10px] font-bold uppercase hover:bg-violet-600 transition-colors"
                     >
                         Réserver
