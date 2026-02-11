@@ -10,27 +10,12 @@ import (
 	"unicode"
 
 	"groupie-backend/database"
+	"groupie-backend/internal/auth" // Import the JWT logic from internal/auth
 	"groupie-backend/models"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5" // This import might be removed if only using internal/auth.jwt.Claims
 	"golang.org/x/crypto/bcrypt"
 )
-
-type Claims struct {
-	UserID  int    `json:"user_id"`
-	Email   string `json:"email"`
-	Role    string `json:"role"`
-	IsAdmin bool   `json:"is_admin"`
-	jwt.RegisteredClaims
-}
-
-func getJWTSecret() []byte {
-	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		panic("JWT_SECRET environment variable is required")
-	}
-	return []byte(secret)
-}
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -40,42 +25,6 @@ func HashPassword(password string) (string, error) {
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
-}
-
-func GenerateToken(user models.User) (string, error) {
-	claims := Claims{
-		UserID:  user.ID,
-		Email:   user.Email,
-		Role:    user.Role,
-		IsAdmin: user.Role == "admin",
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "ynot-api",
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(getJWTSecret())
-}
-
-func ValidateToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return getJWTSecret(), nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
-	}
-
-	return nil, errors.New("invalid token")
 }
 
 // Validation functions
@@ -132,10 +81,10 @@ func sanitizeInput(input string, maxLength int) string {
 	return input
 }
 
-func RegisterUser(req models.RegisterRequest) (*models.User, error) {
+func RegisterUser(req models.RegisterRequest) (*models.User, string, error) { // Added string for token
 	// Validate required fields
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("email and password are required")
+		return nil, "", errors.New("email and password are required")
 	}
 
 	// Sanitize inputs
@@ -144,49 +93,56 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 
 	// Validate email format
 	if !isValidEmail(req.Email) {
-		return nil, errors.New("invalid email format")
+		return nil, "", errors.New("invalid email format")
 	}
 
 	// Validate password strength
 	if err := isStrongPassword(req.Password); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	// Check if user already exists
 	var exists bool
 	err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)", req.Email).Scan(&exists)
 	if err != nil {
-		return nil, errors.New("database error")
+		return nil, "", errors.New("database error")
 	}
 	if exists {
-		return nil, errors.New("email already registered")
+		return nil, "", errors.New("email already registered")
 	}
 
 	hashedPassword, err := HashPassword(req.Password)
 	if err != nil {
-		return nil, errors.New("error processing password")
+		return nil, "", errors.New("error processing password")
 	}
 
 	var userID int
+	var userRole string = "user" // Default role for new registrations
 	err = database.DB.QueryRow(
 		`INSERT INTO users (email, password_hash, name, role) 
 		VALUES ($1, $2, $3, $4) 
 		RETURNING id`,
-		req.Email, hashedPassword, req.Name, "user",
+		req.Email, hashedPassword, req.Name, userRole,
 	).Scan(&userID)
 
 	if err != nil {
-		return nil, errors.New("failed to create user account")
+		return nil, "", errors.New("failed to create user account")
 	}
 
 	user := &models.User{
 		ID:    userID,
 		Email: req.Email,
 		Name:  req.Name,
-		Role:  "user",
+		Role:  userRole,
 	}
 
-	return user, nil
+	// Generate JWT token
+	token, err := auth.GenerateToken(uint(user.ID), user.Role)
+	if err != nil {
+		return nil, "", errors.New("failed to generate authentication token")
+	}
+
+	return user, token, nil
 }
 
 func LoginUser(req models.LoginRequest) (*models.User, string, error) {
@@ -214,9 +170,9 @@ func LoginUser(req models.LoginRequest) (*models.User, string, error) {
 		return nil, "", errors.New("invalid email or password")
 	}
 
-	token, err := GenerateToken(user)
+	token, err := auth.GenerateToken(uint(user.ID), user.Role)
 	if err != nil {
-		return nil, "", errors.New("authentication failed")
+		return nil, "", errors.New("failed to generate authentication token")
 	}
 
 	return &user, token, nil
