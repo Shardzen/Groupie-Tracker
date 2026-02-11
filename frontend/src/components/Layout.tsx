@@ -1,20 +1,29 @@
 import { Outlet } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import Navbar from './Navbar'; 
-import Player from './Player';
+import Navbar from './Navbar';
 import CartDrawer from './CartDrawer';
+import PWAInstallButton from './PWAInstallButton';
+import NetworkStatus from './NetworkStatus';
+import Player from './Player'; 
+import { Toaster } from 'sonner'; 
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-black text-white relative flex flex-col">
+    <div className="bg-[#0e0e0e] min-h-screen flex flex-col">
       <Navbar />
+      
+    
+      <CartDrawer /> 
 
       <main className="flex-1">
         <Outlet />
       </main>
 
       <Player />
-      <CartDrawer />
+      
+      {/* <CartDrawer /> */} 
+      
+      <PWAInstallButton />
+      <NetworkStatus />
       
       <Toaster position="top-center" theme="dark" richColors />
     </div>

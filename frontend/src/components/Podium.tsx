@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Artist } from '../data/mockData';
+import { mockArtists } from '../data/mockData';
+import type { Artist } from '../data/mockData'; 
 import { Play } from 'lucide-react';
 
 interface PodiumProps {

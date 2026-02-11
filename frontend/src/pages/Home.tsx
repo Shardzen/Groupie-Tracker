@@ -1,19 +1,19 @@
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/Navbar'; 
 import Podium from '../components/Podium';
 import ArtistMarquee from '../components/ArtistMarquee';
 import { mockArtists } from '../data/mockData';
-import { ArrowRight, Music, Heart, Smartphone, Apple, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+
+import { 
+  ArrowRight, Music, Heart, Smartphone, 
+  Apple, Facebook, Instagram, Twitter, Youtube 
+} from 'lucide-react';
 
 export default function Home() {
   const topArtists = mockArtists.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white overflow-x-hidden font-sans">
-      
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <Navbar />
-      </div>
 
       <div className="relative pt-40 pb-20 px-6 container mx-auto flex flex-col items-center justify-center text-center z-10 min-h-[70vh]">
         
@@ -61,17 +61,17 @@ export default function Home() {
         
         <div className="mb-32">
            <div className="flex items-center justify-between mb-12">
-              <div>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-4">
-                  Artistes du <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Moment</span>
-                </h2>
-                <p className="text-zinc-400 text-lg">Les talents qui dominent la scène actuelle.</p>
-              </div>
-              <Link to="/artists">
+             <div>
+               <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-4">
+                 Artistes du <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Moment</span>
+               </h2>
+               <p className="text-zinc-400 text-lg">Les talents qui dominent la scène actuelle.</p>
+             </div>
+             <Link to="/artists">
                  <button className="hidden md:flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-colors group">
-                    Voir tout le catalogue <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                   Voir tout le catalogue <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                  </button>
-              </Link>
+             </Link>
            </div>
 
            <Podium artists={topArtists} />
@@ -82,28 +82,28 @@ export default function Home() {
            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-fuchsia-600/20 rounded-full blur-[120px] -z-10 opacity-60 animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
 
            <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 leading-tight">
-              Transfère ta <br className="md:hidden" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-white">
+             Transfère ta <br className="md:hidden" />
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-white">
                  bibliothèque musicale.
-              </span>
+             </span>
            </h2>
            <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-16">
-              Importe tes playlists, tes artistes favoris et tes likes depuis tes anciennes plateformes en quelques clics.
+             Importe tes playlists, tes artistes favoris et tes likes depuis tes anciennes plateformes en quelques clics.
            </p>
 
            <div className="relative max-w-3xl mx-auto h-64 flex items-center justify-center mb-12">
-              <div className="absolute left-0 md:left-10 top-10 animate-float-slow">
+             <div className="absolute left-0 md:left-10 top-10 animate-float-slow">
                  <div className="w-16 h-16 bg-[#1db954]/20 rounded-2xl flex items-center justify-center border border-[#1db954]/30 shadow-[0_0_30px_rgba(29,185,84,0.2)]">
                     <Music className="w-8 h-8 text-[#1db954]" />
                  </div>
-              </div>
-              <div className="absolute left-20 bottom-0 animate-float-slow" style={{ animationDelay: '1s' }}>
+             </div>
+             <div className="absolute left-20 bottom-0 animate-float-slow" style={{ animationDelay: '1s' }}>
                  <div className="w-14 h-14 bg-[#fc3c44]/20 rounded-2xl flex items-center justify-center border border-[#fc3c44]/30 shadow-[0_0_30px_rgba(252,60,68,0.2)]">
                     <Music className="w-7 h-7 text-[#fc3c44]" />
                  </div>
-              </div>
+             </div>
 
-              <div className="relative z-10 bg-[#0e0e0e] p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center">
+             <div className="relative z-10 bg-[#0e0e0e] p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center">
                  <div className="flex items-center gap-6 mb-6">
                     <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
                        <Music className="w-6 h-6 text-zinc-400" />
@@ -118,9 +118,9 @@ export default function Home() {
                  </div>
                  <p className="text-3xl font-black mt-4">70%</p>
                  <p className="text-xs text-zinc-500 uppercase tracking-widest mt-2">Transfert en cours...</p>
-              </div>
+             </div>
 
-              <div className="absolute right-0 md:right-10 top-10 animate-float-slow" style={{ animationDelay: '0.5s' }}>
+             <div className="absolute right-0 md:right-10 top-10 animate-float-slow" style={{ animationDelay: '0.5s' }}>
                  <div className="w-20 h-20 bg-violet-600/20 rounded-3xl flex items-center justify-center border border-violet-500/30 shadow-[0_0_40px_rgba(139,92,246,0.3)]">
                     {mockArtists[0] ? (
                         <img src={mockArtists[0].image} alt="Cover" className="w-full h-full object-cover rounded-2xl opacity-80" />
@@ -128,11 +128,11 @@ export default function Home() {
                         <Heart className="w-10 h-10 text-violet-400" />
                     )}
                  </div>
-              </div>
+             </div>
            </div>
 
            <button className="px-10 py-4 bg-white text-black rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)]">
-              Commencer le transfert
+             Commencer le transfert
            </button>
         </div>
       </div>

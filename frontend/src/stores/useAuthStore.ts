@@ -3,12 +3,12 @@ import { persist } from 'zustand/middleware'
 import { jwtDecode } from 'jwt-decode'
 
 interface User {
-  id: number;
-  first_name: string; // Doit être identique au JSON du backend
-  last_name: string;
-  email: string;
-  role: string;
-  email_verified: boolean;
+  id: number
+  name: string          
+  email: string
+  role: string
+  email_verified: boolean
+  is_admin?: boolean    
 }
 
 interface AuthState {
@@ -27,7 +27,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
 
-      login: (token: string, user: User) => {
+      login: (token, user) => {
         set({ token, user, isAuthenticated: true })
       },
 
@@ -45,7 +45,6 @@ export const useAuthStore = create<AuthState>()(
         try {
           const decoded: any = jwtDecode(token)
           const currentTime = Date.now() / 1000
-
           if (decoded.exp < currentTime) {
             get().logout()
           } else {
@@ -57,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage',
+      name: 'auth-storage', 
     }
   )
 )
