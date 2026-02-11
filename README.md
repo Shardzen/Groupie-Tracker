@@ -594,20 +594,7 @@ adb install app-release.apk
 
 ## 📜 Licence
 
-Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détails.
-
----
-
-## 🎉 Remerciements
-
-- [Ynov](https://www.ynov.com/) pour la formation
-- [Anthropic](https://www.anthropic.com/) (Claude AI)
-- [Stripe](https://stripe.com/) pour le SDK de paiement
-- [OpenAI](https://openai.com/) pour GPT-4
-- [Deezer](https://www.deezer.com/) pour l'API musicale
-- [Vercel](https://vercel.com/) pour l'hébergement frontend
-- [Render](https://render.com/) pour l'hébergement backend
-- [Neon](https://neon.tech/) pour PostgreSQL serverless
+Ce projet est sous licence **MIT**.
 
 ---
 
