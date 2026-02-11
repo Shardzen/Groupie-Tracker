@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { mockArtists } from '../data/mockData';
 import { Calendar, MapPin, Ticket, Music, Globe, Navigation } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // 1. Ajout de useNavigate
 
 const containerStyle = {
   width: '100%',
@@ -42,6 +42,8 @@ const mapOptions = {
 };
 
 export default function ConcertsPage() {
+  const navigate = useNavigate(); // 2. Initialisation du hook
+
   const allConcerts = mockArtists.flatMap(artist => 
     artist.upcomingDates.map(date => ({
       ...date,
@@ -71,6 +73,7 @@ export default function ConcertsPage() {
 
       <div className="flex-1 container mx-auto px-4 flex gap-6 overflow-hidden">
         
+        {/* LISTE GAUCHE */}
         <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
           <div className="p-4 border-b border-white/5 bg-white/5">
              <h2 className="font-bold text-sm uppercase tracking-wider text-zinc-400">Liste des concerts</h2>
@@ -113,11 +116,25 @@ export default function ConcertsPage() {
                       {concert.city}
                     </span>
                  </div>
+
+                 {/* --- 3. LE NOUVEAU BOUTON RÉSERVER --- */}
+                 <button 
+                    onClick={(e) => {
+                        e.stopPropagation(); // Empêche de déclencher la map
+                        navigate('/tickets');
+                    }}
+                    className="w-full mt-3 py-2 bg-violet-600/10 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
+                 >
+                    <Ticket size={12} /> Réserver
+                 </button>
+                 {/* ------------------------------------- */}
+
                </div>
              ))}
           </div>
         </div>
 
+        {/* CARTE DROITE */}
         <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block">
           <LoadScript googleMapsApiKey=""> 
             <GoogleMap
@@ -142,11 +159,11 @@ export default function ConcertsPage() {
                 >
                   <div className="text-black p-2 min-w-[200px]">
                     <div className="flex items-center gap-3 mb-2">
-                         <img src={selectedConcert.artistImage} className="w-10 h-10 rounded-md object-cover" />
-                         <div>
-                            <span className="font-bold text-sm block">{selectedConcert.artistName}</span>
-                            <span className="text-[10px] text-gray-500 uppercase">{selectedConcert.genre}</span>
-                         </div>
+                          <img src={selectedConcert.artistImage} className="w-10 h-10 rounded-md object-cover" />
+                          <div>
+                             <span className="font-bold text-sm block">{selectedConcert.artistName}</span>
+                             <span className="text-[10px] text-gray-500 uppercase">{selectedConcert.genre}</span>
+                          </div>
                     </div>
                     
                     <div className="bg-gray-100 rounded p-2 mb-2 text-xs space-y-1">
