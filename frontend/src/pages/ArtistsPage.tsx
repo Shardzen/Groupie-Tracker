@@ -1,44 +1,42 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { mockArtists } from '../data/mockData';
-import { Search, Play, Mic2, Music2, Sparkles, Filter } from 'lucide-react';
+import { api } from '@/lib/api';
+import { Search, Play, Mic2, Music2, Sparkles, Filter, AlertTriangle } from 'lucide-react';
 
-const artistGenres: Record<string, string> = {
-  "1": "Rap",
-  "2": "Pop",
-  "3": "Metal",
-  "4": "Rap",
-  "5": "Electro",
-  "6": "Rap",
-  "7": "Rap",
-  "8": "Rap",
-  "9": "Rap",
-  "10": "Rap",
-  "11": "Rap",
-  "12": "Pop",
-  "13": "Pop",
-  "14": "Pop",
-  "15": "Pop",
-  "16": "Metal",
-  "17": "Metal",
-  "18": "Metal",
-  "19": "Electro",
-  "20": "Electro",
-  "21": "Electro",
-  "22": "Rap",
-  "23": "Rap",
-};
+interface Artist {
+  id: string;
+  name: string;
+  image: string;
+  genre: string;
+}
 
 const genres = ["Tout", "Rap", "Pop", "R&B", "Electro", "Metal"];
 
 export default function ArtistsPage() {
   const location = useLocation();
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('Tout');
   const [animateCards, setAnimateCards] = useState(false);
 
   useEffect(() => {
-    setAnimateCards(true);
+    const fetchArtists = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      try {
+        const data = await api.get<Artist[]>('/artists');
+        setArtists(data);
+        setAnimateCards(true);
+      } catch (err) {
+        console.error("Failed to fetch artists:", err);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchArtists();
   }, []);
 
   const filteredArtists = useMemo(() => {
@@ -51,14 +49,104 @@ export default function ArtistsPage() {
 
     const queryToUse = queryUrl || searchTerm;
 
-    return mockArtists.filter(artist => {
+    return artists.filter(artist => {
       const matchesName = artist.name.toLowerCase().includes(queryToUse.toLowerCase());
-      const artistGenre = artistGenres[artist.id] || "Divers";
-      const matchesGenre = selectedGenre === 'Tout' || artistGenre === selectedGenre;
-
+      const matchesGenre = selectedGenre === 'Tout' || artist.genre === selectedGenre;
       return matchesName && matchesGenre;
     });
-  }, [location.search, searchTerm, selectedGenre]);
+  }, [artists, location.search, searchTerm, selectedGenre]);
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center py-32 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            <h3 className="text-2xl font-bold text-white mt-6">Chargement des artistes...</h3>
+        </div>
+      );
+    }
+
+    if (isError) {
+      return (
+        <div className="flex flex-col items-center justify-center py-32 text-center relative">
+          <div className="bg-red-500/10 p-6 rounded-full border border-red-500/20 mb-6">
+              <AlertTriangle className="w-12 h-12 text-red-400" />
+          </div>
+          <h3 className="text-3xl font-bold text-white mb-2">Erreur de chargement</h3>
+          <p className="text-zinc-400 max-w-md">Impossible de récupérer la liste des artistes. Le serveur est peut-être indisponible.</p>
+        </div>
+      );
+    }
+
+    if (filteredArtists.length > 0) {
+      return (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+          {filteredArtists.map((artist, index) => (
+            <Link 
+                key={artist.id} 
+                to={`/artist/${artist.id}`} 
+                className={`group relative block transform transition-all duration-500 hover:-translate-y-2 ${animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                style={{ transitionDelay: `${index * 50}ms` }}
+            >
+              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 bg-zinc-900 shadow-2xl border border-white/5 group-hover:border-violet-500/50 transition-colors">
+                 <img 
+                   src={artist.image} 
+                   alt={artist.name} 
+                   className="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:filter group-hover:brightness-110"
+                   loading="lazy"
+                   onError={(e) => {
+                     const target = e.target as HTMLImageElement;
+                     target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&size=400&background=random`;
+                   }}
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                 <div className="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-75">
+                    <div className="bg-white text-black p-4 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform">
+                        <Play fill="currentColor" size={24} />
+                    </div>
+                 </div>
+                 <div className="absolute top-4 left-4 -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">
+                        {artist.genre}
+                    </span>
+                 </div>
+              </div>
+              <div className="px-2">
+                <h3 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-violet-400 group-hover:to-fuchsia-400 transition-all truncate">
+                  {artist.name}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                    <Mic2 size={12} className="text-zinc-500" />
+                    <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                       Vérifié • {artist.genre}
+                    </p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5 rounded-3xl blur-3xl -z-10"></div>
+          <div className="bg-white/5 p-6 rounded-full border border-white/10 mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+              <Sparkles className="w-12 h-12 text-zinc-400" />
+          </div>
+          <h3 className="text-3xl font-bold text-white mb-2">Aucun résultat trouvé</h3>
+          <p className="text-zinc-400 max-w-md mb-8">
+              Aucun artiste ne correspond à "<span className="text-white font-bold">{searchTerm}</span>" dans le genre <span className="text-white font-bold">{selectedGenre}</span>.
+          </p>
+          <button 
+              onClick={() => { setSearchTerm(''); setSelectedGenre('Tout'); }} 
+              className="px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-zinc-200 hover:scale-105 transition-all shadow-lg"
+          >
+              Réinitialiser les filtres
+          </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white pt-28 px-6 md:px-12 pb-20 relative overflow-hidden">
@@ -121,76 +209,9 @@ export default function ArtistsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto">
-          {filteredArtists.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-              {filteredArtists.map((artist, index) => (
-                <Link 
-                    key={artist.id} 
-                    to={`/artist/${artist.id}`} 
-                    className={`group relative block transform transition-all duration-500 hover:-translate-y-2 ${animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                    style={{ transitionDelay: `${index * 50}ms` }}
-                >
-                  
-                  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 bg-zinc-900 shadow-2xl border border-white/5 group-hover:border-violet-500/50 transition-colors">
-                     <img 
-                       src={artist.image} 
-                       alt={artist.name} 
-                       className="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:filter group-hover:brightness-110"
-                       loading="lazy"
-                       onError={(e) => {
-                         const target = e.target as HTMLImageElement;
-                         target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&size=400&background=random`;
-                       }}
-                     />
-                     
-                     <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                     
-                     <div className="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-75">
-                        <div className="bg-white text-black p-4 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-110 transition-transform">
-                            <Play fill="currentColor" size={24} />
-                        </div>
-                     </div>
-
-                     <div className="absolute top-4 left-4 -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                        <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">
-                            {artistGenres[artist.id] || artist.genre}
-                        </span>
-                     </div>
-                  </div>
-                  
-                  <div className="px-2">
-                    <h3 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-violet-400 group-hover:to-fuchsia-400 transition-all truncate">
-                      {artist.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1">
-                        <Mic2 size={12} className="text-zinc-500" />
-                        <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                           Vérifié • {artist.genre}
-                        </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-32 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5 rounded-3xl blur-3xl -z-10"></div>
-                <div className="bg-white/5 p-6 rounded-full border border-white/10 mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                    <Sparkles className="w-12 h-12 text-zinc-400" />
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-2">Aucun résultat trouvé</h3>
-                <p className="text-zinc-400 max-w-md mb-8">
-                    Aucun artiste ne correspond à "<span className="text-white font-bold">{searchTerm}</span>" dans le genre <span className="text-white font-bold">{selectedGenre}</span>.
-                </p>
-                <button 
-                    onClick={() => { setSearchTerm(''); setSelectedGenre('Tout'); }} 
-                    className="px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-zinc-200 hover:scale-105 transition-all shadow-lg"
-                >
-                    Réinitialiser les filtres
-                </button>
-            </div>
-          )}
+        {renderContent()}
       </div>
     </div>
   );
 }
+
