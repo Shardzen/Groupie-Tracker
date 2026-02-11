@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { mockArtists } from '../data/mockData';
-import { Calendar, Ticket, Globe as GlobeIcon, Navigation } from 'lucide-react';
+import { Calendar, Ticket, Globe as GlobeIcon, Navigation, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import ConcertGlobe from '../components/ConcertGlobe'; // <--- IMPORT DU NOUVEAU GLOBE
+import ConcertGlobe from '../components/ConcertGlobe';
 
 export default function ConcertsPage() {
   const navigate = useNavigate();
@@ -17,6 +17,19 @@ export default function ConcertsPage() {
   );
 
   const [selectedConcert, setSelectedConcert] = useState<any>(null);
+  const [globeFocus, setGlobeFocus] = useState<any>(null);
+
+  const handleFocusOnMap = (concert: any) => {
+      setGlobeFocus({
+          lat: concert.lat,
+          lng: concert.lng,
+          artistName: concert.artistName,
+          city: concert.city,
+          date: concert.date,
+          image: concert.artistImage
+      });
+      setSelectedConcert(concert);
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-24 pb-4">
@@ -36,9 +49,8 @@ export default function ConcertsPage() {
 
       <div className="flex-1 container mx-auto px-4 flex gap-6 overflow-hidden">
         
-        {/* LISTE GAUCHE (Inchangée) */}
-        <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
-          <div className="p-4 border-b border-white/5 bg-white/5">
+        <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl z-10">
+          <div className="p-4 border-b border-white/5 bg-white/5 backdrop-blur-sm">
              <h2 className="font-bold text-sm uppercase tracking-wider text-zinc-400">Liste des concerts</h2>
           </div>
           
@@ -46,7 +58,7 @@ export default function ConcertsPage() {
              {allConcerts.map((concert) => (
                <div 
                  key={concert.id} 
-                 onClick={() => setSelectedConcert(concert)}
+                 onClick={() => handleFocusOnMap(concert)}
                  className={`relative p-3 rounded-xl border transition-all duration-300 cursor-pointer group ${
                    selectedConcert?.id === concert.id 
                      ? 'bg-violet-500/10 border-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.3)]' 
@@ -54,51 +66,45 @@ export default function ConcertsPage() {
                  }`}
                >
                  <div className="flex items-center gap-3">
-                    <img 
-                      src={concert.artistImage} 
-                      alt={concert.artistName} 
-                      className="w-12 h-12 rounded-lg object-cover shadow-lg group-hover:scale-105 transition-transform" 
-                    />
+                    <img src={concert.artistImage} alt={concert.artistName} className="w-12 h-12 rounded-lg object-cover shadow-lg border border-white/5" />
                     <div className="min-w-0">
-                        <h3 className={`font-bold truncate text-sm ${selectedConcert?.id === concert.id ? 'text-white' : 'text-zinc-200'}`}>
-                            {concert.artistName}
-                        </h3>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-wide mt-0.5">
-                           {concert.genre}
-                        </p>
+                        <h3 className="font-bold truncate text-sm text-white">{concert.artistName}</h3>
+                        <p className="text-[10px] text-zinc-500 uppercase mt-0.5">{concert.genre}</p>
                     </div>
                  </div>
                  
                  <div className="mt-3 flex justify-between items-center text-xs text-zinc-400">
-                    <span className="flex items-center gap-1.5 font-medium bg-black/30 px-2 py-1 rounded-md">
-                      <Calendar size={10} className="text-violet-400"/> 
-                      {concert.date}
-                    </span>
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <Navigation size={10} className="text-fuchsia-400"/> 
-                      {concert.city}
-                    </span>
+                    <span className="flex items-center gap-1.5"><Calendar size={10} className="text-violet-400"/> {concert.date}</span>
+                    <span className="flex items-center gap-1.5"><Navigation size={10} className="text-fuchsia-400"/> {concert.city}</span>
                  </div>
 
-                 {/* BOUTON RÉSERVER */}
-                 <button 
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        navigate(`/tickets?search=${encodeURIComponent(concert.artistName)}`);
-                    }}
-                    className="w-full mt-3 py-2 bg-violet-600/10 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
-                 >
-                    <Ticket size={12} /> Réserver
-                 </button>
-
+                 <div className="flex gap-2 mt-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); handleFocusOnMap(concert); }}
+                        className="flex-1 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-[10px] font-bold uppercase transition-colors flex items-center justify-center gap-1"
+                    >
+                        <Eye size={10} /> Voir
+                    </button>
+                    <button 
+                         onClick={(e) => { 
+                            e.stopPropagation(); 
+                            navigate(`/tickets?search=${encodeURIComponent(concert.artistName)}`);
+                        }}
+                        className="flex-1 py-1.5 bg-violet-600 hover:bg-violet-500 text-white rounded text-[10px] font-bold uppercase transition-colors flex items-center justify-center gap-1"
+                    >
+                        <Ticket size={10} /> Billets
+                    </button>
+                 </div>
                </div>
              ))}
           </div>
         </div>
 
-        {/* C'EST ICI QUE ÇA CHANGE : LE GLOBE 3D */}
         <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block bg-black">
-          <ConcertGlobe />
+          <ConcertGlobe 
+            focusedLocation={globeFocus} 
+            onClose={() => setGlobeFocus(null)}
+          />
         </div>
 
       </div>

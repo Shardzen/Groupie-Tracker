@@ -71,7 +71,7 @@ export default function Home() {
                  </button>
              </Link>
            </div>
-
+           
            <Podium artists={topArtists} />
         </div>
 
