@@ -17,7 +17,7 @@ import RegisterPage from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-
+import Footer from './components/Footer';
 import Player from './components/Player';
 import CartDrawer from './components/CartDrawer';
 
@@ -69,6 +69,7 @@ function App() {
       <AnimatedRoutes />
       
       <Player />
+      <Footer />
       <CartDrawer />
       
     </BrowserRouter>
