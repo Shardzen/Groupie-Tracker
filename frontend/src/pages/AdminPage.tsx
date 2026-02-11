@@ -35,6 +35,7 @@ import {
 import { api } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAuthApi } from '@/hooks/useAuthApi'; // Import the new hook
 
 // --- Interfaces ---
 interface Artist {
@@ -83,6 +84,7 @@ interface Payment {
 export default function AdminPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const authApi = useAuthApi(); // Initialize the authenticated API client
   
   // Data States
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -109,29 +111,30 @@ export default function AdminPage() {
       // Si votre API renvoie { data: [...] }, rajoutez .data après le await.
       switch (activeTab) {
         case 'artists':
-          const artistsRes = await api.get<Artist[]>('/admin/artists');
+          const artistsRes = await authApi.get<Artist[]>('/admin/artists');
           setArtists(artistsRes || []);
           break;
         case 'concerts':
-          const concertsRes = await api.get<Concert[]>('/admin/concerts');
+          const concertsRes = await authApi.get<Concert[]>('/admin/concerts');
           // On charge aussi les artistes pour le select du formulaire concert
           if (artists.length === 0) {
-             const allArtists = await api.get<Artist[]>('/admin/artists');
+             const allArtists = await authApi.get<Artist[]>('/admin/artists');
              setArtists(allArtists || []);
           }
           setConcerts(concertsRes || []);
           break;
         case 'users':
-          const usersRes = await api.get<User[]>('/admin/users');
+          const usersRes = await authApi.get<User[]>('/admin/users');
           setUsers(usersRes || []);
           break;
         case 'payments':
-          const paymentsRes = await api.get<Payment[]>('/admin/payments');
+          const paymentsRes = await authApi.get<Payment[]>('/admin/payments');
           setPayments(paymentsRes || []);
           break;
       }
     } catch (error) {
       console.error('Error loading data:', error);
+      toast.error("Erreur lors du chargement des données !");
     } finally {
       setLoading(false);
     }
@@ -142,7 +145,7 @@ export default function AdminPage() {
   const handleDeleteArtist = async (id: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet artiste ?')) return;
     try {
-      await api.delete(`/admin/artists/${id}`);
+      await authApi.delete(`/admin/artists/${id}`);
       loadData();
       toast.success("Artiste supprimé avec succès !");
     } catch (error) {
@@ -154,7 +157,7 @@ export default function AdminPage() {
   const handleDeleteConcert = async (id: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce concert ?')) return;
     try {
-      await api.delete(`/admin/concerts/${id}`);
+      await authApi.delete(`/admin/concerts/${id}`);
       loadData();
       toast.success("Concert supprimé avec succès !");
     } catch (error) {
@@ -181,10 +184,10 @@ export default function AdminPage() {
 
     try {
       if (editingArtist) {
-        await api.put(`/admin/artists/${editingArtist.id}`, artistData);
+        await authApi.put(`/admin/artists/${editingArtist.id}`, artistData);
         toast.success("Artiste modifié avec succès !");
       } else {
-        await api.post('/admin/artists', artistData);
+        await authApi.post('/admin/artists', artistData);
         toast.success("Artiste ajouté avec succès !");
       }
       setShowArtistDialog(false);
@@ -209,10 +212,10 @@ export default function AdminPage() {
 
     try {
       if (editingConcert) {
-        await api.put(`/admin/concerts/${editingConcert.id}`, concertData);
+        await authApi.put(`/admin/concerts/${editingConcert.id}`, concertData);
         toast.success("Concert modifié avec succès !");
       } else {
-        await api.post('/admin/concerts', concertData);
+        await authApi.post('/admin/concerts', concertData);
         toast.success("Concert ajouté avec succès !");
       }
       setShowConcertDialog(false);

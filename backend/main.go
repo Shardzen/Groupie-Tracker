@@ -61,6 +61,8 @@ func main() {
 		log.Println("💳 Stripe configuré avec succès")
 	}
 
+	auth.InitJWT() // Initialize JWT secret
+
 	handlers.InitOAuth()
 
 	if err := database.InitDB(); err != nil {

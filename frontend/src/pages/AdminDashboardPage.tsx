@@ -22,7 +22,7 @@ import {
   Legend,
   ArcElement
 } from 'chart.js';
-import { api } from '@/lib/api';
+import { useAuthApi } from '@/hooks/useAuthApi'; // Import the new hook
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -58,6 +58,7 @@ interface DashboardStats {
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const authApi = useAuthApi(); // Initialize the authenticated API client
 
   useEffect(() => {
     fetchDashboardStats();
@@ -66,7 +67,7 @@ export default function AdminDashboardPage() {
 
 const fetchDashboardStats = async () => {
   try {
-    const response = await api.get<DashboardStats>('/admin/dashboard');
+    const response = await authApi.get<DashboardStats>('/admin/dashboard');
     
     setStats(response);
     
