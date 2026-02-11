@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // --- Interfaces ---
 interface Artist {
@@ -143,9 +144,10 @@ export default function AdminPage() {
     try {
       await api.delete(`/admin/artists/${id}`);
       loadData();
+      toast.success("Artiste supprimé avec succès !");
     } catch (error) {
       console.error('Error deleting artist:', error);
-      alert("Erreur lors de la suppression");
+      toast.error("Erreur lors de la suppression de l'artiste !");
     }
   };
 
@@ -154,9 +156,10 @@ export default function AdminPage() {
     try {
       await api.delete(`/admin/concerts/${id}`);
       loadData();
+      toast.success("Concert supprimé avec succès !");
     } catch (error) {
       console.error('Error deleting concert:', error);
-      alert("Erreur lors de la suppression");
+      toast.error("Erreur lors de la suppression du concert !");
     }
   };
 
@@ -179,14 +182,16 @@ export default function AdminPage() {
     try {
       if (editingArtist) {
         await api.put(`/admin/artists/${editingArtist.id}`, artistData);
+        toast.success("Artiste modifié avec succès !");
       } else {
         await api.post('/admin/artists', artistData);
+        toast.success("Artiste ajouté avec succès !");
       }
       setShowArtistDialog(false);
       loadData();
     } catch (error) {
       console.error('Error saving artist:', error);
-      alert("Erreur lors de la sauvegarde");
+      toast.error("Erreur lors de la sauvegarde de l'artiste !");
     }
   };
 
@@ -205,14 +210,16 @@ export default function AdminPage() {
     try {
       if (editingConcert) {
         await api.put(`/admin/concerts/${editingConcert.id}`, concertData);
+        toast.success("Concert modifié avec succès !");
       } else {
         await api.post('/admin/concerts', concertData);
+        toast.success("Concert ajouté avec succès !");
       }
       setShowConcertDialog(false);
       loadData();
     } catch (error) {
       console.error('Error saving concert:', error);
-      alert("Erreur lors de la sauvegarde");
+      toast.error("Erreur lors de la sauvegarde du concert !");
     }
   };
 

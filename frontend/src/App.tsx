@@ -4,6 +4,9 @@ import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/useAuthStore';
 import { initSentry } from './lib/sentry';
 
+// --- IMPORT CAPACITOR (NOUVEAU) ---
+import { App as CapacitorApp } from '@capacitor/app';
+
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ArtistsPage from './pages/ArtistsPage';
@@ -30,6 +33,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         
         <Route element={<Layout />}>
+           {/* Redirection explicite pour éviter les erreurs de routing */}
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
           <Route path="/artist/:id" element={<ArtistDetailPage />} />
@@ -60,8 +64,30 @@ function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
+    // 1. Initialisation Sentry & Auth
     initSentry();
     checkAuth();
+
+    // 2. Gestion du Bouton Retour Android (NOUVEAU)
+    const setupBackButton = async () => {
+      await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        // Si on est sur la home ou login, on quitte l'app
+        if (window.location.pathname === '/' || window.location.pathname === '/login') {
+          CapacitorApp.exitApp();
+        } else {
+          // Sinon on retourne en arrière dans l'historique du navigateur
+          window.history.back();
+        }
+      });
+    };
+
+    setupBackButton();
+
+    // Cleanup (Optionnel mais propre)
+    return () => {
+      CapacitorApp.removeAllListeners();
+    };
+
   }, [checkAuth]);
 
   return (
