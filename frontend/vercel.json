@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://api.groupietracker.fr/api/$1"
+      "destination": "https://groupie-tracker-1-ok6c.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
