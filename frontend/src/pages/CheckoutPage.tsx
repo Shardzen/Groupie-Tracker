@@ -8,6 +8,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { api } from '@/lib/api';
 
 // 1. Initialiser Stripe avec ta clé publique
+console.log('Stripe Key:', import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 // --- COMPOSANT INTERNE : LE FORMULAIRE ---

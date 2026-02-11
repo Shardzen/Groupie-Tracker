@@ -103,9 +103,9 @@ func main() {
 	auth.HandleFunc("/login", handlers.Login).Methods("POST")
 	auth.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
 	auth.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
-	auth.HandleFunc("/request-password-reset", handlers.RequestPasswordReset).Methods("POST")
+	auth.HandleFunc("/request-password-reset", handlers.ForgotPassword).Methods("POST")
 	auth.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
-	auth.HandleFunc("/send-verification", handlers.SendVerificationEmail).Methods("POST")
+
 	auth.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
 
 	protected := api.PathPrefix("").Subrouter()
