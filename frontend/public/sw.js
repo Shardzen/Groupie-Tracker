@@ -10,7 +10,7 @@ declare const self: ServiceWorkerGlobalScope;
 // Precache all assets
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
-
+ 
 // API Requests - Network First with fallback
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),

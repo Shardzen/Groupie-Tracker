@@ -1,7 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { useAuthStore } from '../stores/useAuthStore'
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 interface FetchOptions extends RequestInit {
-  token?: string
+  // token?: string // Removed token parameter
 }
 
 class APIError extends Error {
@@ -18,13 +20,14 @@ async function apiRequest<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  const { token, ...fetchOptions } = options
+  const { /* token, */ ...fetchOptions } = options // Removed token destructuring
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(fetchOptions.headers as Record<string, string>),
   }
 
+  const token = useAuthStore.getState().token // Get token from Zustand store
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
@@ -66,25 +69,25 @@ async function apiRequest<T>(
 }
 
 export const api = {
-  get: <T>(endpoint: string, token?: string) =>
-    apiRequest<T>(endpoint, { method: 'GET', token }),
+  get: <T>(endpoint: string /* , token?: string */) => // Removed token parameter
+    apiRequest<T>(endpoint, { method: 'GET' /* , token */ }), // Removed token parameter
     
-  post: <T>(endpoint: string, data?: unknown, token?: string) =>
+  post: <T>(endpoint: string, data?: unknown /* , token?: string */) => // Removed token parameter
     apiRequest<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
-      token,
+      // token, // Removed token parameter
     }),
     
-  put: <T>(endpoint: string, data?: unknown, token?: string) =>
+  put: <T>(endpoint: string, data?: unknown /* , token?: string */) => // Removed token parameter
     apiRequest<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
-      token,
+      // token, // Removed token parameter
     }),
     
-  delete: <T>(endpoint: string, token?: string) =>
-    apiRequest<T>(endpoint, { method: 'DELETE', token }),
+  delete: <T>(endpoint: string /* , token?: string */) => // Removed token parameter
+    apiRequest<T>(endpoint, { method: 'DELETE' /* , token */ }), // Removed token parameter
 }
 
 export interface RegisterRequest {

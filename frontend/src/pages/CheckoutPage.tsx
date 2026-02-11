@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useCartStore } from '../stores/useCartStore';
+import { useAuthStore } from '../stores/useAuthStore'; // Import useAuthStore
 import { Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
@@ -123,11 +124,18 @@ const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, tot
 // --- COMPOSANT PRINCIPAL ---
 export default function CheckoutPage() {
   const { items, total } = useCartStore();
+  const { isAuthenticated } = useAuthStore(); // Get isAuthenticated status
   const [clientSecret, setClientSecret] = useState("");
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (items.length === 0) return;
+    if (items.length === 0 || !isAuthenticated) { // Add isAuthenticated check
+      if (!isAuthenticated) {
+        console.log("User not authenticated, cannot create payment intent.");
+        // Optionally: navigate('/login') or display a message
+      }
+      return;
+    }
 
     const createIntent = async () => {
       try {
@@ -153,7 +161,7 @@ export default function CheckoutPage() {
     };
 
     createIntent();
-  }, [items]);
+  }, [items, isAuthenticated]); // Add isAuthenticated to dependency array
 
   // Si Panier Vide
   if (items.length === 0) {

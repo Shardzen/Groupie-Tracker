@@ -69,13 +69,10 @@ define(['./workbox-237f2c1f'], (function (workbox) { 'use strict';
    * Correction effectuée ici : Suppression du doublon de révision
    * et nettoyage de la structure de l'objet.
    */
-  workbox.precacheAndRoute([
-    {
-      "url": "index.html",
-      "revision": "0.1ok7hh1nsk8"
-    }
-  ], {});
-
+  workbox.precacheAndRoute([{
+    "url": "index.html",
+    "revision": "0.p5moaf1u5jk"
+  }], {});
   workbox.cleanupOutdatedCaches();
 
   workbox.registerRoute(
