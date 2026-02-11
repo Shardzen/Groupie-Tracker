@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import Navbar from '../components/Navbar';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom'; // <--- IMPORT AJOUTÉ
 import { mockArtists } from '../data/mockData';
 import { useCartStore } from '../stores/useCartStore';
 import { MapPin, Calendar, Ticket as TicketIcon, Search, Music, SlidersHorizontal } from 'lucide-react';
@@ -135,23 +135,33 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
 }
 
 export default function TicketsPage() {
-  const [search, setSearch] = useState('');
+  // --- MODIFICATION ICI : On récupère les paramètres de l'URL ---
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  // -------------------------------------------------------------
+  
   const [genreFilter, setGenreFilter] = useState('Tous');
   const [cityFilter, setCityFilter] = useState('Toutes');
+
+  // Si l'URL change (clic sur un autre concert), on met à jour la recherche
+  useEffect(() => {
+    const query = searchParams.get('search');
+    if (query) {
+        setSearch(query);
+    }
+  }, [searchParams]);
 
   const uniqueGenres = ['Tous', ...new Set(ticketsData.map(t => t.genre))];
   const uniqueCities = ['Toutes', ...new Set(ticketsData.map(t => t.city))];
 
   const filteredTickets = useMemo(() => {
     return ticketsData.filter(ticket => {
-
       const matchesSearch = 
         ticket.artist.name.toLowerCase().includes(search.toLowerCase()) ||
         ticket.place.toLowerCase().includes(search.toLowerCase()) ||
         ticket.city.toLowerCase().includes(search.toLowerCase());
 
       const matchesGenre = genreFilter === 'Tous' || ticket.genre === genreFilter;
-
       const matchesCity = cityFilter === 'Toutes' || ticket.city === cityFilter;
 
       return matchesSearch && matchesGenre && matchesCity;
