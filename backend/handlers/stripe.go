@@ -178,14 +178,10 @@ func GetReservations(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(reservations)
 }
 
-// ========= WEBHOOK STRIPE (CRITIQUE) =========
 
-// StripeWebhook gère les événements Stripe (payment_intent.succeeded, etc.)
-// ⚠️ IMPORTANT : Cette route doit rester PUBLIQUE (pas de JWT)
 func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536) // 64KB max
 
-	// 1. Limiter la taille du body pour la sécurité
 	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -194,7 +190,6 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. Récupérer le secret du webhook
 	endpointSecret := os.Getenv("STRIPE_WEBHOOK_SECRET")
 	if endpointSecret == "" {
 		log.Println("❌ WEBHOOK ERROR: STRIPE_WEBHOOK_SECRET not configured in .env")
@@ -203,7 +198,6 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 3. Vérifier la signature Stripe (CRITIQUE pour la sécurité)
 	signature := r.Header.Get("Stripe-Signature")
 	event, err := webhook.ConstructEvent(payload, signature, endpointSecret)
 	if err != nil {
@@ -215,7 +209,6 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("🪝 Webhook received: %s", event.Type)
 
-	// 4. Traiter les événements selon leur type
 	switch event.Type {
 	case "payment_intent.succeeded":
 		handlePaymentSucceeded(w, event)
