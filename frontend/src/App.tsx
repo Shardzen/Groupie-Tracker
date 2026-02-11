@@ -17,9 +17,10 @@ import RegisterPage from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-import Footer from './components/Footer';
+
 import Player from './components/Player';
 import CartDrawer from './components/CartDrawer';
+import Footer from './components/Footer';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -29,6 +30,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         
+        {/* TOUTES CES PAGES AURONT LA NAVBAR ET LE FOOTER */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
@@ -37,6 +39,11 @@ function AnimatedRoutes() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
+
+          {/* ON A DÉPLACÉ LES PAGES D'AUTH ICI */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {user?.is_admin && (
             <>
@@ -48,9 +55,6 @@ function AnimatedRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
         
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </AnimatePresence>
   );
@@ -69,8 +73,8 @@ function App() {
       <AnimatedRoutes />
       
       <Player />
-      <Footer />
       <CartDrawer />
+      <Footer /> 
       
     </BrowserRouter>
   );

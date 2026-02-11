@@ -15,6 +15,7 @@ import {
 import { api, APIError } from '../lib/api';
 import { useAuthStore } from '../stores/useAuthStore';
 import { toast } from 'sonner';
+import Navbar from '../components/Navbar';
 
 export default function LoginPage() {
   const navigate = useNavigate();
