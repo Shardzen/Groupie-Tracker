@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Heart, MapPin, Music, Share2, ArrowLeft, Clock, Calendar } from 'lucide-react';
+import { Play, Heart, MapPin, Music, Share2, ArrowLeft, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
-import { usePlayerStore } from '../stores/usePlayerStore';
-import { useState, useEffect } from 'react'; // Import useEffect
-import { api } from '@/lib/api'; // Import API
+import { usePlayerStore, Track } from '../stores/usePlayerStore';
+import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 
-// Define a basic Artist interface for now. This should match the backend response.
+// Expanded Artist interface to include all data from API
 interface Artist {
-  id: string; // Assuming ID is a string based on useParams
+  id: string;
   name: string;
   image: string;
   bio: string;
@@ -19,22 +19,24 @@ interface Artist {
 export default function ArtistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const playerStore = usePlayerStore();
-  const play = playerStore.play;
-  
+  const { play } = usePlayerStore();
+
   const [artist, setArtist] = useState<Artist | null>(null);
+  const [similarArtists, setSimilarArtists] = useState<Artist[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
+  // Effect to fetch the main artist
   useEffect(() => {
     if (!id) {
       setIsLoading(false);
-      setIsError(true); // Treat missing ID as an error
+      setIsError(true);
       return;
     }
 
     const fetchArtist = async () => {
+      window.scrollTo(0, 0); // Scroll to top on new artist
       setIsLoading(true);
       setIsError(false);
       try {
@@ -43,14 +45,34 @@ export default function ArtistDetailPage() {
       } catch (err) {
         console.error("Failed to fetch artist:", err);
         setIsError(true);
-        setArtist(null); // Ensure artist is null on error
+        setArtist(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchArtist();
-  }, [id]); // Re-fetch when ID changes
+  }, [id]);
+
+  // Effect to fetch similar artists after the main artist is loaded
+  useEffect(() => {
+    if (!artist) return;
+
+    const fetchSimilarArtists = async () => {
+      try {
+        const allArtists = await api.get<Artist[]>('/artists');
+        const filtered = allArtists
+          .filter(a => a.id !== artist.id && a.genre === artist.genre)
+          .slice(0, 8);
+        setSimilarArtists(filtered);
+      } catch (err) {
+        console.error("Failed to fetch similar artists:", err);
+      }
+    };
+
+    fetchSimilarArtists();
+  }, [artist]);
+
 
   if (isLoading) {
     return (
@@ -80,12 +102,12 @@ export default function ArtistDetailPage() {
     );
   }
 
-  if (!artist) { // This check remains if the backend returns 404 or no data
+  if (!artist) {
     return (
       <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-4xl font-bold mb-4">Artiste introuvable</h2>
-          <p className="text-zinc-400 mb-8">Cet artiste n'existe pas dans notre catalogue</p>
+          <p className="text-zinc-400 mb-8">Cet artiste n'existe pas dans notre catalogue.</p>
           <button 
             onClick={() => navigate('/artists')}
             className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-full font-bold transition-colors"
@@ -96,10 +118,10 @@ export default function ArtistDetailPage() {
       </div>
     );
   }
-
-  const handleOpenDeezer = () => {
+  
+  const handlePlayTrack = (track: Partial<Track>) => {
     play({
-      title: `Top titres de ${artist.name}`,
+      title: track.title || artist.name,
       artist: artist.name,
       image: artist.image,
     });
@@ -121,15 +143,6 @@ export default function ArtistDetailPage() {
       alert('Lien copié dans le presse-papier!');
     }
   };
-
-  const mockConcerts = [
-    { date: 'MAI 15', venue: 'Accor Arena', city: 'Paris, France' },
-    { date: 'MAI 18', venue: 'Zénith', city: 'Lyon, France' },
-    { date: 'MAI 22', venue: 'Arkéa Arena', city: 'Bordeaux, France' },
-    { date: 'MAI 25', venue: 'Palais 12', city: 'Bruxelles, Belgique' },
-    { date: 'MAI 28', venue: 'Forest National', city: 'Bruxelles, Belgique' },
-    { date: 'JUN 02', venue: 'O2 Arena', city: 'Londres, UK' },
-  ];
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white overflow-x-hidden">
@@ -159,47 +172,29 @@ export default function ArtistDetailPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/40 to-transparent"></div>
         </div>
         <div className="absolute bottom-0 left-0 w-full p-8 pb-16 container mx-auto flex flex-col items-start z-10">
-            
             <div className="flex items-center gap-2 mb-4">
                 <span className="bg-blue-500 text-white p-1 rounded-full">
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>
                 </span>
                 <span className="text-sm font-medium tracking-widest uppercase text-white/80">Artiste Vérifié</span>
             </div>
-
-            <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-6 drop-shadow-2xl">
-              {artist.name}
-            </h1>
-
-            <p className="text-zinc-300 text-lg max-w-2xl mb-4 drop-shadow-md">
-              {artist.bio}
-            </p>
-            
+            <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-6 drop-shadow-2xl">{artist.name}</h1>
+            <p className="text-zinc-300 text-lg max-w-2xl mb-4 drop-shadow-md">{artist.bio}</p>
             <div className="flex items-center gap-3 mb-8">
-              <span className="px-3 py-1 bg-violet-600/20 border border-violet-500/30 rounded-full text-violet-300 text-sm font-bold">
-                {artist.genre}
-              </span>
-              <span className="text-white/60 font-mono text-sm">
-                14.5M AUDITEURS
-              </span>
+              <span className="px-3 py-1 bg-violet-600/20 border border-violet-500/30 rounded-full text-violet-300 text-sm font-bold">{artist.genre}</span>
+              <span className="text-white/60 font-mono text-sm">14.5M AUDITEURS</span>
             </div>
-
             <div className="flex items-center gap-4 flex-wrap">
                 <button 
-                  onClick={handleOpenDeezer}
+                  onClick={() => handlePlayTrack(artist.topTracks?.[0] || {})}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full px-8 py-4 font-bold text-lg flex items-center gap-3 transition-transform hover:scale-105 shadow-[0_0_40px_rgba(168,85,247,0.5)]"
                 >
                    <Music size={24} />
-                   ÉCOUTER SUR DEEZER
+                   ÉCOUTER
                 </button>
-                
                 <button 
                   onClick={() => setIsLiked(!isLiked)}
-                  className={`w-14 h-14 rounded-full border border-white/20 flex items-center justify-center transition backdrop-blur-sm ${
-                    isLiked ? 'bg-red-500 border-red-500' : 'hover:bg-white/10'
-                  }`}
+                  className={`w-14 h-14 rounded-full border border-white/20 flex items-center justify-center transition backdrop-blur-sm ${isLiked ? 'bg-red-500 border-red-500' : 'hover:bg-white/10'}`}
                 >
                    <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
                 </button>
@@ -214,27 +209,21 @@ export default function ArtistDetailPage() {
       </div>
 
       <div className="container mx-auto px-6 py-12 space-y-20 relative z-20 -mt-10">
-        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-
             <div className="lg:col-span-2">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                   <Music className="text-purple-500" /> Titres Populaires
-                </h2>
-                
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3"><Music className="text-purple-500" /> Titres Populaires</h2>
                 <div className="flex flex-col gap-2">
                    {artist.topTracks && artist.topTracks.length > 0 ? (
                       artist.topTracks.map((track, index) => (
                       <div 
                         key={index}
-                        onClick={handleOpenDeezer}
+                        onClick={() => handlePlayTrack(track)}
                         className="group flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition cursor-pointer border border-transparent hover:border-white/5"
                       >
                           <span className="text-zinc-500 font-mono w-6 text-center group-hover:text-purple-400 transition">
                              <span className="group-hover:hidden">{index + 1}</span>
                              <Play size={16} className="hidden group-hover:block mx-auto" fill="currentColor"/>
                           </span>
-                          
                           <img 
                             src={artist.image} 
                             alt="cover" 
@@ -244,38 +233,23 @@ export default function ArtistDetailPage() {
                               target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(track.title)}&size=100&background=random`;
                             }}
                           />
-                          
                           <div className="flex-1 min-w-0">
                              <h3 className="font-bold text-white group-hover:text-purple-400 transition truncate">{track.title}</h3>
-                             <span className="text-xs text-zinc-500 flex items-center gap-1">
-                               <Music size={12} /> {track.plays} lectures
-                             </span>
+                             <span className="text-xs text-zinc-500 flex items-center gap-1"><Music size={12} /> {track.plays} lectures</span>
                           </div>
-                          
                           <span className="text-zinc-500 text-sm font-mono hidden sm:block">{track.duration}</span>
-                          <button className="opacity-0 group-hover:opacity-100 p-2 text-zinc-400 hover:text-white">
-                             <Heart size={16} />
-                          </button>
+                          <button className="opacity-0 group-hover:opacity-100 p-2 text-zinc-400 hover:text-white"><Heart size={16} /></button>
                       </div>
                       ))
                     ) : (
-                      <div className="text-center py-8 text-zinc-500">
-                        <p>Aucun titre disponible</p>
-                      </div>
+                      <div className="text-center py-8 text-zinc-500"><p>Aucun titre disponible</p></div>
                     )}
-                </div>
-
-                <div className="mt-6 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20">
-                  <p className="text-sm text-zinc-300 text-center">
-                    🎵 <strong>Cliquez sur "Écouter sur Deezer"</strong> pour lancer le lecteur et découvrir les meilleurs titres de {artist.name} !
-                  </p>
                 </div>
             </div>
 
             <div>
                <h2 className="text-2xl font-bold mb-6">À propos</h2>
                <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-3xl p-6 hover:border-purple-500/50 transition duration-500 group space-y-6">
-                  
                   <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
                      <img 
                        src={artist.image} 
@@ -287,17 +261,14 @@ export default function ArtistDetailPage() {
                        }}
                      />
                   </div>
-
                   <div className="space-y-4">
                     <div>
                       <h3 className="text-lg font-bold mb-2">{artist.name}</h3>
                       <p className="text-zinc-400 text-sm leading-relaxed">{artist.bio}</p>
                     </div>
-
                     <div className="flex flex-wrap gap-2">
                       <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">{artist.genre}</span>
                       <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">Vérifié</span>
-                      <span className="px-3 py-1 rounded-full bg-white/5 text-xs border border-white/10">Top 100</span>
                     </div>
                   </div>
                </div>
@@ -305,39 +276,55 @@ export default function ArtistDetailPage() {
         </div>
 
         <div>
-           <h2 className="text-3xl font-bold mb-8 uppercase tracking-tight flex items-center gap-3">
-             <Calendar className="text-purple-500" />
-             Prochaines Dates
-           </h2>
-           
+           <h2 className="text-3xl font-bold mb-8 uppercase tracking-tight flex items-center gap-3"><Calendar className="text-purple-500" /> Prochaines Dates</h2>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mockConcerts.map((concert, index) => (
-                <div 
-                  key={index} 
-                  className="p-6 rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-white/10 hover:border-purple-500/50 transition cursor-pointer group"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="bg-zinc-900 text-center px-4 py-3 rounded-xl group-hover:bg-purple-600 transition-colors flex-shrink-0">
-                      <span className="block text-xs font-bold text-zinc-400 group-hover:text-white/80 uppercase">{concert.date.split(' ')[0]}</span>
-                      <span className="block text-2xl font-black">{concert.date.split(' ')[1]}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-lg mb-1 group-hover:text-purple-400 transition truncate">{concert.venue}</h4>
-                      <p className="text-zinc-400 text-sm flex items-center gap-1">
-                        <MapPin size={12} /> {concert.city}
-                      </p>
-                      <button className="mt-3 w-full px-4 py-2 bg-white/5 hover:bg-purple-600 rounded-lg text-sm font-bold transition border border-white/10">
-                        Réserver
-                      </button>
+              {artist.upcomingDates && artist.upcomingDates.length > 0 ? (
+                artist.upcomingDates.map((concert, index) => (
+                  <div key={index} className="p-6 rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-white/10 hover:border-purple-500/50 transition cursor-pointer group">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-zinc-900 text-center px-4 py-3 rounded-xl group-hover:bg-purple-600 transition-colors flex-shrink-0">
+                        <span className="block text-xs font-bold text-zinc-400 group-hover:text-white/80 uppercase">{concert.date.split(' ')[0] || 'TBA'}</span>
+                        <span className="block text-2xl font-black">{concert.date.split(' ')[1] || '?'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-lg mb-1 group-hover:text-purple-400 transition truncate">{concert.venue}</h4>
+                        <p className="text-zinc-400 text-sm flex items-center gap-1"><MapPin size={12} /> {concert.city}</p>
+                        <button className="mt-3 w-full px-4 py-2 bg-white/5 hover:bg-purple-600 rounded-lg text-sm font-bold transition border border-white/10">Réserver</button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-zinc-500 col-span-full">Aucune date de concert à venir.</p>
+              )}
            </div>
         </div>
 
-
-
+        <div>
+           <h2 className="text-2xl font-bold mb-8">Artistes similaires</h2>
+           {similarArtists.length > 0 ? (
+             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                {similarArtists.map((similaire) => (
+                 <div key={similaire.id} onClick={() => navigate(`/artist/${similaire.id}`)} className="group flex flex-col items-center gap-3 cursor-pointer">
+                    <div className="w-full aspect-square rounded-full overflow-hidden border-2 border-transparent group-hover:border-purple-500 transition-all duration-300 shadow-lg">
+                       <img 
+                         src={similaire.image} 
+                         alt={similaire.name} 
+                         className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                         onError={(e) => {
+                           const target = e.target as HTMLImageElement;
+                           target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(similaire.name)}&size=200&background=random`;
+                         }}
+                       />
+                    </div>
+                    <span className="text-xs font-bold text-zinc-400 group-hover:text-white transition text-center truncate w-full px-1">{similaire.name}</span>
+                 </div>
+                ))}
+             </div>
+           ) : (
+            <p className="text-zinc-500">Aucun artiste similaire trouvé.</p>
+           )}
+        </div>
       </div>
     </div>
   );
