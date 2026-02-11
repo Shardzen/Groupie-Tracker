@@ -60,18 +60,6 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] z-0" />
       </div>
 
-      <Link to="/" className="absolute top-8 left-8 z-50 group">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-500 to-white rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-            <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 p-2 rounded-xl shadow-lg">
-              <Music className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <span className="text-2xl font-black text-white">YNOT</span>
-        </div>
-      </Link>
-
       <div className="w-full max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-6">

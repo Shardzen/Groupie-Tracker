@@ -56,7 +56,8 @@ export default function ConcertsPage() {
   const [selectedConcert, setSelectedConcert] = useState<any>(null);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-8 pb-4">
+    // J'ai changé pt-8 en pt-24 ici 👇
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-24 pb-4">
       
       <div className="container mx-auto px-6 mb-4 flex justify-between items-end">
         <div>
@@ -121,7 +122,6 @@ export default function ConcertsPage() {
                  <button 
                     onClick={(e) => {
                         e.stopPropagation(); 
-                        // Modification ICI : On envoie le nom de l'artiste dans l'URL
                         navigate(`/tickets?search=${encodeURIComponent(concert.artistName)}`);
                     }}
                     className="w-full mt-3 py-2 bg-violet-600/10 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
@@ -173,7 +173,6 @@ export default function ConcertsPage() {
                     </div>
 
                     <Link 
-                        // Modification ICI aussi pour la bulle info
                         to={`/tickets?search=${encodeURIComponent(selectedConcert.artistName)}`}
                         className="block w-full bg-black text-white text-center py-2 rounded text-[10px] font-bold uppercase hover:bg-violet-600 transition-colors"
                     >
