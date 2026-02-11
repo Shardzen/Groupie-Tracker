@@ -1,30 +1,162 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCartStore } from '../stores/useCartStore';
-import { CreditCard, Lock, ArrowRight, CheckCircle } from 'lucide-react';
+import { Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { api } from '@/lib/api';
 
-export default function CheckoutPage() {
-  const { items, total, clearCart } = useCartStore();
-  const navigate = useNavigate();
+// 1. Initialiser Stripe avec ta clé publique
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+// --- COMPOSANT INTERNE : LE FORMULAIRE ---
+const CheckoutForm = ({ clientSecret, totalAmount }: { clientSecret: string, totalAmount: number }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { clearCart } = useCartStore();
   
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      clearCart(); 
-      setTimeout(() => {
-        navigate('/');
-      }, 3000);
-    }, 2000);
+    if (!stripe || !elements) return;
+
+    setIsLoading(true);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/profile`,
+        receipt_email: email,
+        payment_method_data: {
+          billing_details: {
+            name: name,
+            email: email,
+          },
+        },
+      },
+    });
+
+    if (error.type === "card_error" || error.type === "validation_error") {
+      setMessage(error.message || "Une erreur est survenue.");
+    } else {
+      setMessage("Une erreur inattendue est survenue.");
+    }
+
+    setIsLoading(false);
   };
 
-  if (items.length === 0 && !success) {
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-[#1a1a1a] p-6 rounded-xl border border-white/10">
+        <h3 className="text-lg font-bold mb-4 text-zinc-300">Vos Coordonnées</h3>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-xs text-zinc-500 mb-1 uppercase">Nom complet</label>
+            <input 
+              required 
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Jean Dupont" 
+              className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" 
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-500 mb-1 uppercase">Email</label>
+            <input 
+              required 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="votre@email.com" 
+              className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" 
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#1a1a1a] p-6 rounded-xl border border-white/10 relative overflow-hidden">
+        <h3 className="text-lg font-bold mb-4 text-zinc-300 flex justify-between items-center">
+          <span>Paiement Sécurisé</span>
+          <div className="flex gap-2">
+            <div className="w-8 h-5 bg-white/10 rounded"></div>
+            <div className="w-8 h-5 bg-white/10 rounded"></div>
+          </div>
+        </h3>
+        
+        <div className="min-h-[200px]">
+           <PaymentElement id="payment-element" options={{ layout: "tabs" }} />
+        </div>
+      </div>
+
+      {message && (
+        <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-lg flex items-center gap-2 text-red-500">
+          <AlertCircle size={20} />
+          <span className="text-sm">{message}</span>
+        </div>
+      )}
+
+      <button 
+        type="submit" 
+        disabled={isLoading || !stripe || !elements}
+        className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 py-4 rounded-xl font-black uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+      >
+        {isLoading ? (
+          <span className="animate-pulse">Traitement sécurisé...</span>
+        ) : (
+          <>Payer {totalAmount} € <ArrowRight size={20}/></>
+        )}
+      </button>
+      
+      <p className="text-center text-xs text-zinc-500 flex items-center justify-center gap-1">
+        <Lock size={10} /> Paiement chiffré SSL 256-bit par Stripe
+      </p>
+    </form>
+  );
+};
+
+// --- COMPOSANT PRINCIPAL ---
+export default function CheckoutPage() {
+  const { items, total } = useCartStore();
+  const [clientSecret, setClientSecret] = useState("");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (items.length === 0) return;
+
+    const createIntent = async () => {
+      try {
+        const mainItem = items[0]; 
+
+        // Interface pour typer la réponse
+        interface PaymentResponse {
+          client_secret: string;
+          amount: number;
+        }
+
+        const response = await api.post("/payment/create-intent", {
+          concert_id: mainItem.id, 
+          ticket_type: "standard",
+          quantity: mainItem.quantity,
+        }) as PaymentResponse; 
+        
+        setClientSecret(response.client_secret);
+      } catch (err) {
+        console.error("Erreur backend:", err);
+        setError(true);
+      }
+    };
+
+    createIntent();
+  }, [items]);
+
+  // Si Panier Vide
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#0e0e0e] text-white pt-32 flex flex-col items-center justify-center">
         <h2 className="text-2xl font-bold mb-4">Votre panier est vide</h2>
@@ -35,94 +167,50 @@ export default function CheckoutPage() {
     );
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center justify-center p-4 text-center">
-        <CheckCircle size={80} className="text-green-500 mb-6 animate-bounce" />
-        <h1 className="text-4xl font-black mb-2 uppercase">Paiement Réussi !</h1>
-        <p className="text-zinc-400 max-w-md">
-          Merci pour votre commande. Vos billets ont été envoyés par email.
-          Vous allez être redirigé vers l'accueil...
-        </p>
-      </div>
-    );
-  }
+  // Configuration Thème Stripe
+  const appearance = {
+    theme: 'night' as const,
+    variables: {
+      colorPrimary: '#8b5cf6',
+      colorBackground: '#1a1a1a',
+      colorText: '#ffffff',
+      colorDanger: '#ef4444',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      spacingUnit: '4px',
+      borderRadius: '8px',
+    },
+  };
+  const options = {
+    clientSecret,
+    appearance,
+  };
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         
+        {/* COLONNE GAUCHE : FORMULAIRE STRIPE */}
         <div>
           <h2 className="text-2xl font-black uppercase mb-6 flex items-center gap-2">
             <Lock className="text-violet-500" size={24} /> Paiement Sécurisé
           </h2>
           
-          <form onSubmit={handlePayment} className="space-y-6">
-            <div className="bg-[#1a1a1a] p-6 rounded-xl border border-white/10">
-              <h3 className="text-lg font-bold mb-4 text-zinc-300">Vos Coordonnées</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Email</label>
-                    <input required type="email" placeholder="votre@email.com" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" />
-                </div>
-                <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Prénom</label>
-                    <input required type="text" placeholder="Jean" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" />
-                </div>
-                <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Nom</label>
-                    <input required type="text" placeholder="Dupont" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" />
-                </div>
-              </div>
+          {clientSecret ? (
+            <Elements options={options} stripe={stripePromise}>
+              <CheckoutForm clientSecret={clientSecret} totalAmount={total()} />
+            </Elements>
+          ) : error ? (
+            <div className="bg-red-500/10 p-4 rounded text-red-500 border border-red-500/20">
+              Impossible d'initialiser le paiement. Vérifiez que votre backend tourne.
             </div>
-
-            <div className="bg-[#1a1a1a] p-6 rounded-xl border border-white/10 relative overflow-hidden">
-              <h3 className="text-lg font-bold mb-4 text-zinc-300 flex justify-between">
-                <span>Carte Bancaire</span>
-                <div className="flex gap-2">
-                  <div className="w-8 h-5 bg-white/10 rounded"></div>
-                  <div className="w-8 h-5 bg-white/10 rounded"></div>
-                </div>
-              </h3>
-              
-              <div className="space-y-4">
-                 <div>
-                    <label className="block text-xs text-zinc-500 mb-1 uppercase">Numéro de carte</label>
-                    <div className="relative">
-                        <CreditCard className="absolute left-3 top-3.5 text-zinc-500" size={18}/>
-                        <input required type="text" placeholder="0000 0000 0000 0000" className="w-full pl-10 bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" />
-                    </div>
-                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs text-zinc-500 mb-1 uppercase">Expiration</label>
-                        <input required type="text" placeholder="MM / AA" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" />
-                    </div>
-                    <div>
-                        <label className="block text-xs text-zinc-500 mb-1 uppercase">CVC</label>
-                        <input required type="text" placeholder="123" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-violet-500 outline-none transition" />
-                    </div>
-                 </div>
-              </div>
+          ) : (
+            <div className="animate-pulse bg-[#1a1a1a] h-[400px] rounded-xl border border-white/10 flex items-center justify-center text-zinc-500">
+              Chargement sécurisé Stripe...
             </div>
-
-            <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 py-4 rounded-xl font-black uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-            >
-                {loading ? (
-                    <span className="animate-pulse">Traitement en cours...</span>
-                ) : (
-                    <>Payer {total()} € <ArrowRight size={20}/></>
-                )}
-            </button>
-            <p className="text-center text-xs text-zinc-500 flex items-center justify-center gap-1">
-                <Lock size={10} /> Paiement chiffré SSL 256-bit
-            </p>
-          </form>
+          )}
         </div>
 
+        {/* COLONNE DROITE : RÉSUMÉ */}
         <div className="lg:pl-12">
             <div className="bg-[#121212] p-6 rounded-2xl border border-white/5 sticky top-24">
                 <h3 className="font-bold text-xl mb-6">Résumé de la commande</h3>
@@ -145,7 +233,6 @@ export default function CheckoutPage() {
                 <div className="border-t border-white/10 pt-4 space-y-2 text-sm text-zinc-400">
                     <div className="flex justify-between">
                         <span>Sous-total</span>
-    
                         <span>{total()} €</span>
                     </div>
                     <div className="flex justify-between">

@@ -35,11 +35,11 @@ useEffect(() => {
   return (
     <div 
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-      onClick={close}
+      onClick={close} 
     >
       <div 
         className="bg-[#121212] rounded-2xl shadow-2xl max-w-2xl w-full border border-white/10 relative overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()} 
       >
         
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#181818]">
