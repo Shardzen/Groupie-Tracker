@@ -36,7 +36,7 @@ async function apiRequest<T>(
   const timeoutId = setTimeout(() => controller.abort(), 30000)
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api${endpoint}`, {
       ...fetchOptions,
       headers,
       signal: controller.signal,
