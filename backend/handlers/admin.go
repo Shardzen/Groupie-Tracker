@@ -5,18 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"groupie-backend/database"
 	"groupie-backend/middleware"
 	"groupie-backend/models"
-    "groupie-backend/storage"
-	"github.com/gorilla/mux"
+	"groupie-backend/storage"
 )
-
-
 
 func AdminGetArtists(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -59,7 +57,7 @@ func AdminGetArtists(w http.ResponseWriter, r *http.Request) {
 
 func AdminCreateArtist(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -100,7 +98,7 @@ func AdminCreateArtist(w http.ResponseWriter, r *http.Request) {
 
 func AdminUpdateArtist(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -151,7 +149,7 @@ func AdminUpdateArtist(w http.ResponseWriter, r *http.Request) {
 
 func AdminDeleteArtist(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -179,11 +177,9 @@ func AdminDeleteArtist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Artist deleted successfully"})
 }
 
-
-
 func AdminGetConcerts(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -225,7 +221,7 @@ func AdminGetConcerts(w http.ResponseWriter, r *http.Request) {
 
 func AdminCreateConcert(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -260,7 +256,7 @@ func AdminCreateConcert(w http.ResponseWriter, r *http.Request) {
 
 func AdminUpdateConcert(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -304,7 +300,7 @@ func AdminUpdateConcert(w http.ResponseWriter, r *http.Request) {
 
 func AdminDeleteConcert(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -332,11 +328,9 @@ func AdminDeleteConcert(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Concert deleted successfully"})
 }
 
-
-
 func AdminGetPayments(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -344,7 +338,7 @@ func AdminGetPayments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := database.DB.Query(`
-		SELECT r.id, r.user_id, r.concert_id, r.tickets, r.total_price, 
+		SELECT r.id, r.user_id, r.concert_id, r.quantity as tickets, r.total_price, 
 		       r.payment_status, r.payment_intent, r.created_at,
 		       u.name as user_name, u.email as user_email,
 		       c.location as concert_location, c.date as concert_date,
@@ -400,7 +394,7 @@ func AdminGetPayments(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -408,7 +402,7 @@ func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := database.DB.Query(`
-		SELECT id, name, email, is_admin, email_verified, created_at,
+		SELECT id, name, email, role, email_verified, created_at,
 		       (SELECT COUNT(*) FROM reservations WHERE user_id = users.id) as total_bookings
 		FROM users
 		ORDER BY created_at DESC
@@ -424,11 +418,11 @@ func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 	users := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
-		var name, email, createdAt string
-		var isAdmin, emailVerified bool
+		var name, email, role, createdAt string
+		var emailVerified bool
 		var totalBookings int
 
-		err := rows.Scan(&id, &name, &email, &isAdmin, &emailVerified, &createdAt, &totalBookings)
+		err := rows.Scan(&id, &name, &email, &role, &emailVerified, &createdAt, &totalBookings)
 		if err != nil {
 			continue
 		}
@@ -437,7 +431,7 @@ func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 			"id":             id,
 			"name":           name,
 			"email":          email,
-			"is_admin":       isAdmin,
+			"is_admin":       role == "admin", // Construct is_admin from role
 			"email_verified": emailVerified,
 			"created_at":     createdAt,
 			"total_bookings": totalBookings,
@@ -468,7 +462,7 @@ func AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 		"message": "Upload réussi !",
 		"url":     fileURL,
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }

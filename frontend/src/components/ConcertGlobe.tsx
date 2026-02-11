@@ -3,7 +3,18 @@ import Globe from 'react-globe.gl';
 import { mockArtists } from '../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
+interface GlobePoint {
+  lat: number;
+  lng: number;
+  label: string;
+  artistName: string;
+  city: string;
+  color: string;
+  size: number;
+}
+
 export default function ConcertGlobe() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeEl = useRef<any>();
   const navigate = useNavigate();
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -85,7 +96,7 @@ export default function ConcertGlobe() {
         labelResolution={2}
 
         // Clic
-        onPointClick={(point: any) => {
+        onPointClick={(point: GlobePoint) => {
             navigate(`/tickets?search=${encodeURIComponent(point.artistName)}`);
         }}
 

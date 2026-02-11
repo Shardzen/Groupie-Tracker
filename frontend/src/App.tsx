@@ -75,19 +75,20 @@ function App() {
     initSentry();
     checkAuth();
 
-    // Gestion du Bouton Retour Android (Sécurisé pour le Web)
-    if (Capacitor.isNativePlatform()) {
-      const setupBackButton = async () => {
-        await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-          if (window.location.pathname === '/' || window.location.pathname === '/login') {
-            CapacitorApp.exitApp();
-          } else if (canGoBack) {
-            window.history.back();
-          }
-        });
-      };
-      setupBackButton();
-    }
+    // 2. Gestion du Bouton Retour Android (NOUVEAU)
+    const setupBackButton = async () => {
+      await CapacitorApp.addListener('backButton', () => {
+        // Si on est sur la home ou login, on quitte l'app
+        if (window.location.pathname === '/' || window.location.pathname === '/login') {
+          CapacitorApp.exitApp();
+        } else {
+          // Sinon on retourne en arrière dans l'historique du navigateur
+          window.history.back();
+        }
+      });
+    };
+
+    setupBackButton();
 
     return () => {
       if (Capacitor.isNativePlatform()) {

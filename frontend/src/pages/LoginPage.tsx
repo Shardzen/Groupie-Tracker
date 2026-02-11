@@ -20,7 +20,7 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
     try {
-      const response = await api.post<{ token: string; user: any }>('/auth/login', { email, password });
+      const response = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
       login(response.token, response.user);
       toast.success('Ravi de vous revoir !');
       navigate('/'); 

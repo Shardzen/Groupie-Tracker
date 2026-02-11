@@ -11,8 +11,9 @@ import (
 	"time"
 	"strings"
 	"groupie-backend/database"
+	"groupie-backend/internal/auth" // Import the JWT logic
 	"groupie-backend/models"
-	"groupie-backend/services"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -130,7 +131,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	jwtToken, err := services.GenerateToken(user)
+	jwtToken, err := auth.GenerateToken(uint(user.ID), user.Role)
 	if err != nil {
 		http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"?error=failed_to_generate_token", http.StatusTemporaryRedirect)
 		return

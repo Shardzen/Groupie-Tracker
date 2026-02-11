@@ -46,12 +46,12 @@ type Concert struct {
 }
 
 type Reservation struct {
-	ID                    int       `json:"id"`
-	UserID                int       `json:"user_id"`
-	ConcertID             int       `json:"concert_id"`
-	
+	ID        int `json:"id"`
+	UserID    int `json:"user_id"`
+	ConcertID int `json:"concert_id"`
+
 	// --- AJOUT POUR CORRIGER L'ERREUR ---
-	ConcertName           string    `json:"concert_name,omitempty"`
+	ConcertName string `json:"concert_name,omitempty"`
 	// ------------------------------------
 
 	TicketType            string    `json:"ticket_type"`

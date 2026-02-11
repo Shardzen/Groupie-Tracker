@@ -24,7 +24,7 @@ type AISearchRequest struct {
 // AIRecommendation - Provides personalized concert recommendations
 func AIRecommendation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	var req AIRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -65,7 +65,7 @@ func AIRecommendation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := openai.NewClient(apiKey)
-	
+
 	systemPrompt := fmt.Sprintf(`You are a music recommendation assistant for Groupie Tracker, a concert booking platform. 
 	
 Available concerts and artists:
@@ -107,7 +107,7 @@ Keep responses concise (2-3 sentences) and engaging.`, contextData)
 // AISearch - Intelligent search using natural language
 func AISearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	var req AISearchRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -139,30 +139,30 @@ func AISearch(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	type ArtistData struct {
-		ID            int
-		Name          string
-		Members       string
-		CreationDate  int
-		FirstAlbum    string
-		Image         string
-		Locations     string
-		ConcertDates  string
-		Concerts      []map[string]interface{}
+		ID           int
+		Name         string
+		Members      string
+		CreationDate int
+		FirstAlbum   string
+		Image        string
+		Locations    string
+		ConcertDates string
+		Concerts     []map[string]interface{}
 	}
 
 	artistMap := make(map[int]*ArtistData)
-	
+
 	for rows.Next() {
 		var (
-			id, creationDate                             int
-			name, members, firstAlbum, image             string
-			locations, concertDates                      string
-			concertID                                    *int
-			concertLocation, concertDate                 *string
-			availableTickets                             *int
-			price                                        *float64
+			id, creationDate                 int
+			name, members, firstAlbum, image string
+			locations, concertDates          string
+			concertID                        *int
+			concertLocation, concertDate     *string
+			availableTickets                 *int
+			price                            *float64
 		)
-		
+
 		err := rows.Scan(
 			&id, &name, &members, &creationDate, &firstAlbum,
 			&image, &locations, &concertDates,
@@ -203,7 +203,7 @@ func AISearch(w http.ResponseWriter, r *http.Request) {
 	contextData := string(artistsJSON)
 
 	client := openai.NewClient(apiKey)
-	
+
 	systemPrompt := fmt.Sprintf(`You are an intelligent search assistant for a concert booking platform.
 	
 Available data (JSON format):
@@ -287,7 +287,7 @@ func simpleSearch(w http.ResponseWriter, r *http.Request, query string) {
 		WHERE LOWER(name) LIKE LOWER($1) OR LOWER(members) LIKE LOWER($1)
 		LIMIT 10
 	`, "%"+query+"%")
-	
+
 	if err != nil {
 		http.Error(w, "Database error", http.StatusInternalServerError)
 		return

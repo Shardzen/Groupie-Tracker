@@ -1,7 +1,6 @@
 package database
 
 import (
-
 	"database/sql"
 	"fmt"
 	"log"
@@ -39,7 +38,7 @@ func InitDB() error {
 	log.Println("⏳ Attempting to connect to database...")
 
 	DB = stdlib.OpenDB(*config)
-	
+
 	DB.SetMaxOpenConns(25)
 	DB.SetMaxIdleConns(5)
 	DB.SetConnMaxLifetime(5 * time.Minute)
@@ -97,8 +96,22 @@ func createTables() error {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
+	CREATE TABLE IF NOT EXISTS artists (
+		id SERIAL PRIMARY KEY,
+		name TEXT NOT NULL,
+		image TEXT,
+		bio TEXT,
+		members TEXT,
+		creation_date INTEGER,
+		first_album TEXT,
+		locations TEXT,
+		concert_dates TEXT,
+		relations TEXT
+	);
+
 	CREATE TABLE IF NOT EXISTS concerts (
 		id SERIAL PRIMARY KEY,
+		artist_id INTEGER REFERENCES artists(id) ON DELETE CASCADE,
 		name VARCHAR(255) NOT NULL,
 		artist_name VARCHAR(255) NOT NULL,
 		venue VARCHAR(255) NOT NULL,

@@ -10,10 +10,11 @@ import (
 
 	"groupie-backend/database"
 	"groupie-backend/handlers"
+	"groupie-backend/internal/auth" // Import the JWT auth package
 	"groupie-backend/middleware"
 	"groupie-backend/storage"
 
-	"github.com/getsentry/sentry-go"       // Sentry SDK
+	"github.com/getsentry/sentry-go"                 // Sentry SDK
 	sentryhttp "github.com/getsentry/sentry-go/http" // Sentry HTTP middleware
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -98,16 +99,15 @@ func main() {
 	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
 	auth := api.PathPrefix("/auth").Subrouter()
-    auth.HandleFunc("/register", handlers.Register).Methods("POST")
-    auth.HandleFunc("/login", handlers.Login).Methods("POST")
-    auth.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
-    auth.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
-    auth.HandleFunc("/forgot-password", handlers.ForgotPassword).Methods("POST")
-    
-    auth.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
-    auth.HandleFunc("/send-verification", handlers.VerifyEmail).Methods("POST")
-    auth.HandleFunc("/forgot-password", handlers.ForgotPassword).Methods("POST")
+	auth.HandleFunc("/register", handlers.Register).Methods("POST")
+	auth.HandleFunc("/login", handlers.Login).Methods("POST")
+	auth.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
+	auth.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
+	auth.HandleFunc("/request-password-reset", handlers.RequestPasswordReset).Methods("POST")
+	auth.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
+	auth.HandleFunc("/send-verification", handlers.SendVerificationEmail).Methods("POST")
 	auth.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
+
 	protected := api.PathPrefix("").Subrouter()
 	protected.Use(middleware.JWTAuth)
 	protected.HandleFunc("/profile", handlers.GetProfile).Methods("GET")

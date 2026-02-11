@@ -23,6 +23,21 @@ const venues = [
   { city: "Londres", place: "O2 Arena" },
 ];
 
+// Define this interface
+interface TicketCardProps {
+  artist: {
+    id: number;
+    name: string;
+    image: string;
+    // Add other artist properties if needed for display
+  };
+  date: string;
+  price: number;
+  place: string;
+  city: string;
+  id: number;
+}
+
 const ticketsData = mockArtists.map((artist, index) => {
   const venue = venues[index % venues.length];
   return {
@@ -36,7 +51,7 @@ const ticketsData = mockArtists.map((artist, index) => {
   };
 });
 
-function TicketCard({ artist, date, price, place, city, id }: any) {
+function TicketCard({ artist, date, price, place, city, id }: TicketCardProps) {
   const [isReserved, setIsReserved] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
@@ -47,7 +62,7 @@ function TicketCard({ artist, date, price, place, city, id }: any) {
         addItem({
             id: id.toString(),
             title: artist.name,
-            price: parseInt(price),
+            price: price,
             image: artist.image,
             quantity: 1,
             type: 'standard'

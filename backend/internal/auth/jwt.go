@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors" // Added import
 	"fmt"
 	"os"
 	"time"

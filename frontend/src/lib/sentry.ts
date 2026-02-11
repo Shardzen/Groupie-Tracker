@@ -151,7 +151,7 @@ export const setSentryUser = (user: { id: number; email: string; name?: string }
   }
 };
 
-export const setSentryContext = (name: string, context: Record<string, any>) => {
+export const setSentryContext = (name: string, context: Record<string, unknown>) => {
   Sentry.setContext(name, context);
 };
 

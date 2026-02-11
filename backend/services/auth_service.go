@@ -3,16 +3,13 @@ package services
 import (
 	"errors"
 	"fmt"
-	"os"
 	"regexp"
 	"time"
 	"unicode"
-
 	"groupie-backend/database"
-	"groupie-backend/internal/auth" // Import the JWT logic from internal/auth
+	"groupie-backend/internal/auth"
 	"groupie-backend/models"
 
-	"github.com/golang-jwt/jwt/v5" // This import might be removed if only using internal/auth.jwt.Claims
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -64,7 +61,7 @@ func sanitizeInput(input string, maxLength int) string {
 }
 
 func RegisterUser(req models.RegisterRequest) (*models.User, error) {
-	// Validate required fields
+	// 1. Validation des champs
 	if req.Email == "" || req.Password == "" {
 		return nil, errors.New("email and password are required")
 	}
@@ -78,9 +75,10 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 	}
 
 	if err := isStrongPassword(req.Password); err != nil {
-		return nil, "", err
+		return nil, err // Corrigé : renvoie 2 valeurs
 	}
 
+	// 2. Vérification existence
 	var exists bool
 	err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)", req.Email).Scan(&exists)
 	if err != nil {
@@ -90,28 +88,27 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 		return nil, errors.New("email already registered")
 	}
 
+	// 3. Hachage et Insertion
 	hashedPassword, err := HashPassword(req.Password)
 	if err != nil {
 		return nil, errors.New("error processing password")
 	}
 
 	var userID int
-	var userRole string = "user" // Default role for new registrations
+	var userRole string = "user"
 	err = database.DB.QueryRow(
-		`INSERT INTO users (email, password_hash, name, role) 
-		VALUES ($1, $2, $3, $4) 
-		RETURNING id`,
-		req.Email, hashedPassword, req.Name, "user",
+		`INSERT INTO users (email, password_hash, first_name, last_name, role) 
+         VALUES ($1, $2, $3, $4, $5) 
+         RETURNING id`,
+		req.Email, hashedPassword, req.FirstName, req.LastName, userRole,
 	).Scan(&userID)
 
 	if err != nil {
-		return nil, "", errors.New("échec de la création du compte")
+		return nil, errors.New("échec de la création du compte") // Corrigé : renvoie 2 valeurs
 	}
 
-	// Génération du token de vérification
+	// 4. Token de vérification email
 	token := fmt.Sprintf("%x", time.Now().UnixNano())
-
-	// Enregistrement du token en base
 	_, err = database.DB.Exec(
 		"INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
 		userID, token, time.Now().Add(24*time.Hour),
@@ -120,12 +117,8 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 		fmt.Println("Erreur insertion token:", err)
 	}
 
-	errMail := SendVerificationEmail(req.Email, token)
-if errMail != nil {
-    fmt.Println("❌ ERREUR SMTP RÉELLE :", errMail)
-} else {
-    fmt.Println("✅ EMAIL ENVOYÉ AVEC SUCCÈS À :", req.Email)
-}
+	// 5. Envoi de l'email
+	_ = SendVerificationEmail(req.Email, token)
 
 	return &models.User{
 		ID:        userID,
@@ -133,13 +126,7 @@ if errMail != nil {
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Role:      userRole,
-	}
-
-	// Generate JWT token
-	token, err := auth.GenerateToken(uint(user.ID), user.Role)
-	if err != nil {
-		return nil, "", errors.New("failed to generate authentication token")
-	}, token, nil
+	}, nil
 }
 
 func LoginUser(req models.LoginRequest) (*models.User, string, error) {
@@ -158,7 +145,8 @@ func LoginUser(req models.LoginRequest) (*models.User, string, error) {
 		return nil, "", errors.New("email ou mot de passe incorrect")
 	}
 
-	token, err := GenerateToken(user)
+	// Utilisation du package auth importé
+	token, err := auth.GenerateToken(uint(user.ID), user.Role)
 	if err != nil {
 		return nil, "", errors.New("authentication failed")
 	}

@@ -71,7 +71,7 @@ func CreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 4. Créer le Payment Intent via le service
-	clientSecret, amount, err := services.CreatePaymentIntent(claims.UserID, req)
+	clientSecret, amount, err := services.CreatePaymentIntent(int(claims.UserID), req)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -83,7 +83,7 @@ func CreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
 
 	// 5. Retourner le client_secret pour le frontend
 	log.Printf("✅ Payment Intent created for user %d: Amount=%.2f€", claims.UserID, amount)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.CreatePaymentIntentResponse{
 		ClientSecret: clientSecret,
@@ -129,7 +129,7 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 4. Confirmer via le service
-	if err := services.ConfirmPayment(claims.UserID, req); err != nil {
+	if err := services.ConfirmPayment(int(claims.UserID), req); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -162,7 +162,7 @@ func GetReservations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Récupérer les réservations
-	reservations, err := services.GetUserReservations(claims.UserID)
+	reservations, err := services.GetUserReservations(int(claims.UserID))
 	if err != nil {
 		log.Printf("❌ Error fetching reservations for user %d: %v", claims.UserID, err)
 		w.Header().Set("Content-Type", "application/json")
@@ -177,7 +177,6 @@ func GetReservations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(reservations)
 }
-
 
 func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536) // 64KB max
@@ -212,13 +211,13 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	switch event.Type {
 	case "payment_intent.succeeded":
 		handlePaymentSucceeded(w, event)
-		
+
 	case "payment_intent.payment_failed":
 		handlePaymentFailed(w, event)
-		
+
 	case "payment_intent.canceled":
 		handlePaymentCanceled(w, event)
-		
+
 	default:
 		// Événements non traités (mais on retourne 200 quand même)
 		log.Printf("ℹ️  Webhook event ignored: %s", event.Type)
@@ -257,44 +256,44 @@ func handlePaymentSucceeded(w http.ResponseWriter, event stripe.Event) {
 		return
 	}
 
-	log.Printf("✅ PAYMENT SUCCEEDED - Reservation #%s marked as PAID (Payment Intent: %s)", 
+	log.Printf("✅ PAYMENT SUCCEEDED - Reservation #%s marked as PAID (Payment Intent: %s)",
 		reservationID, paymentIntent.ID)
 }
 
 // handlePaymentFailed traite un échec de paiement
 // handlePaymentFailed traite un échec de paiement
 func handlePaymentFailed(w http.ResponseWriter, event stripe.Event) {
-    var paymentIntent stripe.PaymentIntent
-    err := json.Unmarshal(event.Data.Raw, &paymentIntent)
-    if err != nil {
-        log.Printf("❌ Error parsing payment_intent.payment_failed: %v", err)
-        w.WriteHeader(http.StatusBadRequest)
-        fmt.Fprintf(w, "Error parsing webhook JSON: %v", err)
-        return
-    }
+	var paymentIntent stripe.PaymentIntent
+	err := json.Unmarshal(event.Data.Raw, &paymentIntent)
+	if err != nil {
+		log.Printf("❌ Error parsing payment_intent.payment_failed: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Error parsing webhook JSON: %v", err)
+		return
+	}
 
-    reservationID, ok := paymentIntent.Metadata["reservation_id"]
-    if !ok {
-        log.Printf("⚠️  Payment failed but no reservation_id in metadata: %s", paymentIntent.ID)
-        return
-    }
+	reservationID, ok := paymentIntent.Metadata["reservation_id"]
+	if !ok {
+		log.Printf("⚠️  Payment failed but no reservation_id in metadata: %s", paymentIntent.ID)
+		return
+	}
 
-    failureReason := "Payment failed"
-    
-    // --- CHANGE STARTS HERE ---
-    if paymentIntent.LastPaymentError != nil {
-        // Use .Error() instead of .Message to ensure compatibility
-        failureReason = paymentIntent.LastPaymentError.Error() 
-    }
-    // --- CHANGE ENDS HERE ---
+	failureReason := "Payment failed"
 
-    err = services.MarkReservationAsFailed(reservationID, failureReason)
-    if err != nil {
-        log.Printf("❌ Failed to mark reservation as failed (ID: %s): %v", reservationID, err)
-        return
-    }
+	// --- CHANGE STARTS HERE ---
+	if paymentIntent.LastPaymentError != nil {
+		// Use .Error() instead of .Message to ensure compatibility
+		failureReason = paymentIntent.LastPaymentError.Error()
+	}
+	// --- CHANGE ENDS HERE ---
 
-    log.Printf("❌ PAYMENT FAILED - Reservation #%s marked as FAILED: %s", reservationID, failureReason)
+	err = services.MarkReservationAsFailed(reservationID, failureReason)
+	if err != nil {
+		log.Printf("❌ Failed to mark reservation as failed (ID: %s): %v", reservationID, err)
+		return
+	}
+
+	log.Printf("❌ PAYMENT FAILED - Reservation #%s marked as FAILED: %s", reservationID, failureReason)
 }
 
 // handlePaymentCanceled traite une annulation de paiement

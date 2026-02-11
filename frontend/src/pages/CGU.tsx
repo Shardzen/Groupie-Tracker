@@ -13,7 +13,7 @@ export default function CGU() {
             <strong>Version :</strong> 2.0
           </p>
           <p className="text-muted-foreground">
-            Les présentes Conditions Générales d'Utilisation (ci-après "CGU") régissent l'utilisation 
+            Les présentes Conditions Générales d&apos;Utilisation (ci-après &quot;CGU&quot;) régissent l'utilisation 
             du site internet <strong>groupietracker.fr</strong> et de l'application mobile associée 
             (ci-après "le Service") édités par <strong>Groupie Tracker SAS</strong>.
           </p>

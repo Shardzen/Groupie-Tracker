@@ -24,9 +24,9 @@ type DeezerResponse struct {
 
 type DeezerAPISearch struct {
 	Data []struct {
-		ID   int    `json:"id"`
-		Name string `json:"name,omitempty"` 
-		Title string `json:"title,omitempty"`
+		ID    int    `json:"id"`
+		Name  string `json:"name,omitempty"`  // Pour les artistes
+		Title string `json:"title,omitempty"` // Pour les tracks
 	} `json:"data"`
 }
 

@@ -9,12 +9,12 @@ export interface Track {
 
 interface PlayerStore {
   currentTrack: Track | null;
-  open: (track: Track) => void;
+  play: (track: Track) => void;
   close: () => void;
 }
 
 export const usePlayerStore = create<PlayerStore>((set) => ({
   currentTrack: null,
-  open: (track) => set({ currentTrack: track }),
+  play: (track) => set({ currentTrack: track }),
   close: () => set({ currentTrack: null }),
 }));

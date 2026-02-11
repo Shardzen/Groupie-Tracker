@@ -10,21 +10,21 @@ import (
 )
 
 type DashboardStats struct {
-	TotalArtists      int                  `json:"total_artists"`
-	TotalConcerts     int                  `json:"total_concerts"`
-	TotalUsers        int                  `json:"total_users"`
-	TotalRevenue      float64              `json:"total_revenue"`
-	RecentBookings    int                  `json:"recent_bookings"`
-	PopularArtists    []PopularArtist      `json:"popular_artists"`
-	RevenueByMonth    []RevenueData        `json:"revenue_by_month"`
-	BookingsByStatus  map[string]int       `json:"bookings_by_status"`
-	UpcomingConcerts  int                  `json:"upcoming_concerts"`
+	TotalArtists     int             `json:"total_artists"`
+	TotalConcerts    int             `json:"total_concerts"`
+	TotalUsers       int             `json:"total_users"`
+	TotalRevenue     float64         `json:"total_revenue"`
+	RecentBookings   int             `json:"recent_bookings"`
+	PopularArtists   []PopularArtist `json:"popular_artists"`
+	RevenueByMonth   []RevenueData   `json:"revenue_by_month"`
+	BookingsByStatus map[string]int  `json:"bookings_by_status"`
+	UpcomingConcerts int             `json:"upcoming_concerts"`
 }
 
 type PopularArtist struct {
-	ArtistName   string  `json:"artist_name"`
-	ArtistImage  string  `json:"artist_image"`
-	TotalBookings int    `json:"total_bookings"`
+	ArtistName    string  `json:"artist_name"`
+	ArtistImage   string  `json:"artist_image"`
+	TotalBookings int     `json:"total_bookings"`
 	TotalRevenue  float64 `json:"total_revenue"`
 }
 
@@ -46,7 +46,7 @@ type ActivityLog struct {
 // AdminGetDashboard - Retourne les statistiques complètes du dashboard
 func AdminGetDashboard(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})
@@ -142,7 +142,7 @@ func AdminGetDashboard(w http.ResponseWriter, r *http.Request) {
 // AdminGetActivityLogs - Retourne les logs d'activité
 func AdminGetActivityLogs(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetUserFromContext(r)
-	if !ok || !claims.IsAdmin {
+	if !ok || claims.Role != "admin" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin access required"})

@@ -11,7 +11,7 @@ export default function PWAInstallButton() {
     // Check if already installed
     const checkInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-      const isInApp = (window.navigator as any).standalone === true;
+      const isInApp = window.navigator.standalone === true;
       return isStandalone || isInApp;
     };
 
