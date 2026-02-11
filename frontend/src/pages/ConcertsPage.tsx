@@ -1,45 +1,8 @@
 import { useState } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { mockArtists } from '../data/mockData';
-import { Calendar, Ticket, Globe, Navigation } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-
-const containerStyle = {
-  width: '100%',
-  height: '100%',
-  borderRadius: '16px',
-};
-
-const defaultCenter = {
-  lat: 48.8566,
-  lng: 2.3522
-};
-
-const mapOptions = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
-  styles: [
-    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-    { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
-    { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
-    { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
-    { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
-    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
-    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
-    { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
-    { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
-    { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
-    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
-    { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
-  ]
-};
+import { Calendar, Ticket, Globe as GlobeIcon, Navigation } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import ConcertGlobe from '../components/ConcertGlobe'; // <--- IMPORT DU NOUVEAU GLOBE
 
 export default function ConcertsPage() {
   const navigate = useNavigate();
@@ -56,13 +19,12 @@ export default function ConcertsPage() {
   const [selectedConcert, setSelectedConcert] = useState<any>(null);
 
   return (
-    // J'ai changé pt-8 en pt-24 ici 👇
     <div className="flex flex-col h-[calc(100vh-80px)] bg-[#050505] text-white pt-24 pb-4">
       
       <div className="container mx-auto px-6 mb-4 flex justify-between items-end">
         <div>
             <h1 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
-              <Globe className="text-violet-500 animate-pulse" />
+              <GlobeIcon className="text-violet-500 animate-pulse" />
               World Tour <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">2026</span>
             </h1>
         </div>
@@ -74,7 +36,7 @@ export default function ConcertsPage() {
 
       <div className="flex-1 container mx-auto px-4 flex gap-6 overflow-hidden">
         
-        {/* LISTE GAUCHE */}
+        {/* LISTE GAUCHE (Inchangée) */}
         <div className="w-full md:w-[350px] shrink-0 flex flex-col bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
           <div className="p-4 border-b border-white/5 bg-white/5">
              <h2 className="font-bold text-sm uppercase tracking-wider text-zinc-400">Liste des concerts</h2>
@@ -134,55 +96,9 @@ export default function ConcertsPage() {
           </div>
         </div>
 
-        {/* CARTE DROITE */}
-        <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block">
-          <LoadScript googleMapsApiKey=""> 
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={selectedConcert ? { lat: selectedConcert.lat, lng: selectedConcert.lng } : defaultCenter}
-              zoom={selectedConcert ? 12 : 4} 
-              options={mapOptions}
-            >
-              {allConcerts.map((concert) => (
-                <Marker
-                  key={concert.id}
-                  position={{ lat: concert.lat, lng: concert.lng }}
-                  onClick={() => setSelectedConcert(concert)}
-                />
-              ))}
-
-              {selectedConcert && (
-                <InfoWindow
-                  position={{ lat: selectedConcert.lat, lng: selectedConcert.lng }}
-                  onCloseClick={() => setSelectedConcert(null)}
-                  options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
-                >
-                  <div className="text-black p-2 min-w-[200px]">
-                    <div className="flex items-center gap-3 mb-2">
-                          <img src={selectedConcert.artistImage} className="w-10 h-10 rounded-md object-cover" />
-                          <div>
-                             <span className="font-bold text-sm block">{selectedConcert.artistName}</span>
-                             <span className="text-[10px] text-gray-500 uppercase">{selectedConcert.genre}</span>
-                          </div>
-                    </div>
-                    
-                    <div className="bg-gray-100 rounded p-2 mb-2 text-xs space-y-1">
-                        <p className="font-bold">{selectedConcert.venue}</p>
-                        <p>{selectedConcert.city}</p>
-                        <p className="text-violet-700 font-semibold">{selectedConcert.date}</p>
-                    </div>
-
-                    <Link 
-                        to={`/tickets?search=${encodeURIComponent(selectedConcert.artistName)}`}
-                        className="block w-full bg-black text-white text-center py-2 rounded text-[10px] font-bold uppercase hover:bg-violet-600 transition-colors"
-                    >
-                        Réserver
-                    </Link>
-                  </div>
-                </InfoWindow>
-              )}
-            </GoogleMap>
-          </LoadScript>
+        {/* C'EST ICI QUE ÇA CHANGE : LE GLOBE 3D */}
+        <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl hidden md:block bg-black">
+          <ConcertGlobe />
         </div>
 
       </div>
