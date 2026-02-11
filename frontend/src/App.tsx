@@ -18,6 +18,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
+import Player from './components/Player';
+import CartDrawer from './components/CartDrawer';
+
 function AnimatedRoutes() {
   const location = useLocation();
   const { user } = useAuthStore();
@@ -25,6 +28,7 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artists" element={<ArtistsPage />} />
@@ -33,7 +37,6 @@ function AnimatedRoutes() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
-          
 
           {user?.is_admin && (
             <>
@@ -64,6 +67,10 @@ function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      
+      <Player />
+      <CartDrawer />
+      
     </BrowserRouter>
   );
 }
