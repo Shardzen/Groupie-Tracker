@@ -102,6 +102,54 @@ export default function AboutPage() {
           </div>
         </div>
 
+        {/* Nouvelle Section : Notre Équipe */}
+        <div className="max-w-6xl mx-auto mb-32">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-center mb-16">
+                Notre <span className="text-fuchsia-400">Équipe</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                {/* Membre 1 */}
+                <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl text-center flex flex-col items-center">
+                    <img 
+                        src="https://randomuser.me/api/portraits/men/32.jpg" 
+                        alt="Membre de l'équipe 1" 
+                        className="w-32 h-32 rounded-full object-cover mb-6 border-4 border-violet-500/50"
+                    />
+                    <h3 className="text-2xl font-bold mb-2">Alexandre Dupont</h3>
+                    <p className="text-violet-400 uppercase text-sm font-bold mb-4">CEO & Fondateur</p>
+                    <p className="text-zinc-400 leading-relaxed text-sm">
+                        Visionnaire derrière Groupie, Alexandre est un passionné de musique live et de technologie, dédié à connecter les fans et les artistes.
+                    </p>
+                </div>
+                {/* Membre 2 */}
+                <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl text-center flex flex-col items-center">
+                    <img 
+                        src="https://randomuser.me/api/portraits/women/44.jpg" 
+                        alt="Membre de l'équipe 2" 
+                        className="w-32 h-32 rounded-full object-cover mb-6 border-4 border-fuchsia-500/50"
+                    />
+                    <h3 className="text-2xl font-bold mb-2">Sophie Martin</h3>
+                    <p className="text-fuchsia-400 uppercase text-sm font-bold mb-4">Lead Développeuse</p>
+                    <p className="text-zinc-400 leading-relaxed text-sm">
+                        Experte en code et en optimisation, Sophie transforme les idées en réalité numérique fluide et performante.
+                    </p>
+                </div>
+                {/* Membre 3 */}
+                <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl text-center flex flex-col items-center">
+                    <img 
+                        src="https://randomuser.me/api/portraits/men/47.jpg" 
+                        alt="Membre de l'équipe 3" 
+                        className="w-32 h-32 rounded-full object-cover mb-6 border-4 border-orange-500/50"
+                    />
+                    <h3 className="text-2xl font-bold mb-2">Marc Dubois</h3>
+                    <p className="text-orange-400 uppercase text-sm font-bold mb-4">Responsable Marketing</p>
+                    <p className="text-zinc-400 leading-relaxed text-sm">
+                        Avec un don pour raconter des histoires, Marc s'assure que chaque événement trouve son public.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <div className="max-w-4xl mx-auto bg-gradient-to-br from-[#18181b] to-[#0e0e0e] rounded-[2.5rem] p-12 text-center border border-white/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-[80px]"></div>
           
