@@ -2,105 +2,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Play, Heart, MapPin, Music, Share2, ArrowLeft, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { usePlayerStore, Track } from '../stores/usePlayerStore';
-import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-
-// Expanded Artist interface to include all data from API
-interface Artist {
-  id: string;
-  name: string;
-  image: string;
-  bio: string;
-  genre: string;
-  topTracks: { title: string; plays: string; duration:string }[];
-  upcomingDates: { date: string; venue: string; city: string }[];
-}
+import { useState } from 'react';
+import { mockArtists } from '../data/mockData';
 
 export default function ArtistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { play } = usePlayerStore();
-
-  const [artist, setArtist] = useState<Artist | null>(null);
-  const [similarArtists, setSimilarArtists] = useState<Artist[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
-  // Effect to fetch the main artist
-  useEffect(() => {
-    if (!id) {
-      setIsLoading(false);
-      setIsError(true);
-      return;
-    }
-
-    const fetchArtist = async () => {
-      window.scrollTo(0, 0); // Scroll to top on new artist
-      setIsLoading(true);
-      setIsError(false);
-      try {
-        const data = await api.get<Artist>(`/artists/${id}`);
-        setArtist(data);
-      } catch (err) {
-        console.error("Failed to fetch artist:", err);
-        setIsError(true);
-        setArtist(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchArtist();
-  }, [id]);
-
-  // Effect to fetch similar artists after the main artist is loaded
-  useEffect(() => {
-    if (!artist) return;
-
-    const fetchSimilarArtists = async () => {
-      try {
-        const allArtists = await api.get<Artist[]>('/artists');
-        const filtered = allArtists
-          .filter(a => a.id !== artist.id && a.genre === artist.genre)
-          .slice(0, 8);
-        setSimilarArtists(filtered);
-      } catch (err) {
-        console.error("Failed to fetch similar artists:", err);
-      }
-    };
-
-    fetchSimilarArtists();
-  }, [artist]);
-
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold mb-4">Chargement de l'artiste...</h2>
-          <p className="text-zinc-400 mb-8">Veuillez patienter</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold mb-4">Erreur de chargement</h2>
-          <p className="text-zinc-400 mb-8">Impossible de charger les détails de l'artiste.</p>
-          <button 
-            onClick={() => navigate('/artists')}
-            className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-full font-bold transition-colors"
-          >
-            Retour aux artistes
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Find artist from mock data instead of fetching
+  const artist = mockArtists.find(a => a.id === id);
 
   if (!artist) {
     return (
@@ -143,6 +55,15 @@ export default function ArtistDetailPage() {
       alert('Lien copié dans le presse-papier!');
     }
   };
+  
+  // Use mock data for concerts as well
+  const mockConcerts = [
+    { date: 'MAI 15', venue: 'Accor Arena', city: 'Paris, France' },
+    { date: 'MAI 18', venue: 'Zénith', city: 'Lyon, France' },
+    { date: 'MAI 22', venue: 'Arkéa Arena', city: 'Bordeaux, France' },
+  ];
+
+  const similarArtists = mockArtists.filter(a => a.id !== artist.id && a.genre === artist.genre).slice(0, 8);
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-white overflow-x-hidden">
@@ -278,8 +199,7 @@ export default function ArtistDetailPage() {
         <div>
            <h2 className="text-3xl font-bold mb-8 uppercase tracking-tight flex items-center gap-3"><Calendar className="text-purple-500" /> Prochaines Dates</h2>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {artist.upcomingDates && artist.upcomingDates.length > 0 ? (
-                artist.upcomingDates.map((concert, index) => (
+              {mockConcerts.map((concert, index) => (
                   <div key={index} className="p-6 rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-white/10 hover:border-purple-500/50 transition cursor-pointer group">
                     <div className="flex items-start gap-4">
                       <div className="bg-zinc-900 text-center px-4 py-3 rounded-xl group-hover:bg-purple-600 transition-colors flex-shrink-0">
@@ -293,10 +213,7 @@ export default function ArtistDetailPage() {
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-zinc-500 col-span-full">Aucune date de concert à venir.</p>
-              )}
+                ))}
            </div>
         </div>
 
