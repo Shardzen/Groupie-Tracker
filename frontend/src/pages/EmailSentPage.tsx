@@ -19,11 +19,13 @@ export default function EmailSentPage() {
         </p>
 
         <div className="space-y-4">
-          <a 
-            href="https://mail.google.com" 
-            target="_blank" 
-            className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all"
-          >
+   <a 
+       href="https://mail.google.com" 
+       target="_blank" 
+       rel="noopener noreferrer"  // <-- Ajoute cette ligne
+       className="w-full bg-white text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all"
+   >
+          
             Ouvrir ma boîte mail <ExternalLink size={18} />
           </a>
           

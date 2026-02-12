@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -26,7 +26,6 @@ export default function RegisterPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // 2. On envoie les clés exactes que ta table SQL attend désormais
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
@@ -40,16 +39,23 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Erreur lors de l’inscription');
       }
 
-     console.log("✅ Utilisateur créé !", data);
-navigate('/email-sent'); 
-    } catch (error: any) {
-      console.error("❌ Erreur API :", error.message);
-      alert(error.message);
+      console.log("✅ Utilisateur créé !", data);
+      navigate('/email-sent'); 
+      
+    } catch (error) {
+      // CORRECTION ICI : On vérifie le type de l'erreur proprement
+      let message = "Une erreur inconnue est survenue";
+      
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
+      console.error("❌ Erreur API :", message);
+      alert(message);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <motion.div 
       initial={{ opacity: 0, x: 100 }}
