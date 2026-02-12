@@ -10,7 +10,8 @@ import { Capacitor } from '@capacitor/core'; // Pour vérifier si on est sur mob
 
 // Pages
 import EmailSentPage from './pages/EmailSentPage';
-import VerifyEmail from './pages/VerifyEmail'; // <--- AJOUTÉ
+import VerifySuccess from './pages/VerifySuccess';
+import VerifyError from './pages/VerifyError';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -51,7 +52,9 @@ function AnimatedRoutes() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/email-sent" element={<EmailSentPage />} />
-          <Route path="/verify-email" element={<VerifyEmail />} /> {/* <--- AJOUTÉ */}
+          <Route path="/verify-success" element={<VerifySuccess />} />
+          <Route path="/verify-error" element={<VerifyError />} />
+
 
           {user?.is_admin && (
             <>
