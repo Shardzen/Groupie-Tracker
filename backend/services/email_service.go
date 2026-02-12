@@ -2,32 +2,11 @@ package services
 
 import (
 	"fmt"
-	"net/smtp"
 	"os"
+
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
-
-func SendEmail(to, subject, body string) error {
-	from := os.Getenv("SMTP_FROM")
-	password := os.Getenv("SMTP_PASSWORD")
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-
-	if from == "" || password == "" || smtpHost == "" || smtpPort == "" {
-		return fmt.Errorf("SMTP configuration missing")
-	}
-
-	message := []byte(fmt.Sprintf("To: %s\r\nSubject: %s\r\n\r\n%s", to, subject, body))
-
-	auth := smtp.PlainAuth("", from, password, smtpHost)
-	addr := fmt.Sprintf("%s:%s", smtpHost, smtpPort)
-
-	err := smtp.SendMail(addr, auth, from, []string{to}, message)
-	if err != nil {
-		return fmt.Errorf("failed to send email: %w", err)
-	}
-
-	return nil
-}
 func SendPasswordResetEmail(toEmail string, token string) error {
     resetLink := fmt.Sprintf("http://localhost:5173/reset-password?token=%s", token)
 
@@ -47,37 +26,24 @@ func SendPasswordResetEmail(toEmail string, token string) error {
 }
 
 func SendHTMLEmail(to, subject, htmlBody string) error {
-	from := os.Getenv("SMTP_FROM")
-	password := os.Getenv("SMTP_PASSWORD")
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
+	apiKey := os.Getenv("SENDGRID_API_KEY")
+	fromEmail := os.Getenv("FROM_EMAIL") // Assuming FROM_EMAIL is also configured
 
-	if from == "" || password == "" || smtpHost == "" || smtpPort == "" {
-		return fmt.Errorf("SMTP configuration missing")
+	if apiKey == "" || fromEmail == "" {
+		return fmt.Errorf("SendGrid API Key or FROM_EMAIL not configured")
 	}
 
-	headers := map[string]string{
-		"From":         from,
-		"To":           to,
-		"Subject":      subject,
-		"MIME-Version": "1.0",
-		"Content-Type": "text/html; charset=UTF-8",
-	}
-
-	message := ""
-	for k, v := range headers {
-		message += fmt.Sprintf("%s: %s\r\n", k, v)
-	}
-	message += "\r\n" + htmlBody
-
-	auth := smtp.PlainAuth("", from, password, smtpHost)
-	addr := fmt.Sprintf("%s:%s", smtpHost, smtpPort)
-
-	err := smtp.SendMail(addr, auth, from, []string{to}, []byte(message))
+	from := mail.NewEmail("YNOT Music", fromEmail)
+	toEmail := mail.NewEmail("", to)
+	message := mail.NewSingleEmail(from, subject, toEmail, "", htmlBody)
+	client := sendgrid.NewSendClient(apiKey)
+	response, err := client.Send(message)
 	if err != nil {
-		return fmt.Errorf("failed to send email: %w", err)
+		return fmt.Errorf("failed to send email via SendGrid: %w", err)
 	}
-
+	if response.StatusCode >= 400 {
+		return fmt.Errorf("SendGrid API returned status %d: %s", response.StatusCode, response.Body)
+	}
 	return nil
 }
 func SendVerificationEmail(toEmail string, token string) error {

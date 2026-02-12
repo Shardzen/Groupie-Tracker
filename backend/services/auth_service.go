@@ -118,7 +118,13 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 	}
 
 	// 5. Envoi de l'email
-	_ = SendVerificationEmail(req.Email, token)
+	err = SendVerificationEmail(req.Email, token)
+	if err != nil {
+		fmt.Printf("Erreur envoi email de vérification: %v\n", err)
+		// Optionally, you might want to log this error and/or return a more specific error to the user.
+		// For now, we'll return a generic error related to account creation to avoid revealing internal details.
+		return nil, errors.New("échec de l'envoi de l'email de vérification")
+	}
 
 	return &models.User{
 		ID:        userID,
@@ -143,6 +149,10 @@ func LoginUser(req models.LoginRequest) (*models.User, string, error) {
 	}
 	if !CheckPasswordHash(req.Password, user.PasswordHash) {
 		return nil, "", errors.New("email ou mot de passe incorrect")
+	}
+
+	if !emailVerified {
+		return nil, "", errors.New("veuillez vérifier votre email avant de vous connecter")
 	}
 
 	// Utilisation du package auth importé
