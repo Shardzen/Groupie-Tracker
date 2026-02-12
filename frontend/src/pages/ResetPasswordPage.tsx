@@ -31,7 +31,8 @@ export default function ResetPasswordPage() {
     }, 2000);
 
   } catch (err) {
-    toast.error("Le lien a expiré ou est déjà utilisé.");
+    const message = err instanceof APIError ? err.message : "Le lien a expiré ou est déjà utilisé.";
+    toast.error(message);
     console.error(err);
   } finally {
     setIsLoading(false);

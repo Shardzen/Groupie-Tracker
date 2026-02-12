@@ -28,8 +28,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	user, err := services.RegisterUser(req)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		if err.Error() == "email already registered" {
+			w.WriteHeader(http.StatusConflict) // 409 Conflict
+			json.NewEncoder(w).Encode(map[string]string{"error": "Cette adresse e-mail est déjà enregistrée."})
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		}
 		return
 	}
 
@@ -54,8 +59,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	user, token, err := services.LoginUser(req)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		if err.Error() == "veuillez vérifier votre email avant de vous connecter" {
+			w.WriteHeader(http.StatusForbidden) // 403 Forbidden
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		} else {
+			w.WriteHeader(http.StatusUnauthorized) // 401 Unauthorized
+			json.NewEncoder(w).Encode(map[string]string{"error": "Email ou mot de passe incorrect"})
+		}
 		return
 	}
 
@@ -79,7 +89,9 @@ func ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var userID int
 	err := database.DB.QueryRow("SELECT id FROM users WHERE email = $1", req.Email).Scan(&userID)
 	if err != nil {
-		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK) // Still return OK to avoid email enumeration
+		json.NewEncoder(w).Encode(map[string]string{"message": "Si l'adresse e-mail existe, un lien de réinitialisation de mot de passe a été envoyé."})
 		return
 	}
 
@@ -209,7 +221,9 @@ func ResendVerification(w http.ResponseWriter, r *http.Request) {
 		Email string `json:"email"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Requête invalide"})
 		return
 	}
 

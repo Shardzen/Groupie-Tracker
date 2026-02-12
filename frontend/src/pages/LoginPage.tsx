@@ -56,8 +56,16 @@ export default function LoginPage() {
 
   // ✅ LOGIQUE DU BOUTON GOOGLE
   const handleGoogleLogin = () => {
-    // Redirection directe vers le backend qui va déclencher le flux Google
-    window.location.href = 'http://localhost:8080/api/auth/google';
+    const isDev = import.meta.env.DEV;
+    let googleAuthUrl: string;
+
+    if (isDev) {
+      googleAuthUrl = `/api/auth/google`;
+    } else {
+      const baseUrl = import.meta.env.VITE_API_URL || '';
+      googleAuthUrl = baseUrl ? `${baseUrl}/api/auth/google` : `/api/auth/google`;
+    }
+    window.location.href = googleAuthUrl;
   };
 
   return (
