@@ -12,7 +12,7 @@ export default function ArtistDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
 
   // Find artist from mock data instead of fetching
-  const artist = mockArtists.find(a => a.id === id);
+  const artist = mockArtists.find(a => a.id === Number(id));
 
   if (!artist) {
     return (
