@@ -75,7 +75,7 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 	}
 
 	if err := isStrongPassword(req.Password); err != nil {
-		return nil, err // Corrigé : renvoie 2 valeurs
+		return nil, err
 	}
 
 	// 2. Vérification existence
@@ -104,7 +104,7 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 	).Scan(&userID)
 
 	if err != nil {
-		return nil, errors.New("échec de la création du compte") // Corrigé : renvoie 2 valeurs
+		return nil, errors.New("échec de la création du compte")
 	}
 
 	// 4. Token de vérification email
@@ -114,48 +114,48 @@ func RegisterUser(req models.RegisterRequest) (*models.User, error) {
 		userID, token, time.Now().Add(24*time.Hour),
 	)
 	if err != nil {
-		fmt.Println("Erreur insertion token:", err)
+		fmt.Println("❌ Erreur insertion token:", err)
 	}
 
 	// 5. Envoi de l'email
 	err = SendVerificationEmail(req.Email, token)
 	if err != nil {
-		fmt.Printf("Erreur envoi email de vérification: %v\n", err)
-		// Optionally, you might want to log this error and/or return a more specific error to the user.
-		// For now, we'll return a generic error related to account creation to avoid revealing internal details.
+		fmt.Printf("❌ Erreur envoi email de vérification: %v\n", err)
 		return nil, errors.New("échec de l'envoi de l'email de vérification")
 	}
 
 	return &models.User{
-		ID:        userID,
-		Email:     req.Email,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Role:      userRole,
+		ID:            userID,
+		Email:         req.Email,
+		FirstName:     req.FirstName,
+		LastName:      req.LastName,
+		Role:          userRole,
+		EmailVerified: false, // ✅ Ajouté
 	}, nil
 }
 
 func LoginUser(req models.LoginRequest) (*models.User, string, error) {
 	var user models.User
-	var emailVerified bool
 	err := database.DB.QueryRow(
 		`SELECT id, email, password_hash, first_name, last_name, role, email_verified, created_at 
          FROM users WHERE email = $1`,
 		req.Email,
-	).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName, &user.Role, &emailVerified, &user.CreatedAt)
+	).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName, &user.Role, &user.EmailVerified, &user.CreatedAt)
 
 	if err != nil {
 		return nil, "", errors.New("email ou mot de passe incorrect")
 	}
+	
 	if !CheckPasswordHash(req.Password, user.PasswordHash) {
 		return nil, "", errors.New("email ou mot de passe incorrect")
 	}
 
-	if !emailVerified {
+	// ✅ Vérification email avant connexion
+	if !user.EmailVerified {
 		return nil, "", errors.New("veuillez vérifier votre email avant de vous connecter")
 	}
 
-	// Utilisation du package auth importé
+	// Génération du token JWT
 	token, err := auth.GenerateToken(uint(user.ID), user.Role)
 	if err != nil {
 		return nil, "", errors.New("authentication failed")
@@ -167,9 +167,9 @@ func LoginUser(req models.LoginRequest) (*models.User, string, error) {
 func GetUserByID(userID int) (*models.User, error) {
 	var user models.User
 	err := database.DB.QueryRow(
-		`SELECT id, email, first_name, last_name, role, created_at FROM users WHERE id = $1`,
+		`SELECT id, email, first_name, last_name, role, email_verified, created_at FROM users WHERE id = $1`,
 		userID,
-	).Scan(&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Role, &user.CreatedAt)
+	).Scan(&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Role, &user.EmailVerified, &user.CreatedAt)
 
 	if err != nil {
 		return nil, errors.New("utilisateur non trouvé")

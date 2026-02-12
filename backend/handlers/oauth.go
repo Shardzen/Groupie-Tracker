@@ -52,25 +52,23 @@ func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-        Name:     "oauth_state",
-        Value:    state,
-        Expires:  time.Now().Add(10 * time.Minute),
-        HttpOnly: true,
-        Secure:   false, 
-        Path:     "/",     
-        SameSite: http.SameSiteLaxMode, 
-    })
+		Name:     "oauth_state",
+		Value:    state,
+		Expires:  time.Now().Add(10 * time.Minute),
+		HttpOnly: true,
+		Secure:   false, 
+		Path:     "/",     
+		SameSite: http.SameSiteLaxMode, 
+	})
 
 	authURL := googleOauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 	http.Redirect(w, r, authURL, http.StatusTemporaryRedirect)
 }
 
 func GoogleCallback(w http.ResponseWriter, r *http.Request) {
-	// --- BYPASS DU STATE POUR LE RENDU ---
-	// On ignore l'erreur de cookie pour éviter le "Mismatch State"
-	fmt.Println("🚀 Callback reçu, passage à l'échange du code...")
+	fmt.Println("🚀 Callback Google reçu...")
 
-	// 2. Échange du Code contre le Token
+	// 1. Échange du Code contre le Token
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		fmt.Println("❌ Pas de code reçu de Google")
@@ -85,7 +83,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 3. Récupération des infos utilisateur chez Google
+	// 2. Récupération des infos utilisateur chez Google
 	client := googleOauthConfig.Client(context.Background(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
@@ -105,7 +103,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. Logique Base de données (AWS RDS)
+	// 3. Parsing du nom
 	firstName := googleUser.Name
 	lastName := ""
 	if parts := strings.SplitN(googleUser.Name, " ", 2); len(parts) > 1 {
@@ -113,31 +111,31 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		lastName = parts[1]
 	}
 
+	// 4. Vérification/Création de l'utilisateur
 	var user models.User
-	// On cherche l'utilisateur dans AWS
 	err = database.DB.QueryRow(
-		"SELECT id, first_name, last_name, email, role, created_at FROM users WHERE email=$1",
+		"SELECT id, first_name, last_name, email, role, email_verified, created_at FROM users WHERE email=$1",
 		googleUser.Email,
-	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.CreatedAt)
+	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.EmailVerified, &user.CreatedAt)
 
 	if err != nil {
-		fmt.Println("🆕 Nouvel utilisateur Google, création dans AWS...")
-		// L'utilisateur n'existe pas, on le crée sur AWS
+		fmt.Println("🆕 Nouvel utilisateur Google, création...")
+		// ✅ L'utilisateur n'existe pas, on le crée avec email_verified = true
 		err = database.DB.QueryRow(`
-			INSERT INTO users (first_name, last_name, email, password_hash, role)
-			VALUES ($1, $2, $3, $4, $5)
-			RETURNING id, first_name, last_name, email, role, created_at
-		`, firstName, lastName, googleUser.Email, "", "user").
-			Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.CreatedAt)
+			INSERT INTO users (first_name, last_name, email, password_hash, role, email_verified)
+			VALUES ($1, $2, $3, $4, $5, $6)
+			RETURNING id, first_name, last_name, email, role, email_verified, created_at
+		`, firstName, lastName, googleUser.Email, "", "user", true).
+			Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.EmailVerified, &user.CreatedAt)
 
 		if err != nil {
-			fmt.Println("❌ Erreur SQL AWS RDS:", err)
+			fmt.Println("❌ Erreur SQL:", err)
 			http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"?error=failed_to_create_user", http.StatusTemporaryRedirect)
 			return
 		}
 	}
 
-	// 5. Génération JWT et Redirection finale vers React
+	// 5. Génération JWT et redirection
 	jwtToken, err := auth.GenerateToken(uint(user.ID), user.Role)
 	if err != nil {
 		http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"?error=failed_to_generate_token", http.StatusTemporaryRedirect)
@@ -148,9 +146,11 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	encodedUser := url.QueryEscape(string(userJSON))
 
 	fURL := os.Getenv("FRONTEND_URL")
-	if fURL == "" { fURL = "http://localhost:5173" }
+	if fURL == "" { 
+		fURL = "http://localhost:5173" 
+	}
 
 	redirectURL := fmt.Sprintf("%s/login?token=%s&user=%s", fURL, jwtToken, encodedUser)
-	fmt.Println("✅ Connexion réussie, redirection vers le Front !")
+	fmt.Println("✅ Connexion Google réussie, redirection vers le front !")
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }

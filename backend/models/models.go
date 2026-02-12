@@ -36,13 +36,14 @@ type Artist struct {
 }
 
 type User struct {
-	ID           int       `json:"id"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
-	Role         string    `json:"role"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID            int       `json:"id"`
+	Email         string    `json:"email"`
+	PasswordHash  string    `json:"-"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
+	Role          string    `json:"role"`
+	EmailVerified bool      `json:"email_verified"` // ✅ Ajouté pour la cohérence
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 type Concert struct {

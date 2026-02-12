@@ -4,18 +4,18 @@ import { jwtDecode } from 'jwt-decode'
 
 interface User {
   id: number
-  name: string          
+  first_name: string    // ✅ Cohérent avec le backend
+  last_name: string     // ✅ Cohérent avec le backend
   email: string
   role: string
   email_verified: boolean
-  is_admin?: boolean    
+  is_admin?: boolean
 }
 
-// Define for jwtDecode result
 interface DecodedToken {
-  user_id: number;
-  role: string;
-  exp: number; 
+  user_id: number
+  role: string
+  exp: number
 }
 
 interface AuthState {
@@ -35,10 +35,12 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: (token, user) => {
+        console.log('✅ Login effectué avec succès:', user);
         set({ token, user, isAuthenticated: true })
       },
 
       logout: () => {
+        console.log('🚪 Déconnexion...');
         set({ token: null, user: null, isAuthenticated: false })
       },
 
@@ -52,18 +54,21 @@ export const useAuthStore = create<AuthState>()(
         try {
           const decoded: DecodedToken = jwtDecode(token)
           const currentTime = Date.now() / 1000
+          
           if (decoded.exp < currentTime) {
+            console.log('⏰ Token expiré, déconnexion...');
             get().logout()
           } else {
             set({ isAuthenticated: true })
           }
         } catch (error) {
+          console.error('❌ Erreur décodage JWT:', error);
           get().logout()
         }
       },
     }),
     {
-      name: 'auth-storage', 
+      name: 'auth-storage',
     }
   )
 )

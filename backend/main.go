@@ -84,21 +84,8 @@ func main() {
 	deezerHandler := handlers.NewDeezerHandler()
 	api.HandleFunc("/deezer/widget", deezerHandler.GetArtistDeezerWidget).Methods("GET")
 
-	auth := api.PathPrefix("/auth").Subrouter()
-	auth.HandleFunc("/register", handlers.Register).Methods("POST")
-	auth.HandleFunc("/login", handlers.Login).Methods("POST")
-	auth.HandleFunc("/google", handlers.GoogleLogin).Methods("GET")
-	auth.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET")
-	auth.HandleFunc("/request-password-reset", handlers.ForgotPassword).Methods("POST")
-	auth.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
-
-	auth.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
-	// --- BLOC AUTHENTIFICATION 
+	// --- ROUTES AUTHENTIFICATION ---
 	authRouter := api.PathPrefix("/auth").Subrouter()
-	
-	// ✅ Routes Google 
-	authRouter.HandleFunc("/google", handlers.GoogleLogin).Methods("GET", "OPTIONS")
-	authRouter.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET", "OPTIONS")
 	
 	// Routes Email/Password
 	authRouter.HandleFunc("/register", handlers.Register).Methods("POST")
@@ -107,6 +94,10 @@ func main() {
 	authRouter.HandleFunc("/reset-password", handlers.ResetPassword).Methods("POST")
 	authRouter.HandleFunc("/send-verification", handlers.ResendVerification).Methods("POST")
 	authRouter.HandleFunc("/verify-email", handlers.VerifyEmail).Methods("GET")
+	
+	// Routes OAuth Google
+	authRouter.HandleFunc("/google", handlers.GoogleLogin).Methods("GET", "OPTIONS")
+	authRouter.HandleFunc("/google/callback", handlers.GoogleCallback).Methods("GET", "OPTIONS")
 
 	// --- ROUTES PROTÉGÉES ---
 	protected := api.PathPrefix("").Subrouter()
@@ -145,7 +136,9 @@ func main() {
 	}
 
 	port := os.Getenv("PORT")
-	if port == "" { port = "8080" }
+	if port == "" { 
+		port = "8080" 
+	}
 
 	log.Printf("🚀 Server running on: http://localhost:%s", port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
