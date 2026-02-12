@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { X, ExternalLink } from 'lucide-react';
+import { api } from '@/lib/api'; // Import api helper
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 export default function Player() {
   const { currentTrack, close } = usePlayerStore();
   const [widgetUrl, setWidgetUrl] = useState<string>('');
@@ -16,17 +16,20 @@ useEffect(() => {
       const artistParam = encodeURIComponent(currentTrack.artist);
       const trackParam = encodeURIComponent(currentTrack.title);
 
-      fetch(`${API_BASE_URL}/api/deezer/widget?artist=${artistParam}&track=${trackParam}`)
-        .then(res => res.json())
-        .then(data => {
+      const fetchDeezerWidget = async () => {
+        try {
+          const data = await api.get<{ has_widget: boolean, widget_url: string, search_url: string }>(
+            `/deezer/widget?artist=${artistParam}&track=${trackParam}`
+          );
           setHasWidget(data.has_widget);
           setWidgetUrl(data.has_widget ? data.widget_url : data.search_url);
-          setLoading(false);
-        })
-        .catch(err => {
+        } catch (err) {
           console.error('Erreur Backend Deezer:', err);
+        } finally {
           setLoading(false);
-        });
+        }
+      };
+      fetchDeezerWidget();
     }
   }, [currentTrack]);
 
