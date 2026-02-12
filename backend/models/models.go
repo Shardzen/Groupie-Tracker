@@ -2,27 +2,47 @@ package models
 
 import "time"
 
+type Track struct {
+	Title      string `json:"title"`
+	Plays      string `json:"plays"`
+	Duration   string `json:"duration"`
+	PreviewURL string `json:"previewUrl,omitempty"`
+}
+
+type ConcertDate struct {
+	ID         string  `json:"id"`
+	Venue      string  `json:"venue"`
+	City       string  `json:"city"`
+	Date       string  `json:"date"`
+	TicketsURL string  `json:"ticketsUrl"`
+	Lat        float64 `json:"lat"`
+	Lng        float64 `json:"lng"`
+}
+
 type Artist struct {
-	ID           int                 `json:"id"`
-	Name         string              `json:"name"`
-	Image        string              `json:"image"`
-	Bio          string              `json:"bio,omitempty"`
-	Members      []string            `json:"members"`
-	CreationDate int                 `json:"creationDate"`
-	FirstAlbum   string              `json:"firstAlbum"`
-	Locations    []string            `json:"locations"`
-	ConcertDates []string            `json:"concertDates"`
-	Relations    map[string][]string `json:"relations"`
+	ID            int                 `json:"id"`
+	Name          string              `json:"name"`
+	Image         string              `json:"image"`
+	Genre         string              `json:"genre,omitempty"`
+	Bio           string              `json:"bio,omitempty"`
+	Members       []string            `json:"members"`
+	CreationDate  int                 `json:"creationDate"`
+	FirstAlbum    string              `json:"firstAlbum"`
+	Locations     []string            `json:"locations"`
+	ConcertDates  []string            `json:"concertDates"`
+	Relations     map[string][]string `json:"relations,omitempty"`
+	TopTracks     []Track             `json:"topTracks,omitempty"`
+	UpcomingDates []ConcertDate       `json:"upcomingDates,omitempty"`
 }
 
 type User struct {
-    ID           int       `json:"id"`
-    Email        string    `json:"email"`
-    PasswordHash string    `json:"-"`
-    FirstName    string    `json:"first_name"` 
-    LastName     string    `json:"last_name"`  
-    Role         string    `json:"role"`
-    CreatedAt    time.Time `json:"created_at"`
+	ID           int       `json:"id"`
+	Email        string    `json:"email"`
+	PasswordHash string    `json:"-"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	Role         string    `json:"role"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type Concert struct {
@@ -46,14 +66,10 @@ type Concert struct {
 }
 
 type Reservation struct {
-	ID        int `json:"id"`
-	UserID    int `json:"user_id"`
-	ConcertID int `json:"concert_id"`
-
-	// --- AJOUT POUR CORRIGER L'ERREUR ---
-	ConcertName string `json:"concert_name,omitempty"`
-	// ------------------------------------
-
+	ID                    int       `json:"id"`
+	UserID                int       `json:"user_id"`
+	ConcertID             int       `json:"concert_id"`
+	ConcertName           string    `json:"concert_name,omitempty"`
 	TicketType            string    `json:"ticket_type"`
 	Quantity              int       `json:"quantity"`
 	Tickets               int       `json:"tickets,omitempty"`
@@ -68,10 +84,10 @@ type Reservation struct {
 }
 
 type RegisterRequest struct {
-    Email     string `json:"email"`
-    Password  string `json:"password"`
-    FirstName string `json:"first_name"` 
-    LastName  string `json:"last_name"`  
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type LoginRequest struct {
