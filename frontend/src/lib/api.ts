@@ -20,23 +20,38 @@ async function apiRequest<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  const { /* token, */ ...fetchOptions } = options // Removed token destructuring
+  const { ...fetchOptions } = options
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(fetchOptions.headers as Record<string, string>),
   }
 
-  const token = useAuthStore.getState().token // Get token from Zustand store
+  const token = useAuthStore.getState().token
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
+  }
+
+  // This logic robustly constructs the URL for all environments.
+  const isDev = import.meta.env.DEV;
+  let url: string;
+
+  if (isDev) {
+    // In development, always use the relative path for the Vite proxy.
+    // This ignores any VITE_API_URL in a local .env file.
+    url = `/api${endpoint}`;
+  } else {
+    // In production, use the VITE_API_URL if it's set, otherwise use the proxy path.
+    // This supports both direct API calls and proxying via vercel.json.
+    const baseUrl = import.meta.env.VITE_API_URL || '';
+    url = baseUrl ? `${baseUrl}/api${endpoint}` : `/api${endpoint}`;
   }
 
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 30000)
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api${endpoint}`, {
+    const response = await fetch(url, {
       ...fetchOptions,
       headers,
       signal: controller.signal,
