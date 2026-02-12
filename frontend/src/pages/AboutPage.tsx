@@ -123,7 +123,7 @@ export default function AboutPage() {
 
         <div className="mt-20 text-center border-t border-white/5 pt-8">
           <p className="text-zinc-600 text-sm flex items-center justify-center gap-2">
-            Fait avec <Heart size={14} className="text-red-500 fill-red-500" /> par l'équipe Ynot Tracker
+            Fait avec <Heart size={14} className="text-red-500 fill-red-500" /> par l'équipe Ynot 
           </p>
         </div>
       </div>
