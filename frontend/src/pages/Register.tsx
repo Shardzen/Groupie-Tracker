@@ -11,6 +11,7 @@ export default function RegisterPage() {
     email: '', 
     password: '' 
   });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function RegisterPage() {
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null); // Clear any previous errors
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -43,7 +45,6 @@ const handleSubmit = async (e: React.FormEvent) => {
       navigate('/email-sent'); 
       
     } catch (error) {
-      // CORRECTION ICI : On vérifie le type de l'erreur proprement
       let message = "Une erreur inconnue est survenue";
       
       if (error instanceof Error) {
@@ -51,7 +52,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
 
       console.error("❌ Erreur API :", message);
-      alert(message);
+      setErrorMessage(message); // Set the error message to state
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +92,12 @@ const handleSubmit = async (e: React.FormEvent) => {
             <h2 className="text-4xl font-black text-white mb-3 font-display">Inscription</h2>
             <p className="text-slate-500 font-sans text-xs uppercase tracking-[0.2em]">Bienvenue</p>
           </div>
+
+          {errorMessage && (
+            <div className="bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl p-3 mb-5 text-center text-sm">
+              {errorMessage}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
