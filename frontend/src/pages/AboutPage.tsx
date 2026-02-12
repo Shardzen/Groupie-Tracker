@@ -79,7 +79,7 @@ export default function AboutPage() {
               <span className="text-violet-400">une communauté.</span>
             </h2>
             <p className="text-zinc-400 text-lg leading-relaxed">
-              Groupie n'est pas seulement une plateforme technologique. C'est le rassemblement de passionnés qui croient que la musique live a le pouvoir de changer des vies.
+              Ynot n'est pas seulement une plateforme technologique. C'est le rassemblement de passionnés qui croient que la musique live a le pouvoir de changer des vies.
             </p>
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -111,14 +111,14 @@ export default function AboutPage() {
                 {/* Membre 1 */}
                 <div className="bg-[#18181b] border border-white/5 p-8 rounded-3xl text-center flex flex-col items-center">
                     <img 
-                        src="https://randomuser.me/api/portraits/men/32.jpg" 
+                        src="" 
                         alt="Membre de l'équipe 1" 
                         className="w-32 h-32 rounded-full object-cover mb-6 border-4 border-violet-500/50"
                     />
                     <h3 className="text-2xl font-bold mb-2">Alexandre Dupont</h3>
                     <p className="text-violet-400 uppercase text-sm font-bold mb-4">CEO & Fondateur</p>
                     <p className="text-zinc-400 leading-relaxed text-sm">
-                        Visionnaire derrière Groupie, Alexandre est un passionné de musique live et de technologie, dédié à connecter les fans et les artistes.
+                        Visionnaire derrière Ynot, Alexandre est un passionné de musique live et de technologie, dédié à connecter les fans et les artistes.
                     </p>
                 </div>
                 {/* Membre 2 */}
@@ -170,7 +170,7 @@ export default function AboutPage() {
 
         <div className="mt-20 text-center border-t border-white/5 pt-8">
           <p className="text-zinc-600 text-sm flex items-center justify-center gap-2">
-            Fait avec <Heart size={14} className="text-red-500 fill-red-500" /> par l'équipe Groupie Tracker
+            Fait avec <Heart size={14} className="text-red-500 fill-red-500" /> par l'équipe Ynot Tracker
           </p>
         </div>
       </div>
